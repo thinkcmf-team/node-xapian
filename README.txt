@@ -83,22 +83,23 @@ Database
     getUuidSync() - return string
         Get a UUID for the database. 
   methods different from the C++ API:
-    postlist_begin
-    postlist_end
-    termlist_begin
-    termlist_end
-    positionlist_begin
-    positionlist_end
-    allterms_begin x2
-    allterms_end x2
-    valuestream_begin
-    valuestream_end
-    spellings_begin
-    spellings_end
-    synonyms_begin
-    synonyms_end
-    synonym_keys_begin
-    synonym_keys_end
-    metadata_keys_begin
-    metadata_keys_end
-    
+    postlistSync(strTname) - return an array of { docid: int, doclength: int, wdf: int, description: str } (PostingIterator)
+        An array of the postlists for a given term.
+    termlistSync(iDid) - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of the  terms for a given document. 
+    positionlistSync(iDid, strTname) - return an array of { description: str } (PositionIterator)
+        An array of the positions for a given term in a given document.
+    alltermsSync() - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all the terms in the database. 
+    alltermsSync(strPrefix) - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all the terms with a given prefix in the database. 
+    valuestreamSync(iSlot) - return an array of { value: str, docid: int, valueno: int, description: str } (ValueIterator)
+        An array of the values in slot slot for each document. 
+    spellingsSync() - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all the spelling correction targets. 
+    synonymsSync() - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all the synonyms for a given term. 
+    synonymKeysSync(strPrefix='') - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all terms which have synonyms. 
+    metadataKeysSync(strPrefix='') - return an array of { tname: str, wdf: int, termfreq: int, description: str } (TermIterator)
+        An array of all user-specified metadata keys. 
