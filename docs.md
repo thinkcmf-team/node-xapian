@@ -210,4 +210,31 @@ RSet
 
 Query
   TODO
+        A query structure can be defined as:
+            A query consisting of a single term.
+            {
+                tname: string,
+                wqf: uint32, //default 1
+                pos: uint32 //default 0
+            }
+            A query consisting of two or more subqueries, opp-ed together.
+            AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries. 
+            Other operators take only the first two subqueries.
+            {
+                op: string,
+                queries: [ object_querystructure1, ...]
+            }
+            A value range query on a document value.
+            {
+                op: string,
+                slot: uint32,
+                begin: string,
+                end: string
+            }
+            A value comparison query on a document value.
+            {
+                op: string,
+                slot: uint32,
+                value: string,
+            }
 ```
