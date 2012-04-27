@@ -195,7 +195,7 @@ Enquire
     get_description_sync() - return string
         Return a string describing this object.     
   methods different from the C++ API:
-    get_eset (uint32_maxitems, object_omrset, int32_flags=0, number_k=1.0) - return an array of { term: string, weight: number, description: string } (ESet)
+    get_eset_sync (uint32_maxitems, object_omrset, int32_flags=0, number_k=1.0) - return an array of { term: string, weight: number, description: string } (ESet)
         Get the expand set for the given rset. 
         flags: TODO
     get_matching_terms_sync (uint32_did) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
