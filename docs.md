@@ -224,6 +224,12 @@ Query
                 op: string,
                 queries: [ object_querystructure1, ...]
             }
+            Apply the specified operator to a single QueryStructure object, with a double parameter. 
+            {
+              op: string,
+              query: object_querystructure,
+              parameter: number
+            }
             A value range query on a document value.
             {
                 op: string,
