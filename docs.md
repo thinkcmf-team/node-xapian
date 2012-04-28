@@ -224,6 +224,12 @@ Query
                 op: string,
                 queries: [ object_querystructure1, ...]
             }
+            A query consisting of two termnames opp-ed together. 
+            {
+              op: string,
+              left: string,
+              right: string
+            }
             Apply the specified operator to a single QueryStructure object, with a double parameter. 
             {
               op: string,
