@@ -1,9 +1,5 @@
-```
-Compactor
-  TODO
-
-  
 Database
+```
   methods similar to the C++ API
     Database()
         Create a Database with no databases in. 
@@ -77,8 +73,9 @@ Database
     metadata_keys_sync(string_prefix='') - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all user-specified metadata keys. 
 
-
+```
 WritableDatabase - all the methods from Database plus the following
+```
   methods similar to the C++ API
     WritableDatabase()
         Create an empty WritableDatabase.
@@ -120,9 +117,9 @@ WritableDatabase - all the methods from Database plus the following
         Set the user-specified metadata associated with a given key. 
     get_description_sync() - return string
         Return a string describing this object.
-
-
+```
 Document
+```
   methods similar to the C++ API
     Document()
         Make a new empty Document. 
@@ -167,9 +164,9 @@ Document
         An array of the terms in this document. 
     values_sync() - return an array of { value: string, docid: uint32, valueno: uint32, description: string } (ValueIterator)
         An array of the values in this document. 
-
-
+```
 Enquire
+```
   methods similar to the C++ API
     Enquire (object_database)
         Create a Xapian::Enquire object. 
@@ -201,16 +198,16 @@ Enquire
     get_matching_terms_sync (uint32_did) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         Get terms which match a given document, by document id. 
     get_mset_sync(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
-        Get (a portion of) the match set for the current query. 
-
-
-RSet
-  TODO
-
-
+        Get (a portion of) the match set for the current query.
+```
 Query
-  TODO
-        A query structure can be defined as:
+```
+  methods similar to the C++ API
+    Query ()
+        Default constructor: makes an empty query which matches no documents. 
+    Query( object_query_structure )
+        A query defined by a query structure.
+          A query structure can be defined as:
             A query consisting of a single term.
             {
                 tname: string,
@@ -249,4 +246,86 @@ Query
                 slot: uint32,
                 value: string,
             }
+    get_length_sync() - return uint32
+        Get the length of the query, used by some ranking formulae. 
+    get_terms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+        An array of all the terms in the query, in order of termpos. 
+    empty_sync() - return bool
+        Test if the query is empty (i.e. 
+    serialise_sync() - return string
+        Serialise query into a string. 
+    get_description_sync() - return string
+        Return a string describing this object. 
+    unserialise_sync(string) - return object_query
+        Unserialise a query from a string produced by serialise(). 
+    MatchAll() - return object_query
+        A query which matches all documents in the database. 
+    MatchNothing() - return object_query
+        A query which matches no documents.
 ```
+RSet
+```
+  methods similar to the C++ API
+    RSet()
+        Default constructor. 
+    size_sync() - return uint32
+        The number of documents in this R-Set. 
+    empty_sync() - return bool
+        Test if this R-Set is empty. 
+    add_document_sync(uint32_did)
+        Add a document to the relevance set. 
+    remove_document_sync(uint32_did)
+        Remove a document from the relevance set. 
+    contains_sync(uint32_did) - return bool
+        Test if a given document in the relevance set. 
+    get_description_sync() - return string
+        Return a string describing this object.
+```
+Stem
+```
+  methods similar to the C++ API
+    Stem()
+        Construct a Xapian::Stem object which doesn't change terms. 
+    Stem(string_language)
+        Construct a Xapian::Stem object for a particular language. 
+    stem_word_sync(string_word) - return string
+        Stem a word. 
+    get_description_sync() - return string
+        Return a string describing this object. 
+    get_available_languages() - return string
+        Return a list of available languages.
+```
+TermGenerator
+```
+  methods similar to the C++ API
+    TermGenerator()
+        Default constructor. 
+    set_stemmer_sync(object_stemmer)
+        Set the Xapian::Stem object to be used for generating stemmed terms. 
+    set_document_sync(object_document)
+        Set the current document. 
+    get_document_sync() - return object_document
+        Get the current document. 
+    set_database_sync(object_writableDatabase)
+        Set the database to index spelling data to. 
+    set_flags_sync(int32_flags)
+        Set flags. 
+    index_text_sync(string_text, uint32_wdf_inc=1, string_prefix="")
+        Index some text in a std::string. 
+    index_text_without_positions_sync(string_text, uint32_wdf_inc=1, string_prefix="")
+        Index some text in a std::string without positional information. 
+    increase_termpos_sync(uint32_delta=100)
+        Increase the term position used by index_text. 
+    get_termpos_sync() - return uint32
+        Get the current term position. 
+    set_termpos_sync(uint32_termpos)
+        Set the current term position. 
+    get_description_sync() - return string
+        Return a string describing this object.
+```
+
+
+
+
+
+
