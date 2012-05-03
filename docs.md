@@ -174,21 +174,27 @@ Enquire
         Set the query to run. 
     get_query_sync() - return object_query
         Get the query which has been set. 
-    set_collapse_key_sync(uint32_collapse_key, uint32_collapse_max=1)
-        Set the collapse key to use for queries. 
-    set_docid_order_sync(uint32_order)
-        Set the direction in which documents are ordered by document id in the returned MSet. 
-        uint32_order can be ASCENDING, DESCENDING ot DONT_CARE
-    set_cutoff_sync(int32_percent_cutoff, number_weight_cutoff=0)
-        Set the percentage and/or weight cutoffs. 
-    set_sort_by_relevance_sync()
-        Set the sorting to be by relevance only. 
-    set_sort_by_value_sync(uint32_sort_key, bool_reverse)
-        Set the sorting to be by value only. 
-    set_sort_by_value_then_relevance_sync(uint32_sort_key, bool_reverse)
-        Set the sorting to be by value, then by relevance for documents with the same value. 
-    set_sort_by_relevance_then_value_sync(uint32_sort_key, bool_reverse)
-        Set the sorting to be by relevance then value. 
+    set_parameters_sync( object_parameters)
+        Set the parameters to be used for queries.
+        The object parameter can have one or more of the following:
+          {
+            collapse_key: { key: uint32, max: uint32=1},
+          	docid_order: uint32,
+          	cutoff: { percent: int32, weight: number=0 },
+          	sort: [ sort_by_info_1, ... ]
+          }
+        The sort_by_info object can be:
+        	RELEVANCE - sorting by relevance
+        	{ key: string, reverse: bool } - sorting by value (with reverse)
+        	string_value_key - sorting by value
+        The valid sort arrays currently are:
+        	[ RELEVANCE ] - sort_by_relevance
+        	[ { key: string_value_key, reverse: bool } ] - sort_by_value
+        	[ string_value_key ] - sort_by_value
+        	[ { key: string_value_key, reverse: bool }, RELEVANCE ] - sort_by_value_then_relevance
+        	[ string_value_key, RELEVANCE ] - sort_by_value_then_relevance
+        	[ RELEVANCE, { key: string_value_key, reverse: bool } ] - sort_by_relevance_then_value
+        	[ RELEVANCE, string_value_key ] - sort_by_relevance_then_value  
     get_description_sync() - return string
         Return a string describing this object.     
   methods different from the C++ API:
