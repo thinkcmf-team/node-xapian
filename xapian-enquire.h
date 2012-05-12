@@ -38,9 +38,9 @@ protected:
 
   static Handle<Value> SetQuery(const Arguments& args);
 
-  struct Mset_data {
-    Mset_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), set(NULL) {}
-    ~Mset_data() { if (set) delete [] set; }
+  struct GetMset_data {
+    GetMset_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), set(NULL) {}
+    ~GetMset_data() { if (set) delete [] set; }
     Xapian::doccount first, maxitems;
     struct Mset_item {
       Xapian::docid id;
@@ -53,16 +53,12 @@ protected:
     Mset_item* set;
     int size;
   };
-
   static Handle<Value> GetMset(const Arguments& args);
   static Handle<Value> GetMsetSync(const Arguments& args);
-  static Xapian::Error* GetMset_process(Mset_data *data, Enquire *pThis);
-  static Handle<Value> GetMset_convert(Mset_data *data);
+  static Xapian::Error* GetMset_process(GetMset_data *data, Enquire *pThis);
+  static Handle<Value> GetMset_convert(GetMset_data *data);
+  DECLARE_POOLS(GetMset,Enquire)
 
-
-  //TODO: replace with a macro
-  static int GetMset_pool(eio_req *req);
-  static int GetMset_done(eio_req *req);
 };
 
 #endif //_XAPIAN_ENQUIRE_H_

@@ -46,13 +46,40 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 }
 
 
+Handle<Value> Enquire::GetMset(const Arguments& args) {
+  HandleScope scope;
+  if (args.Length() < 3 || !args[0]->IsUint32() || !args[1]->IsUint32() || !args[2]->IsFunction())
+    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function)")));
+  GetMset_data *aData=NULL;
+  try {
+    aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+  } catch (Local<Value> ex) {
+    if (aData) delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(GetMset_do_async(args,aData));
+}
 
-Xapian::Error* Enquire::GetMset_process(Mset_data *aData, Enquire *pThis)
+Handle<Value> Enquire::GetMsetSync(const Arguments& args) {
+  HandleScope scope;
+  if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsUint32())
+    return ThrowException(Exception::TypeError(String::New("arguments are (number, number)")));
+  GetMset_data *aData=NULL;
+  try {
+    aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+  } catch (Local<Value> ex) {
+    if (aData) delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(GetMset_do_sync(args,aData));
+ 
+}
+
+Xapian::Error* Enquire::GetMset_process(GetMset_data *aData, Enquire *pThis)
 {
-
   try {
   Xapian::MSet aSet = pThis->mEnq.get_mset(aData->first, aData->maxitems);
-  aData->set = new Mset_data::Mset_item[aSet.size()];
+  aData->set = new GetMset_data::Mset_item[aSet.size()];
   aData->size = 0;
   for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++aData->size) {
     aData->set[aData->size].id = *a;
@@ -70,20 +97,15 @@ Xapian::Error* Enquire::GetMset_process(Mset_data *aData, Enquire *pThis)
   return NULL;
 }
 
-Handle<Value> Enquire::GetMset_convert(Mset_data *aData)
+Handle<Value> Enquire::GetMset_convert(GetMset_data *aData)
 {
   HandleScope scope;
-
   Local<Array> aList(Array::New(aData->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
   for (int a = 0; a < aData->size; ++a) {
     Local<Object> aO(Object::New());
-
-
     Local<Value> aDoc[] = { External::New(aData->set[a].document) };
     aO->Set(String::NewSymbol("document"      ), aCtor->NewInstance(1, aDoc));
-//    Local<Object> docObj=aCtor->NewInstance(); -> it crashes even if i only call this and delete the previous 2 lines ( on sync)
-
     aO->Set(String::NewSymbol("id"            ), Uint32::New(aData->set[a].id                  ));
     aO->Set(String::NewSymbol("rank"          ), Uint32::New(aData->set[a].rank                ));
     aO->Set(String::NewSymbol("collapse_count"), Uint32::New(aData->set[a].collapse_count      ));
@@ -93,95 +115,5 @@ Handle<Value> Enquire::GetMset_convert(Mset_data *aData)
     aO->Set(String::NewSymbol("percent"       ),  Int32::New(aData->set[a].percent             ));
     aList->Set(a, aO);
   }
-
   return scope.Close(aList);
-
-}
-
-
-//TODO: create templates to shrink even more
-Handle<Value> Enquire::GetMset(const Arguments& args) {
-  HandleScope scope;
-
-  if (args.Length() < 3 || !args[0]->IsUint32() || !args[1]->IsUint32() || !args[2]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function)")));
-
-  OpInfo *aInfo;
-  try {
-    Mset_data *aData;
-    AsyncOp<Enquire> *aAsOp;
-    aData = new Mset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
-    aAsOp = new AsyncOp<Enquire>(args.This(), Local<Function>::Cast(args[2]));
-    aInfo=new OpInfo(aData,aAsOp);
-  } catch (Local<Value> ex) {
-    return ThrowException(ex);
-  }
-  sendToThreadPool((void*)GetMset_pool, (void*)GetMset_done, aInfo);
-
-  return Undefined();
-}
-
-
-//TODO: create templates to shrink even more
-Handle<Value> Enquire::GetMsetSync(const Arguments& args) {
-  HandleScope scope;
-  //TODO: verify if busy
-
-  if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number)")));
-  Mset_data *aData=NULL;
-  Xapian::Error* error=NULL;
-  try {
-    Enquire *pThis=ObjectWrap::Unwrap<Enquire>(args.This());
-    aData = new Mset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
-    error = GetMset_process(aData,pThis);
-  } catch (Local<Value> ex) {
-    return ThrowException(ex);
-  }
-  if (aData) delete aData;
-  if (error!=NULL)
-  {
-    std::string errorStr=error->get_msg();
-    delete error;
-    return ThrowException(Exception::Error(String::New(errorStr.c_str())));
-  }
-  Handle<Value> result=GetMset_convert(aData);
-  return scope.Close(result);
-}
-
-
-
-
-//These two can be generated with a simple macro for any async operation
-int Enquire::GetMset_pool(eio_req *req) {
-  OpInfo* aInfo = (OpInfo*) req->data;
-  Mset_data *aData = (Mset_data*)aInfo->data;
-  AsyncOp<Enquire> *aAsOp = (AsyncOp<Enquire>*)aInfo->op;
-
-  aAsOp->error=GetMset_process(aData, aAsOp->object);
-  aAsOp->poolDone();
-  return 0;
-}
-int Enquire::GetMset_done(eio_req *req) {
-  HandleScope scope;
-
-  OpInfo* aInfo = (OpInfo*) req->data;
-  Mset_data *aData = (Mset_data*)aInfo->data;
-  AsyncOp<Enquire> *aAsOp = (AsyncOp<Enquire>*)aInfo->op;
-
-  Handle<Value> argv[2];
-  if (aAsOp->error) {
-    argv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));
-  } else {
-    argv[0] = Null();
-    argv[1] = GetMset_convert(aData);
-  }
-
-  tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, argv);
-
-  delete aData;
-  delete aAsOp;
-  delete aInfo;
-
-  return 0;
 }
