@@ -1,7 +1,8 @@
 
-#include "xapian-enquire.h"
-#include "xapian-database.h"
-#include "xapian-op.h"
+#include "op.h"
+#include "enquire.h"
+#include "database.h"
+
 
 Persistent<FunctionTemplate> Enquire::constructor_template;
 

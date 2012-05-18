@@ -1,5 +1,5 @@
-#ifndef _XAPIAN_OP_
-#define _XAPIAN_OP_
+#ifndef _XAPIAN_OP_H_
+#define _XAPIAN_OP_H_
 
 #include <xapian.h>
 #include "mime2text.h"

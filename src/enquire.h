@@ -9,7 +9,7 @@
 #include <node_events.h>
 #include <node_buffer.h>
 
-#include "xapian-op.h"
+#include "op.h"
 
 using namespace v8;
 using namespace node;

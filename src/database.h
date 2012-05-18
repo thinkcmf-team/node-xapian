@@ -1,5 +1,5 @@
-#ifndef _XAPIAN_DATABASE_
-#define _XAPIAN_DATABASE_
+#ifndef _XAPIAN_DATABASE_H_
+#define _XAPIAN_DATABASE_H_
 
 #include <xapian.h>
 #include "mime2text.h"
