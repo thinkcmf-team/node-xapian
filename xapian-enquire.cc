@@ -14,7 +14,7 @@ void Enquire::Init(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_query", SetQuery);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset", GetMset);
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset_sync", GetMsetSync);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset_sync", GetMset);
 
   target->Set(String::NewSymbol("Enquire"), constructor_template->GetFunction());
 }
@@ -48,8 +48,13 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
-  if (args.Length() < 3 || !args[0]->IsUint32() || !args[1]->IsUint32() || !args[2]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function)")));
+  bool isSync;
+  if (args.Length() == 3 && args[0]->IsUint32() && args[1]->IsUint32() && args[2]->IsFunction())
+    isSync=false;
+  else if (args.Length() == 2 && args[0]->IsUint32() && args[1]->IsUint32())
+    isSync=true;
+  else
+    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
   GetMset_data *aData=NULL;
   try {
     aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
@@ -57,23 +62,9 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
     if (aData) delete aData;
     return ThrowException(ex);
   }
-  return scope.Close(GetMset_do_async(args,aData));
+  return (isSync)?scope.Close(GetMset_do_sync(args,aData)):scope.Close(GetMset_do_async(args,aData));
 }
 
-Handle<Value> Enquire::GetMsetSync(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number)")));
-  GetMset_data *aData=NULL;
-  try {
-    aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
-  } catch (Local<Value> ex) {
-    if (aData) delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(GetMset_do_sync(args,aData));
- 
-}
 
 Xapian::Error* Enquire::GetMset_process(GetMset_data *aData, Enquire *pThis)
 {

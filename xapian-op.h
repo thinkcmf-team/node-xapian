@@ -110,13 +110,12 @@ static Handle<Value> func##_do_async(const Arguments& args,func##_data *&aData)\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
     aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]));\
-    aInfo=new OpInfo(aData,aAsOp);\
   } catch (Local<Value> ex) {\
     if (aData) delete aData;\
     if (aAsOp) delete aAsOp;\
-    if (aInfo) delete aInfo;\
     return ThrowException(ex);\
   }\
+  aInfo=new OpInfo(aData,aAsOp);\
   sendToThreadPool((void*)func##_pool, (void*)func##_done, aInfo);\
   return Undefined();\
 }\
