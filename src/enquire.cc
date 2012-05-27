@@ -49,11 +49,11 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
-  bool isSync;
+  bool aIsSync;
   if (args.Length() == 3 && args[0]->IsUint32() && args[1]->IsUint32() && args[2]->IsFunction())
-    isSync=false;
+    aIsSync=false;
   else if (args.Length() == 2 && args[0]->IsUint32() && args[1]->IsUint32())
-    isSync=true;
+    aIsSync=true;
   else
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
   GetMset_data *aData=NULL;
@@ -63,25 +63,25 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
     if (aData) delete aData;
     return ThrowException(ex);
   }
-  return (isSync)?scope.Close(GetMset_do_sync(args,aData)):scope.Close(GetMset_do_async(args,aData));
+  return (aIsSync)?scope.Close(GetMset_do_sync(args,aData)):scope.Close(GetMset_do_async(args,aData));
 }
 
 
-Xapian::Error* Enquire::GetMset_process(GetMset_data *aData, Enquire *pThis)
+Xapian::Error* Enquire::GetMset_process(GetMset_data *data, Enquire *that)
 {
   try {
-  Xapian::MSet aSet = pThis->mEnq.get_mset(aData->first, aData->maxitems);
-  aData->set = new GetMset_data::Mset_item[aSet.size()];
-  aData->size = 0;
-  for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++aData->size) {
-    aData->set[aData->size].id = *a;
-    aData->set[aData->size].document = new Xapian::Document(a.get_document());
-    aData->set[aData->size].rank = a.get_rank();
-    aData->set[aData->size].collapse_count = a.get_collapse_count();
-    aData->set[aData->size].weight = a.get_weight();
-    aData->set[aData->size].collapse_key = a.get_collapse_key();
-    aData->set[aData->size].description = a.get_description();
-    aData->set[aData->size].percent = a.get_percent();
+  Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
+  data->set = new GetMset_data::Mset_item[aSet.size()];
+  data->size = 0;
+  for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {
+    data->set[data->size].id = *a;
+    data->set[data->size].document = new Xapian::Document(a.get_document());
+    data->set[data->size].rank = a.get_rank();
+    data->set[data->size].collapse_count = a.get_collapse_count();
+    data->set[data->size].weight = a.get_weight();
+    data->set[data->size].collapse_key = a.get_collapse_key();
+    data->set[data->size].description = a.get_description();
+    data->set[data->size].percent = a.get_percent();
   }
   } catch (const Xapian::Error& err) {
     return new Xapian::Error(err);
@@ -89,22 +89,22 @@ Xapian::Error* Enquire::GetMset_process(GetMset_data *aData, Enquire *pThis)
   return NULL;
 }
 
-Handle<Value> Enquire::GetMset_convert(GetMset_data *aData)
+Handle<Value> Enquire::GetMset_convert(GetMset_data *data)
 {
   HandleScope scope;
-  Local<Array> aList(Array::New(aData->size));
+  Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
-  for (int a = 0; a < aData->size; ++a) {
+  for (int a = 0; a < data->size; ++a) {
     Local<Object> aO(Object::New());
-    Local<Value> aDoc[] = { External::New(aData->set[a].document) };
+    Local<Value> aDoc[] = { External::New(data->set[a].document) };
     aO->Set(String::NewSymbol("document"      ), aCtor->NewInstance(1, aDoc));
-    aO->Set(String::NewSymbol("id"            ), Uint32::New(aData->set[a].id                  ));
-    aO->Set(String::NewSymbol("rank"          ), Uint32::New(aData->set[a].rank                ));
-    aO->Set(String::NewSymbol("collapse_count"), Uint32::New(aData->set[a].collapse_count      ));
-    aO->Set(String::NewSymbol("weight"        ), Number::New(aData->set[a].weight              ));
-    aO->Set(String::NewSymbol("collapse_key"  ), String::New(aData->set[a].collapse_key.c_str()));
-    aO->Set(String::NewSymbol("description"   ), String::New(aData->set[a].description.c_str() ));
-    aO->Set(String::NewSymbol("percent"       ),  Int32::New(aData->set[a].percent             ));
+    aO->Set(String::NewSymbol("id"            ), Uint32::New(data->set[a].id                  ));
+    aO->Set(String::NewSymbol("rank"          ), Uint32::New(data->set[a].rank                ));
+    aO->Set(String::NewSymbol("collapse_count"), Uint32::New(data->set[a].collapse_count      ));
+    aO->Set(String::NewSymbol("weight"        ), Number::New(data->set[a].weight              ));
+    aO->Set(String::NewSymbol("collapse_key"  ), String::New(data->set[a].collapse_key.c_str()));
+    aO->Set(String::NewSymbol("description"   ), String::New(data->set[a].description.c_str() ));
+    aO->Set(String::NewSymbol("percent"       ),  Int32::New(data->set[a].percent             ));
     aList->Set(a, aO);
   }
   return scope.Close(aList);

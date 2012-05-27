@@ -54,7 +54,7 @@ protected:
     int size;
   };
   static Handle<Value> GetMset(const Arguments& args);
-  static Xapian::Error* GetMset_process(GetMset_data *data, Enquire *pThis);
+  static Xapian::Error* GetMset_process(GetMset_data *data, Enquire *that);
   static Handle<Value> GetMset_convert(GetMset_data *data);
   DECLARE_POOLS(GetMset,Enquire)
 

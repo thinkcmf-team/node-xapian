@@ -85,20 +85,20 @@ static int func##_done(eio_req *req) {\
   OpInfo* aInfo = (OpInfo*) req->data;\
   func##_data *aData = (func##_data*)aInfo->data;\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)aInfo->op;\
-  Handle<Value> argv[2];\
+  Handle<Value> aArgv[2];\
   if (aAsOp->error) {\
-    argv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));\
+    aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));\
   } else {\
-    argv[0] = Null();\
-    argv[1] = func##_convert(aData);\
+    aArgv[0] = Null();\
+    aArgv[1] = func##_convert(aData);\
   }\
-  tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, argv);\
+  tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);\
   delete aData;\
   delete aAsOp;\
   delete aInfo;\
   return 0;\
 }\
-static Handle<Value> func##_do_async(const Arguments& args,func##_data *&aData)\
+static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data)\
 {\
   HandleScope scope;\
   OpInfo *aInfo=NULL;\
@@ -106,44 +106,44 @@ static Handle<Value> func##_do_async(const Arguments& args,func##_data *&aData)\
   try {\
     if (ObjectWrap::Unwrap<classn>(args.This())->mBusy)\
     {\
-      if (aData) delete aData;\
+      if (data) delete data;\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
     aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]));\
   } catch (Local<Value> ex) {\
-    if (aData) delete aData;\
+    if (data) delete data;\
     if (aAsOp) delete aAsOp;\
     return ThrowException(ex);\
   }\
-  aInfo=new OpInfo(aData,aAsOp);\
+  aInfo=new OpInfo(data,aAsOp);\
   sendToThreadPool((void*)func##_pool, (void*)func##_done, aInfo);\
   return Undefined();\
 }\
-static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&aData)\
+static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data)\
 {\
   HandleScope scope;\
-  Xapian::Error* error=NULL;\
+  Xapian::Error* aError=NULL;\
   try {\
-    classn *pThis=ObjectWrap::Unwrap<classn>(args.This());\
-    if (pThis->mBusy)\
+    classn *that=ObjectWrap::Unwrap<classn>(args.This());\
+    if (that->mBusy)\
     {\
-      if (aData) delete aData;\
+      if (data) delete data;\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
-    error = func##_process(aData,pThis);\
+    aError = func##_process(data,that);\
   } catch (Local<Value> ex) {\
-    if (aData) delete aData;\
+    if (data) delete data;\
     return ThrowException(ex);\
   }\
-  if (error!=NULL)\
+  if (aError!=NULL)\
   {\
-    std::string errorStr=error->get_msg();\
-    if (aData) delete aData;\
-    delete error;\
-    return ThrowException(Exception::Error(String::New(errorStr.c_str())));\
+    std::string aErrorStr=aError->get_msg();\
+    if (data) delete data;\
+    delete aError;\
+    return ThrowException(Exception::Error(String::New(aErrorStr.c_str())));\
   }\
-  Handle<Value> result=func##_convert(aData);\
-  if (aData) delete aData;\
+  Handle<Value> result=func##_convert(data);\
+  if (data) delete data;\
   return scope.Close(result);\
 }
 
