@@ -51,8 +51,15 @@ struct AsyncOpBase {
 
 template <class T>
 struct AsyncOp : public AsyncOpBase {
-  AsyncOp(Handle<Object> ob, Handle<Function> cb)
+  AsyncOp(Handle<Object> ob, Handle<Function> cb) //temporary untill all the methods using AsyncOp are refactored
     : AsyncOpBase(cb), object(ObjectWrap::Unwrap<T>(ob)) {
+    if (object->mBusy)
+      throw Exception::Error(kBusyMsg);
+    object->mBusy = true;
+    object->Ref();
+  }
+  AsyncOp(Handle<Object> ob, Handle<Function> cb, void* dt)
+    : AsyncOpBase(cb), object(ObjectWrap::Unwrap<T>(ob)), data(dt) {
     if (object->mBusy)
       throw Exception::Error(kBusyMsg);
     object->mBusy = true;
@@ -61,30 +68,20 @@ struct AsyncOp : public AsyncOpBase {
   virtual ~AsyncOp() { object->Unref(); }
   void poolDone() { object->mBusy = false; }
   T* object;
-};
-
-struct OpInfo {
-  OpInfo(void* data): data(data), op(NULL){}
-  OpInfo(void* data, void *asop): data(data), op(asop) {}
   void* data;
-  void* op;
 };
-
 
 #define DECLARE_POOLS(func,classn) \
 static int func##_pool(eio_req *req) {\
-  OpInfo* aInfo = (OpInfo*) req->data;\
-  func##_data *aData = (func##_data*)aInfo->data;\
-  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)aInfo->op;\
-  aAsOp->error=func##_process(aData, aAsOp->object);\
+  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
+  aAsOp->error=func##_process((func##_data*)aAsOp->data, aAsOp->object);\
   aAsOp->poolDone();\
   return 0;\
 }\
 static int func##_done(eio_req *req) {\
   HandleScope scope;\
-  OpInfo* aInfo = (OpInfo*) req->data;\
-  func##_data *aData = (func##_data*)aInfo->data;\
-  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)aInfo->op;\
+  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
+  func##_data *aData = (func##_data*)aAsOp->data;\
   Handle<Value> aArgv[2];\
   if (aAsOp->error) {\
     aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));\
@@ -95,25 +92,22 @@ static int func##_done(eio_req *req) {\
   tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);\
   delete aData;\
   delete aAsOp;\
-  delete aInfo;\
   return 0;\
 }\
 static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data) {\
-  OpInfo *aInfo=NULL;\
   AsyncOp<classn> *aAsOp=NULL;\
   try {\
     if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
       if (data) delete data;\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
-    aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]));\
+    aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]),data);\
   } catch (Local<Value> ex) {\
     if (data) delete data;\
     if (aAsOp) delete aAsOp;\
     return ThrowException(ex);\
   }\
-  aInfo=new OpInfo(data,aAsOp);\
-  sendToThreadPool((void*)func##_pool, (void*)func##_done, aInfo);\
+  sendToThreadPool((void*)func##_pool, (void*)func##_done, aAsOp);\
   return Undefined();\
 }\
 static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data) {\
