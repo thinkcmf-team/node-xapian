@@ -67,31 +67,28 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 }
 
 
-Xapian::Error* Enquire::GetMset_process(GetMset_data *data, Enquire *that)
-{
+Xapian::Error* Enquire::GetMset_process(GetMset_data *data, Enquire *that) {
   try {
-  Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
-  data->set = new GetMset_data::Mset_item[aSet.size()];
-  data->size = 0;
-  for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {
-    data->set[data->size].id = *a;
-    data->set[data->size].document = new Xapian::Document(a.get_document());
-    data->set[data->size].rank = a.get_rank();
-    data->set[data->size].collapse_count = a.get_collapse_count();
-    data->set[data->size].weight = a.get_weight();
-    data->set[data->size].collapse_key = a.get_collapse_key();
-    data->set[data->size].description = a.get_description();
-    data->set[data->size].percent = a.get_percent();
-  }
+    Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
+    data->set = new GetMset_data::Mset_item[aSet.size()];
+    data->size = 0;
+    for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {
+      data->set[data->size].id = *a;
+      data->set[data->size].document = new Xapian::Document(a.get_document());
+      data->set[data->size].rank = a.get_rank();
+      data->set[data->size].collapse_count = a.get_collapse_count();
+      data->set[data->size].weight = a.get_weight();
+      data->set[data->size].collapse_key = a.get_collapse_key();
+      data->set[data->size].description = a.get_description();
+      data->set[data->size].percent = a.get_percent();
+    }
   } catch (const Xapian::Error& err) {
     return new Xapian::Error(err);
   }
   return NULL;
 }
 
-Handle<Value> Enquire::GetMset_convert(GetMset_data *data)
-{
-  HandleScope scope;
+Handle<Value> Enquire::GetMset_convert(GetMset_data *data) {
   Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
   for (int a = 0; a < data->size; ++a) {
@@ -107,5 +104,5 @@ Handle<Value> Enquire::GetMset_convert(GetMset_data *data)
     aO->Set(String::NewSymbol("percent"       ),  Int32::New(data->set[a].percent             ));
     aList->Set(a, aO);
   }
-  return scope.Close(aList);
+  return aList;
 }

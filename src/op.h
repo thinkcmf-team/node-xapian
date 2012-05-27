@@ -98,14 +98,11 @@ static int func##_done(eio_req *req) {\
   delete aInfo;\
   return 0;\
 }\
-static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data)\
-{\
-  HandleScope scope;\
+static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data) {\
   OpInfo *aInfo=NULL;\
   AsyncOp<classn> *aAsOp=NULL;\
   try {\
-    if (ObjectWrap::Unwrap<classn>(args.This())->mBusy)\
-    {\
+    if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
       if (data) delete data;\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
@@ -119,14 +116,11 @@ static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data)\
   sendToThreadPool((void*)func##_pool, (void*)func##_done, aInfo);\
   return Undefined();\
 }\
-static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data)\
-{\
-  HandleScope scope;\
+static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data) {\
   Xapian::Error* aError=NULL;\
   try {\
     classn *that=ObjectWrap::Unwrap<classn>(args.This());\
-    if (that->mBusy)\
-    {\
+    if (that->mBusy) {\
       if (data) delete data;\
       return ThrowException(Exception::Error(kBusyMsg));\
     }\
@@ -135,16 +129,15 @@ static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data)\
     if (data) delete data;\
     return ThrowException(ex);\
   }\
-  if (aError!=NULL)\
-  {\
+  if (aError!=NULL) {\
     std::string aErrorStr=aError->get_msg();\
     if (data) delete data;\
     delete aError;\
     return ThrowException(Exception::Error(String::New(aErrorStr.c_str())));\
   }\
-  Handle<Value> result=func##_convert(data);\
+  Handle<Value> aResult=func##_convert(data);\
   if (data) delete data;\
-  return scope.Close(result);\
+  return aResult;\
 }
 
 
