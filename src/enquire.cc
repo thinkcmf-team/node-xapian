@@ -57,13 +57,17 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
   else
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
   GetMset_data *aData=NULL;
+
+  aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+
+  Handle<Value> aResult;
   try {
-    aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+    aResult = aIsSync ? GetMset_do_sync(args,aData) : GetMset_do_async(args,aData);
   } catch (Local<Value> ex) {
-    if (aData) delete aData;
+    delete aData;
     return ThrowException(ex);
   }
-  return (aIsSync)?scope.Close(GetMset_do_sync(args,aData)):scope.Close(GetMset_do_async(args,aData));
+  return scope.Close(aResult);
 }
 
 

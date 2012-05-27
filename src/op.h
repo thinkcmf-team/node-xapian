@@ -96,38 +96,24 @@ static int func##_done(eio_req *req) {\
 }\
 static Handle<Value> func##_do_async(const Arguments& args,func##_data *&data) {\
   AsyncOp<classn> *aAsOp=NULL;\
-  try {\
-    if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
-      if (data) delete data;\
-      return ThrowException(Exception::Error(kBusyMsg));\
-    }\
-    aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]),data);\
-  } catch (Local<Value> ex) {\
-    if (data) delete data;\
-    if (aAsOp) delete aAsOp;\
-    return ThrowException(ex);\
+  if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
+    throw Exception::Error(kBusyMsg);\
   }\
+  aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]),data);\
   sendToThreadPool((void*)func##_pool, (void*)func##_done, aAsOp);\
   return Undefined();\
 }\
 static Handle<Value> func##_do_sync(const Arguments& args,func##_data *&data) {\
   Xapian::Error* aError=NULL;\
-  try {\
-    classn *that=ObjectWrap::Unwrap<classn>(args.This());\
-    if (that->mBusy) {\
-      if (data) delete data;\
-      return ThrowException(Exception::Error(kBusyMsg));\
-    }\
-    aError = func##_process(data,that);\
-  } catch (Local<Value> ex) {\
-    if (data) delete data;\
-    return ThrowException(ex);\
+  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
+  if (that->mBusy) {\
+    throw Exception::Error(kBusyMsg);\
   }\
+  aError = func##_process(data,that);\
   if (aError!=NULL) {\
     std::string aErrorStr=aError->get_msg();\
-    if (data) delete data;\
     delete aError;\
-    return ThrowException(Exception::Error(String::New(aErrorStr.c_str())));\
+    throw Exception::Error(String::New(aErrorStr.c_str()));\
   }\
   Handle<Value> aResult=func##_convert(data);\
   if (data) delete data;\
