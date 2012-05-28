@@ -62,7 +62,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = aIsSync ? GetMset_do_sync(args,aData) : GetMset_do_async(args,aData);
+    aResult = do_all(aIsSync,args,(void*&)aData,Enquire::GetMset_process,Enquire::GetMset_convert);
   } catch (Local<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -71,7 +71,9 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 }
 
 
-Xapian::Error* Enquire::GetMset_process(GetMset_data *data, Enquire *that) {
+Xapian::Error* Enquire::GetMset_process(void *pData, void *pThat) {
+  GetMset_data *data = (GetMset_data *) pData;
+  Enquire *that = (Enquire *) pThat;
   try {
     Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
     data->set = new GetMset_data::Mset_item[aSet.size()];
@@ -92,7 +94,8 @@ Xapian::Error* Enquire::GetMset_process(GetMset_data *data, Enquire *that) {
   return NULL;
 }
 
-Handle<Value> Enquire::GetMset_convert(GetMset_data *data) {
+Handle<Value> Enquire::GetMset_convert(void *&pData) {
+  GetMset_data *data = (GetMset_data *) pData;
   Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
   for (int a = 0; a < data->size; ++a) {
@@ -108,5 +111,6 @@ Handle<Value> Enquire::GetMset_convert(GetMset_data *data) {
     aO->Set(String::NewSymbol("percent"       ),  Int32::New(data->set[a].percent             ));
     aList->Set(a, aO);
   }
+  if (data) delete data;
   return aList;
 }

@@ -33,6 +33,7 @@ protected:
   bool mBusy;
 
   friend struct AsyncOp<Enquire>;
+  DECLARE_POOLS(Enquire);
 
   static Handle<Value> New(const Arguments& args);
 
@@ -54,10 +55,8 @@ protected:
     int size;
   };
   static Handle<Value> GetMset(const Arguments& args);
-  static Xapian::Error* GetMset_process(GetMset_data *data, Enquire *that);
-  static Handle<Value> GetMset_convert(GetMset_data *data);
-  DECLARE_POOLS(GetMset,Enquire)
-
+  static Xapian::Error* GetMset_process(void *data, void *that);
+  static Handle<Value> GetMset_convert(void *&data);
 };
 
 #endif //_XAPIAN_ENQUIRE_H_
