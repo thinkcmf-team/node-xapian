@@ -12,7 +12,7 @@
 using namespace v8;
 using namespace node;
 
-static void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
+inline void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
   TryCatch try_catch;
 
   fn->Call(context, argc, argv);
@@ -22,17 +22,17 @@ static void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, 
 }
 
 template <class T>
-static T* GetInstance(Handle<Value> val) {
+T* GetInstance(Handle<Value> val) {
   if (val->IsObject() && T::constructor_template->HasInstance(val->ToObject()))
     return ObjectWrap::Unwrap<T>(val->ToObject());
   return NULL;
 }
 
-static void sendToThreadPool(void* execute, void* done, void* data){
+inline void sendToThreadPool(void* execute, void* done, void* data){
   eio_custom((eio_cb) execute, EIO_PRI_DEFAULT, (eio_cb) done, data);
 }
 
-static Persistent<String> kBusyMsg;
+static Persistent<String> kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
 
 struct AsyncOpBase {
   AsyncOpBase(Handle<Function> cb)
