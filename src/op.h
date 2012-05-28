@@ -41,7 +41,7 @@ struct AsyncOpBase {
 };
 
 typedef Xapian::Error* (*FuncProcess) (void *data, void *that);
-typedef Handle<Value> (*FuncConvert) (void *&data);
+typedef Handle<Value> (*FuncConvert) (void *data);
 
 template <class T>
 struct AsyncOp : public AsyncOpBase {
@@ -88,7 +88,7 @@ static int function_done(eio_req *req) {\
   delete aAsOp;\
   return 0;\
 }\
-static Handle<Value> do_async(const Arguments& args,void *&data, FuncProcess process, FuncConvert convert) {\
+static Handle<Value> do_async(const Arguments& args,void *data, FuncProcess process, FuncConvert convert) {\
   AsyncOp<classn> *aAsOp=NULL;\
   classn *that=ObjectWrap::Unwrap<classn>(args.This());\
   if (that->mBusy) {\
@@ -98,7 +98,7 @@ static Handle<Value> do_async(const Arguments& args,void *&data, FuncProcess pro
   sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
   return Undefined();\
 }\
-static Handle<Value> do_sync(const Arguments& args,void *&data, FuncProcess process, FuncConvert convert) {\
+static Handle<Value> do_sync(const Arguments& args,void *data, FuncProcess process, FuncConvert convert) {\
   Xapian::Error* aError=NULL;\
   classn *that=ObjectWrap::Unwrap<classn>(args.This());\
   if (that->mBusy) {\
@@ -112,7 +112,7 @@ static Handle<Value> do_sync(const Arguments& args,void *&data, FuncProcess proc
   }\
   return convert(data);\
 }\
-static Handle<Value> do_all(bool async, const Arguments& args, void *&data, FuncProcess process, FuncConvert convert) {\
+static Handle<Value> do_all(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {\
   return async ? \
     do_async(args, data, process, convert) : \
     do_sync(args, data, process, convert); \

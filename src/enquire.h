@@ -56,7 +56,7 @@ protected:
   };
   static Handle<Value> GetMset(const Arguments& args);
   static Xapian::Error* GetMset_process(void *data, void *that);
-  static Handle<Value> GetMset_convert(void *&data);
+  static Handle<Value> GetMset_convert(void *data);
 };
 
 #endif //_XAPIAN_ENQUIRE_H_

@@ -53,11 +53,11 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
   if ((!aAsync && args.Length()!=2) || !args[0]->IsUint32() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
 
-  GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+  GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = do_all(aAsync, args, (void*&)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
+    aResult = do_all(aAsync, args, (void*)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -89,7 +89,7 @@ Xapian::Error* Enquire::GetMset_process(void *pData, void *pThat) {
   return NULL;
 }
 
-Handle<Value> Enquire::GetMset_convert(void *&pData) {
+Handle<Value> Enquire::GetMset_convert(void *pData) {
   GetMset_data *data = (GetMset_data *) pData;
   Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
