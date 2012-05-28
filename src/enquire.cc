@@ -62,7 +62,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = do_all(aIsSync,args,(void*&)aData,Enquire::GetMset_process,Enquire::GetMset_convert);
+    aResult = do_all(aIsSync, args, (void*&)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
   } catch (Local<Value> ex) {
     delete aData;
     return ThrowException(ex);

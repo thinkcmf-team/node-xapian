@@ -40,8 +40,8 @@ struct AsyncOpBase {
   Xapian::Error* error;
 };
 
-typedef Xapian::Error* (*funcProcess) (void *data, void *that);
-typedef Handle<Value> (*funcConvert) (void *&data);
+typedef Xapian::Error* (*FuncProcess) (void *data, void *that);
+typedef Handle<Value> (*FuncConvert) (void *&data);
 
 template <class T>
 struct AsyncOp : public AsyncOpBase {
@@ -52,7 +52,7 @@ struct AsyncOp : public AsyncOpBase {
     object->mBusy = true;
     object->Ref();
   }
-  AsyncOp(Handle<Object> ob, Handle<Function> cb, void* dt, funcProcess pr, funcConvert cv)
+  AsyncOp(Handle<Object> ob, Handle<Function> cb, void* dt, FuncProcess pr, FuncConvert cv)
     : AsyncOpBase(cb), object(ObjectWrap::Unwrap<T>(ob)), data(dt), process(pr), convert(cv) {
     if (object->mBusy)
       throw Exception::Error(kBusyMsg);
@@ -63,8 +63,8 @@ struct AsyncOp : public AsyncOpBase {
   void poolDone() { object->mBusy = false; }
   T* object;
   void* data;
-  funcProcess process;
-  funcConvert convert;
+  FuncProcess process;
+  FuncConvert convert;
 };
 
 #define DECLARE_POOLS(classn) \
@@ -88,7 +88,7 @@ static int function_done(eio_req *req) {\
   delete aAsOp;\
   return 0;\
 }\
-static Handle<Value> do_async(const Arguments& args,void *&data,funcProcess process, funcConvert convert) {\
+static Handle<Value> do_async(const Arguments& args,void *&data, FuncProcess process, FuncConvert convert) {\
   AsyncOp<classn> *aAsOp=NULL;\
   if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
     throw Exception::Error(kBusyMsg);\
@@ -97,7 +97,7 @@ static Handle<Value> do_async(const Arguments& args,void *&data,funcProcess proc
   sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
   return Undefined();\
 }\
-static Handle<Value> do_sync(const Arguments& args,void *&data,funcProcess process, funcConvert convert) {\
+static Handle<Value> do_sync(const Arguments& args,void *&data, FuncProcess process, FuncConvert convert) {\
   Xapian::Error* aError=NULL;\
   classn *that=ObjectWrap::Unwrap<classn>(args.This());\
   if (that->mBusy) {\
@@ -112,10 +112,10 @@ static Handle<Value> do_sync(const Arguments& args,void *&data,funcProcess proce
   Handle<Value> aResult=convert(data);\
   return aResult;\
 }\
-static Handle<Value> do_all(bool sync,const Arguments& args,void *&data,funcProcess process, funcConvert convert) {\
+static Handle<Value> do_all(bool sync, const Arguments& args, void *&data, FuncProcess process, FuncConvert convert) {\
   return sync ? \
-    do_sync(args,data,process,convert) : \
-    do_async(args,data,process,convert); \
+    do_sync(args, data, process, convert) : \
+    do_async(args, data, process, convert); \
 }
 
 #endif
