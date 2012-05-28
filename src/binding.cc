@@ -14,6 +14,20 @@
 using namespace v8;
 using namespace node;
 
+Persistent<String> kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
+
+void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
+  TryCatch try_catch;
+
+  fn->Call(context, argc, argv);
+
+  if (try_catch.HasCaught())
+    FatalException(try_catch);
+}
+
+void sendToThreadPool(void* execute, void* done, void* data){
+  eio_custom((eio_cb) execute, EIO_PRI_DEFAULT, (eio_cb) done, data);
+}
 
 class Mime2Text : public ObjectWrap {
 public:

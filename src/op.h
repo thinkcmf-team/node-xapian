@@ -12,14 +12,7 @@
 using namespace v8;
 using namespace node;
 
-inline void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
-  TryCatch try_catch;
-
-  fn->Call(context, argc, argv);
-
-  if (try_catch.HasCaught())
-    FatalException(try_catch);
-}
+void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv);
 
 template <class T>
 T* GetInstance(Handle<Value> val) {
@@ -28,11 +21,9 @@ T* GetInstance(Handle<Value> val) {
   return NULL;
 }
 
-inline void sendToThreadPool(void* execute, void* done, void* data){
-  eio_custom((eio_cb) execute, EIO_PRI_DEFAULT, (eio_cb) done, data);
-}
+void sendToThreadPool(void* execute, void* done, void* data);
 
-static Persistent<String> kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
+extern Persistent<String> kBusyMsg;
 
 struct AsyncOpBase {
   AsyncOpBase(Handle<Function> cb)
