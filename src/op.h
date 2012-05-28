@@ -112,10 +112,10 @@ static Handle<Value> do_sync(const Arguments& args,void *&data, FuncProcess proc
   }\
   return convert(data);\
 }\
-static Handle<Value> do_all(bool sync, const Arguments& args, void *&data, FuncProcess process, FuncConvert convert) {\
-  return sync ? \
-    do_sync(args, data, process, convert) : \
-    do_async(args, data, process, convert); \
+static Handle<Value> do_all(bool async, const Arguments& args, void *&data, FuncProcess process, FuncConvert convert) {\
+  return async ? \
+    do_async(args, data, process, convert) : \
+    do_sync(args, data, process, convert); \
 }
 
 #endif

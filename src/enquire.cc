@@ -49,20 +49,15 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
-  bool aIsSync;
-  if (args.Length() == 3 && args[0]->IsUint32() && args[1]->IsUint32() && args[2]->IsFunction())
-    aIsSync=false;
-  else if (args.Length() == 2 && args[0]->IsUint32() && args[1]->IsUint32())
-    aIsSync=true;
-  else
+  bool aAsync = args.Length()==3 && args[2]->IsFunction();
+  if ((!aAsync && args.Length()!=2) || !args[0]->IsUint32() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
-  GetMset_data *aData=NULL;
 
-  aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
+  GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value());
 
   Handle<Value> aResult;
   try {
-    aResult = do_all(aIsSync, args, (void*&)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
+    aResult = do_all(aAsync, args, (void*&)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
