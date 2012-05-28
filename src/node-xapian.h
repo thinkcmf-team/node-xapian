@@ -88,34 +88,23 @@ static int function_done(eio_req *req) {\
   delete aAsOp;\
   return 0;\
 }\
-static Handle<Value> do_async(const Arguments& args,void *data, FuncProcess process, FuncConvert convert) {\
-  AsyncOp<classn> *aAsOp=NULL;\
-  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
-  if (that->mBusy) {\
-    throw Exception::Error(kBusyMsg);\
-  }\
-  aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]),data,process,convert);\
-  sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
-  return Undefined();\
-}\
-static Handle<Value> do_sync(const Arguments& args,void *data, FuncProcess process, FuncConvert convert) {\
-  Xapian::Error* aError=NULL;\
-  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
-  if (that->mBusy) {\
-    throw Exception::Error(kBusyMsg);\
-  }\
-  aError = process(data,that);\
-  if (aError!=NULL) {\
-    std::string aErrorStr=aError->get_msg();\
-    delete aError;\
-    throw Exception::Error(String::New(aErrorStr.c_str()));\
-  }\
-  return convert(data);\
-}\
 static Handle<Value> do_all(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {\
-  return async ? \
-    do_async(args, data, process, convert) : \
-    do_sync(args, data, process, convert); \
+  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
+  if (that->mBusy) \
+    throw Exception::Error(kBusyMsg);\
+  if (async) {\
+    AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]),data,process,convert);\
+    sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
+    return Undefined();\
+  } else {\
+    Xapian::Error* aError = process(data,that);\
+    if (aError!=NULL) {\
+      std::string aErrorStr=aError->get_msg();\
+      delete aError;\
+      throw Exception::Error(String::New(aErrorStr.c_str()));\
+    }\
+    return convert(data);\
+  }\
 }
 
 class Enquire : public ObjectWrap {
