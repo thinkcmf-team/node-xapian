@@ -7,9 +7,7 @@
 #include <node_events.h>
 #include <node_buffer.h>
 
-#include "op.h"
-#include "enquire.h"
-#include "database.h"
+#include "node-xapian.h"
 
 using namespace v8;
 using namespace node;
