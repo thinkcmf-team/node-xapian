@@ -52,8 +52,8 @@ struct AsyncOp : public AsyncOpBase {
     object->mBusy = true;
     object->Ref();
   }
-  AsyncOp(Handle<Object> ob, Handle<Function> cb, void* dt, FuncProcess pr, FuncConvert cv)
-    : AsyncOpBase(cb), object(ObjectWrap::Unwrap<T>(ob)), data(dt), process(pr), convert(cv) {
+  AsyncOp(T* ob, Handle<Function> cb, void* dt, FuncProcess pr, FuncConvert cv)
+    : AsyncOpBase(cb), object(ob), data(dt), process(pr), convert(cv) {
     if (object->mBusy)
       throw Exception::Error(kBusyMsg);
     object->mBusy = true;
@@ -90,10 +90,11 @@ static int function_done(eio_req *req) {\
 }\
 static Handle<Value> do_async(const Arguments& args,void *&data, FuncProcess process, FuncConvert convert) {\
   AsyncOp<classn> *aAsOp=NULL;\
-  if (ObjectWrap::Unwrap<classn>(args.This())->mBusy) {\
+  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
+  if (that->mBusy) {\
     throw Exception::Error(kBusyMsg);\
   }\
-  aAsOp = new AsyncOp<classn>(args.This(), Local<Function>::Cast(args[2]),data,process,convert);\
+  aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]),data,process,convert);\
   sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
   return Undefined();\
 }\
@@ -109,8 +110,7 @@ static Handle<Value> do_sync(const Arguments& args,void *&data, FuncProcess proc
     delete aError;\
     throw Exception::Error(String::New(aErrorStr.c_str()));\
   }\
-  Handle<Value> aResult=convert(data);\
-  return aResult;\
+  return convert(data);\
 }\
 static Handle<Value> do_all(bool sync, const Arguments& args, void *&data, FuncProcess process, FuncConvert convert) {\
   return sync ? \
