@@ -12,7 +12,7 @@
 using namespace v8;
 using namespace node;
 
-Persistent<String> kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
+Persistent<String> kBusyMsg;
 
 void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
   TryCatch try_catch;
@@ -89,6 +89,7 @@ struct Main_data : public AsyncOpBase {
 extern "C"
 void init (Handle<Object> target) {
   HandleScope scope;
+  kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
   Database::Init(target);
   WritableDatabase::Init(target);
   TermGenerator::Init(target);
@@ -99,23 +100,7 @@ void init (Handle<Object> target) {
   Mime2Text::Init(target);
   target->Set(String::NewSymbol("assemble_document"), FunctionTemplate::New(AssembleDocument)->GetFunction());
 }
-/*
-static void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<Value>* argv) {
-  TryCatch try_catch;
 
-  fn->Call(context, argc, argv);
-
-  if (try_catch.HasCaught())
-    FatalException(try_catch);
-}
-
-template <class T>
-static T* GetInstance(Handle<Value> val) {
-  if (val->IsObject() && T::constructor_template->HasInstance(val->ToObject()))
-    return ObjectWrap::Unwrap<T>(val->ToObject());
-  return NULL;
-}
-*/
 
 Persistent<FunctionTemplate> Database::constructor_template;
 
