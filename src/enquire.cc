@@ -49,7 +49,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
   bool aAsync = args.Length()==3 && args[2]->IsFunction();
   if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
+    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, [function])")));
 
   GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
 
@@ -104,6 +104,6 @@ Handle<Value> Enquire::GetMset_convert(void *pData) {
     aO->Set(String::NewSymbol("percent"       ),  Int32::New(data->set[a].percent             ));
     aList->Set(a, aO);
   }
-  if (data) delete data;
+  delete data;
   return aList;
 }
