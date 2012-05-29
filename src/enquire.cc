@@ -48,14 +48,14 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
   bool aAsync = args.Length()==3 && args[2]->IsFunction();
-  if (args.Length()!= +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
+  if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, function) or (number, number)")));
 
   GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = do_all(aAsync, args, (void*)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
+    aResult = invoke(aAsync, args, (void*)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

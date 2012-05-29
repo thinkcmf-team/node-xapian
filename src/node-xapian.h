@@ -65,10 +65,10 @@ struct AsyncOp : public AsyncOpBase {
   FuncConvert convert;
 };
 
-#define DECLARE_POOLS(classn) \
+#define DECLARE_UTILS(classn) \
 static int function_pool(eio_req *req) {\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
-  aAsOp->error=aAsOp->process(aAsOp->data, aAsOp->object);\
+  aAsOp->error = aAsOp->process(aAsOp->data, aAsOp->object);\
   aAsOp->poolDone();\
   return 0;\
 }\
@@ -86,20 +86,20 @@ static int function_done(eio_req *req) {\
   delete aAsOp;\
   return 0;\
 }\
-static Handle<Value> do_all(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {\
-  classn *that=ObjectWrap::Unwrap<classn>(args.This());\
+static Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {\
+  classn *that = ObjectWrap::Unwrap<classn>(args.This());\
   if (that->mBusy) \
     throw Exception::Error(kBusyMsg);\
   if (async) {\
-    AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]),data,process,convert);\
+    AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]), data, process, convert);\
     sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
     return Undefined();\
   } else {\
-    Xapian::Error* aError = process(data,that);\
-    if (aError!=NULL) {\
-      std::string aErrorStr=aError->get_msg();\
+    Xapian::Error* aError = process(data, that);\
+    if (aError) {\
+      Local<String> aErrorStr = String::New(aError->get_msg().c_str());\
       delete aError;\
-      throw Exception::Error(String::New(aErrorStr.c_str()));\
+      throw Exception::Error(aErrorStr);\
     }\
     return convert(data);\
   }\
@@ -121,7 +121,7 @@ protected:
   bool mBusy;
 
   friend struct AsyncOp<Enquire>;
-  DECLARE_POOLS(Enquire);
+  DECLARE_UTILS(Enquire);
 
   static Handle<Value> New(const Arguments& args);
 
