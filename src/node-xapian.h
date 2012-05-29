@@ -58,7 +58,7 @@ struct AsyncOp : public AsyncOpBase {
     object->Ref();
   }
   virtual ~AsyncOp() { object->Unref(); }
-  void poolDone() { object->mBusy = false; }
+  void poolDone() { object->mBusy = false; } //temporary untill all the methods using AsyncOp are refactored
   T* object;
   void* data;
   FuncProcess process;
@@ -69,7 +69,7 @@ struct AsyncOp : public AsyncOpBase {
 static int function_pool(eio_req *req) {\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
   aAsOp->error = aAsOp->process(aAsOp->data, aAsOp->object);\
-  aAsOp->poolDone();\
+  aAsOp->object->mBusy = false;\
   return 0;\
 }\
 static int function_done(eio_req *req) {\
@@ -92,6 +92,7 @@ static Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncP
     throw Exception::Error(kBusyMsg);\
   if (async) {\
     AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]), data, process, convert);\
+    aAsOp->object->mBusy = true;\
     sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
     return Undefined();\
   } else {\
