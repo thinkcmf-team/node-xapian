@@ -54,8 +54,6 @@ struct AsyncOp : public AsyncOpBase {
   }
   AsyncOp(T* ob, Handle<Function> cb, void* dt, FuncProcess pr, FuncConvert cv)
     : AsyncOpBase(cb), object(ob), data(dt), process(pr), convert(cv) {
-    if (object->mBusy)
-      throw Exception::Error(kBusyMsg);
     object->mBusy = true;
     object->Ref();
   }
