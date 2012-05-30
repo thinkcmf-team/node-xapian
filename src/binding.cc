@@ -89,7 +89,7 @@ struct Main_data : public AsyncOpBase {
 extern "C"
 void init (Handle<Object> target) {
   HandleScope scope;
-  kBusyMsg= Persistent<String>::New(String::New("object busy with async op"));
+  kBusyMsg = Persistent<String>::New(String::New("object busy with async op"));
   Database::Init(target);
   WritableDatabase::Init(target);
   TermGenerator::Init(target);

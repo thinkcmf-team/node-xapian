@@ -54,7 +54,6 @@ struct AsyncOp : public AsyncOpBase {
   }
   AsyncOp(T* ob, Handle<Function> cb, void* dt, FuncProcess pr, FuncConvert cv)
     : AsyncOpBase(cb), object(ob), data(dt), process(pr), convert(cv) {
-    object->mBusy = true;
     object->Ref();
   }
   virtual ~AsyncOp() { object->Unref(); }
@@ -66,13 +65,13 @@ struct AsyncOp : public AsyncOpBase {
 };
 
 #define DECLARE_UTILS(classn) \
-static int function_pool(eio_req *req) {\
+static int async_pool(eio_req *req) {\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
-  aAsOp->error = aAsOp->process(aAsOp->data, aAsOp->object);\
+  aAsOp->error = (*aAsOp->process)(aAsOp->data, aAsOp->object);\
   aAsOp->object->mBusy = false;\
   return 0;\
 }\
-static int function_done(eio_req *req) {\
+static int async_done(eio_req *req) {\
   HandleScope scope;\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
   Handle<Value> aArgv[2];\
@@ -80,7 +79,7 @@ static int function_done(eio_req *req) {\
     aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));\
   } else {\
     aArgv[0] = Null();\
-    aArgv[1] = aAsOp->convert(aAsOp->data);\
+    aArgv[1] = (*aAsOp->convert)(aAsOp->data);\
   }\
   tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);\
   delete aAsOp;\
@@ -93,7 +92,7 @@ static Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncP
   if (async) {\
     AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]), data, process, convert);\
     aAsOp->object->mBusy = true;\
-    sendToThreadPool((void*)function_pool, (void*)function_done, aAsOp);\
+    sendToThreadPool((void*)async_pool, (void*)async_done, aAsOp);\
     return Undefined();\
   } else {\
     Xapian::Error* aError = process(data, that);\
