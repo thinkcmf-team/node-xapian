@@ -84,9 +84,7 @@ WritableDatabase - all the methods from Database plus the following
           ?uint32_action can be: DB_CREATE_OR_OPEN, DB_CREATE, DB_CREATE_OR_OVERWRITE, DB_OPEN
           maybe define it as a string?
     commit_sync()
-        Commit any pending modifications made to the database. 
-    flush_sync()
-        Pre-1.1.0 name for commit(). 
+        Commit any pending modifications made to the database.  
     begin_transaction_sync(bool_flushed=true)
         Begin a transaction. 
     commit_transaction_sync()
@@ -221,7 +219,7 @@ Query
                 pos: uint32 //default 0
             }
             A query consisting of two or more subqueries, opp-ed together.
-            AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries. 
+            AND, OR, XOR, SYNONYM, NEAR, PHRASE, OP_FILTER, OP_AND_NOT, OP_AND_MAYBE, ELITE_SET can take any number of subqueries. 
             Other operators take only the first two subqueries.
             {
                 op: string,
