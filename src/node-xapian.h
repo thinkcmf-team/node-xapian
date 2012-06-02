@@ -100,8 +100,8 @@ Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncProcess 
   if (async) {
     that->mBusy = true;
     AsyncOp<T> *aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[2]), data, process, convert);
-    int (*aPool)(eio_req *req)=async_pool<T>;
-    int (*aDone)(eio_req *req)=async_done<T>;
+    int (*aPool)(eio_req*)=async_pool<T>;
+    int (*aDone)(eio_req*)=async_done<T>;
     sendToThreadPool((void*)aPool, (void*)aDone, aAsOp);
     return Undefined();
   } else {
