@@ -40,7 +40,7 @@ struct AsyncOpBase {
   Xapian::Error* error;
 };
 
-typedef Xapian::Error* (*FuncProcess) (void *data, void *that);
+typedef void (*FuncProcess) (void *data, void *that);
 typedef Handle<Value> (*FuncConvert) (void *data);
 
 template <class T>
@@ -67,7 +67,11 @@ struct AsyncOp : public AsyncOpBase {
 #define DECLARE_UTILS(classn) \
 static int async_pool(eio_req *req) {\
   AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
-  aAsOp->error = (*aAsOp->process)(aAsOp->data, aAsOp->object);\
+  try {\
+    (*aAsOp->process)(aAsOp->data, aAsOp->object);\
+  } catch (const Xapian::Error& err) {\
+    aAsOp->error = new Xapian::Error(err);\
+  }\
   aAsOp->object->mBusy = false;\
   return 0;\
 }\
@@ -90,16 +94,15 @@ static Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncP
   if (that->mBusy) \
     throw Exception::Error(kBusyMsg);\
   if (async) {\
+    that->mBusy = true;\
     AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]), data, process, convert);\
-    aAsOp->object->mBusy = true;\
     sendToThreadPool((void*)async_pool, (void*)async_done, aAsOp);\
     return Undefined();\
   } else {\
-    Xapian::Error* aError = process(data, that);\
-    if (aError) {\
-      Local<String> aErrorStr = String::New(aError->get_msg().c_str());\
-      delete aError;\
-      throw Exception::Error(aErrorStr);\
+    try {\
+      process(data, that);\
+    } catch (const Xapian::Error& err) {\
+      throw Exception::Error(String::New(err.get_msg().c_str()));\
     }\
     return convert(data);\
   }\
@@ -143,7 +146,7 @@ protected:
     int size;
   };
   static Handle<Value> GetMset(const Arguments& args);
-  static Xapian::Error* GetMset_process(void *data, void *that);
+  static void GetMset_process(void *data, void *that);
   static Handle<Value> GetMset_convert(void *data);
 };
 

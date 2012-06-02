@@ -47,7 +47,7 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
 
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length()==3 && args[2]->IsFunction();
+  bool aAsync = args.Length() == 3 && args[2]->IsFunction();
   if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, [function])")));
 
@@ -55,7 +55,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke(aAsync, args, (void*)aData, Enquire::GetMset_process, Enquire::GetMset_convert);
+    aResult = invoke(aAsync, args, (void*)aData, GetMset_process, GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -64,27 +64,22 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 }
 
 
-Xapian::Error* Enquire::GetMset_process(void *pData, void *pThat) {
+void Enquire::GetMset_process(void *pData, void *pThat) {
   GetMset_data *data = (GetMset_data *) pData;
   Enquire *that = (Enquire *) pThat;
-  try {
-    Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
-    data->set = new GetMset_data::Mset_item[aSet.size()];
-    data->size = 0;
-    for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {
-      data->set[data->size].id = *a;
-      data->set[data->size].document = new Xapian::Document(a.get_document());
-      data->set[data->size].rank = a.get_rank();
-      data->set[data->size].collapse_count = a.get_collapse_count();
-      data->set[data->size].weight = a.get_weight();
-      data->set[data->size].collapse_key = a.get_collapse_key();
-      data->set[data->size].description = a.get_description();
-      data->set[data->size].percent = a.get_percent();
-    }
-  } catch (const Xapian::Error& err) {
-    return new Xapian::Error(err);
+  Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
+  data->set = new GetMset_data::Mset_item[aSet.size()];
+  data->size = 0;
+  for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {
+    data->set[data->size].id = *a;
+    data->set[data->size].document = new Xapian::Document(a.get_document());
+    data->set[data->size].rank = a.get_rank();
+    data->set[data->size].collapse_count = a.get_collapse_count();
+    data->set[data->size].weight = a.get_weight();
+    data->set[data->size].collapse_key = a.get_collapse_key();
+    data->set[data->size].description = a.get_description();
+    data->set[data->size].percent = a.get_percent();
   }
-  return NULL;
 }
 
 Handle<Value> Enquire::GetMset_convert(void *pData) {
