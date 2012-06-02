@@ -55,7 +55,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke(aAsync, args, (void*)aData, GetMset_process, GetMset_convert);
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, GetMset_process, GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

@@ -64,49 +64,58 @@ struct AsyncOp : public AsyncOpBase {
   FuncConvert convert;
 };
 
-#define DECLARE_UTILS(classn) \
-static int async_pool(eio_req *req) {\
-  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
-  try {\
-    (*aAsOp->process)(aAsOp->data, aAsOp->object);\
-  } catch (const Xapian::Error& err) {\
-    aAsOp->error = new Xapian::Error(err);\
-  }\
-  aAsOp->object->mBusy = false;\
-  return 0;\
-}\
-static int async_done(eio_req *req) {\
-  HandleScope scope;\
-  AsyncOp<classn> *aAsOp = (AsyncOp<classn>*)req->data;\
-  Handle<Value> aArgv[2];\
-  if (aAsOp->error) {\
-    aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));\
-  } else {\
-    aArgv[0] = Null();\
-    aArgv[1] = (*aAsOp->convert)(aAsOp->data);\
-  }\
-  tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);\
-  delete aAsOp;\
-  return 0;\
-}\
-static Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {\
-  classn *that = ObjectWrap::Unwrap<classn>(args.This());\
-  if (that->mBusy) \
-    throw Exception::Error(kBusyMsg);\
-  if (async) {\
-    that->mBusy = true;\
-    AsyncOp<classn> *aAsOp = new AsyncOp<classn>(that, Local<Function>::Cast(args[2]), data, process, convert);\
-    sendToThreadPool((void*)async_pool, (void*)async_done, aAsOp);\
-    return Undefined();\
-  } else {\
-    try {\
-      process(data, that);\
-    } catch (const Xapian::Error& err) {\
-      throw Exception::Error(String::New(err.get_msg().c_str()));\
-    }\
-    return convert(data);\
-  }\
+template<class T>
+int async_pool(eio_req *req) {
+  AsyncOp<T> *aAsOp = (AsyncOp<T>*)req->data;
+  try {
+    (*aAsOp->process)(aAsOp->data, aAsOp->object);
+  } catch (const Xapian::Error& err) {
+    aAsOp->error = new Xapian::Error(err);
+  }
+  aAsOp->object->mBusy = false;
+  return 0;
 }
+
+template<class T>
+int async_done(eio_req *req) {
+  HandleScope scope;
+  AsyncOp<T> *aAsOp = (AsyncOp<T>*)req->data;
+  Handle<Value> aArgv[2];
+  if (aAsOp->error) {
+    aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));
+  } else {
+    aArgv[0] = Null();
+    aArgv[1] = (*aAsOp->convert)(aAsOp->data);
+  }
+  tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);
+  delete aAsOp;
+  return 0;
+}
+
+template<class T>
+Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {
+  T *that = ObjectWrap::Unwrap<T>(args.This());
+  if (that->mBusy) 
+    throw Exception::Error(kBusyMsg);
+  if (async) {
+    that->mBusy = true;
+    AsyncOp<T> *aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[2]), data, process, convert);
+    int (*func_async_pool)(eio_req *req);
+    int (*func_async_done)(eio_req *req);
+    func_async_pool=async_pool<T>;
+    func_async_done=async_done<T>;
+    sendToThreadPool((void*)func_async_pool, (void*)func_async_done, aAsOp);
+    return Undefined();
+  } else {
+    try {
+      process(data, that);
+    } catch (const Xapian::Error& err) {
+      throw Exception::Error(String::New(err.get_msg().c_str()));
+    }
+    return convert(data);
+  }
+}
+
 
 class Enquire : public ObjectWrap {
 public:
@@ -124,7 +133,8 @@ protected:
   bool mBusy;
 
   friend struct AsyncOp<Enquire>;
-  DECLARE_UTILS(Enquire);
+  friend Handle<Value> invoke<Enquire>(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert);
+  friend int async_pool<Enquire>(eio_req *req);
 
   static Handle<Value> New(const Arguments& args);
 
