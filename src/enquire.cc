@@ -51,7 +51,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
   if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (number, number, [function])")));
 
-  GetMset_data *aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
+  GetMset_data* aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -64,9 +64,9 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 }
 
 
-void Enquire::GetMset_process(void *pData, void *pThat) {
-  GetMset_data *data = (GetMset_data *) pData;
-  Enquire *that = (Enquire *) pThat;
+void Enquire::GetMset_process(void* pData, void* pThat) {
+  GetMset_data* data = (GetMset_data*) pData;
+  Enquire* that = (Enquire *) pThat;
   Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
   data->set = new GetMset_data::Mset_item[aSet.size()];
   data->size = 0;
@@ -83,7 +83,7 @@ void Enquire::GetMset_process(void *pData, void *pThat) {
 }
 
 Handle<Value> Enquire::GetMset_convert(void *pData) {
-  GetMset_data *data = (GetMset_data *) pData;
+  GetMset_data* data = (GetMset_data*) pData;
   Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
   for (int a = 0; a < data->size; ++a) {

@@ -66,7 +66,7 @@ struct AsyncOp : public AsyncOpBase {
 
 template<class T>
 int async_pool(eio_req *req) {
-  AsyncOp<T> *aAsOp = (AsyncOp<T>*)req->data;
+  AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   try {
     (*aAsOp->process)(aAsOp->data, aAsOp->object);
   } catch (const Xapian::Error& err) {
@@ -79,7 +79,7 @@ int async_pool(eio_req *req) {
 template<class T>
 int async_done(eio_req *req) {
   HandleScope scope;
-  AsyncOp<T> *aAsOp = (AsyncOp<T>*)req->data;
+  AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   Handle<Value> aArgv[2];
   if (aAsOp->error) {
     aArgv[0] = Exception::Error(String::New(aAsOp->error->get_msg().c_str()));
@@ -93,15 +93,15 @@ int async_done(eio_req *req) {
 }
 
 template<class T>
-Handle<Value> invoke(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert) {
-  T *that = ObjectWrap::Unwrap<T>(args.This());
+Handle<Value> invoke(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert) {
+  T* that = ObjectWrap::Unwrap<T>(args.This());
   if (that->mBusy) 
     throw Exception::Error(kBusyMsg);
   if (async) {
     that->mBusy = true;
-    AsyncOp<T> *aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[2]), data, process, convert);
-    int (*aPool)(eio_req*)=async_pool<T>;
-    int (*aDone)(eio_req*)=async_done<T>;
+    AsyncOp<T>* aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[2]), data, process, convert);
+    int (*aPool)(eio_req*) = async_pool<T>;
+    int (*aDone)(eio_req*) = async_done<T>;
     sendToThreadPool((void*)aPool, (void*)aDone, aAsOp);
     return Undefined();
   } else {
@@ -131,7 +131,7 @@ protected:
   bool mBusy;
 
   friend struct AsyncOp<Enquire>;
-  friend Handle<Value> invoke<Enquire>(bool async, const Arguments& args, void *data, FuncProcess process, FuncConvert convert);
+  friend Handle<Value> invoke<Enquire>(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert);
   friend int async_pool<Enquire>(eio_req *req);
 
   static Handle<Value> New(const Arguments& args);
@@ -154,8 +154,8 @@ protected:
     int size;
   };
   static Handle<Value> GetMset(const Arguments& args);
-  static void GetMset_process(void *data, void *that);
-  static Handle<Value> GetMset_convert(void *data);
+  static void GetMset_process(void* data, void* that);
+  static Handle<Value> GetMset_convert(void* data);
 };
 
 class Database : public EventEmitter {
