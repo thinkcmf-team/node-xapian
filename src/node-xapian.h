@@ -114,25 +114,34 @@ Handle<Value> invoke(bool async, const Arguments& args, void* data, FuncProcess 
   }
 }
 
+template <class T>
+class XapWrap : public ObjectWrap {
+protected:
+  XapWrap() : ObjectWrap(), mBusy(false) {}
 
-class Enquire : public ObjectWrap {
+  ~XapWrap() {}
+
+  bool mBusy;
+
+  friend struct AsyncOp<T>;
+  friend Handle<Value> invoke<T>(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert);
+  friend int async_pool<T>(eio_req* req);
+};
+
+
+class Enquire : public XapWrap<Enquire> {
 public:
   static void Init(Handle<Object> target);
 
   static Persistent<FunctionTemplate> constructor_template;
 
 protected:
-  Enquire(const Xapian::Database& iDb) : ObjectWrap(), mEnq(iDb), mBusy(false) {}
+  Enquire(const Xapian::Database& iDb) : mEnq(iDb) {}
 
   ~Enquire() {
   }
 
   Xapian::Enquire mEnq;
-  bool mBusy;
-
-  friend struct AsyncOp<Enquire>;
-  friend Handle<Value> invoke<Enquire>(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert);
-  friend int async_pool<Enquire>(eio_req* req);
 
   static Handle<Value> New(const Arguments& args);
 
