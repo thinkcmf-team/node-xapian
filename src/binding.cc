@@ -48,8 +48,8 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   static Handle<Value> Convert(const Arguments& args);
-  static int Convert_pool(eio_req *req);
-  static int Convert_done(eio_req *req);
+  static int Convert_pool(eio_req* req);
+  static int Convert_done(eio_req* req);
   struct Convert_data : AsyncOp<Mime2Text> {
     Convert_data(Handle<Object> ob, Handle<Function> cb, Handle<String> fi, Handle<Value> ty)
       : AsyncOp<Mime2Text>(ob, cb), filename(fi), type(ty->IsString() ? ty : Handle<Value>()) {}
@@ -60,8 +60,8 @@ protected:
 };
 
 static Handle<Value> AssembleDocument(const Arguments& args);
-static int Main_pool(eio_req *req);
-static int Main_done(eio_req *req);
+static int Main_pool(eio_req* req);
+static int Main_done(eio_req* req);
 struct Main_data : public AsyncOpBase {
   Main_data(Handle<Function> cb, Xapian::Document* doc, TermGenerator* tg, String::Utf8Value** tl, Mime2Text* m2t, Handle<Value> p, Handle<Value> m)
     : AsyncOpBase(cb), document(doc), termgen(tg), textlist(tl), mime2text(m2t), path(p), mimetype(m) {
@@ -161,7 +161,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
   return Undefined();
 }
 
-int Database::Open_pool(eio_req *req) {
+int Database::Open_pool(eio_req* req) {
   Open_data* aData = (Open_data*) req->data;
 
   try {
@@ -177,7 +177,7 @@ int Database::Open_pool(eio_req *req) {
   return 0;
 }
 
-int Database::Open_done(eio_req *req) {
+int Database::Open_done(eio_req* req) {
   HandleScope scope;
 
   Open_data* aData = (Open_data*) req->data;
@@ -247,7 +247,7 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   return Undefined();
 }
 
-int WritableDatabase::AddDocument_pool(eio_req *req) {
+int WritableDatabase::AddDocument_pool(eio_req* req) {
   AddDocument_data* aData = (AddDocument_data*) req->data;
 
   try {
@@ -263,7 +263,7 @@ int WritableDatabase::AddDocument_pool(eio_req *req) {
   return 0;
 }
 
-int WritableDatabase::AddDocument_done(eio_req *req) {
+int WritableDatabase::AddDocument_done(eio_req* req) {
   HandleScope scope;
 
   AddDocument_data* aData = (AddDocument_data*) req->data;
@@ -334,7 +334,7 @@ Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   return Undefined();
 }
 
-int WritableDatabase::Commit_pool(eio_req *req) {
+int WritableDatabase::Commit_pool(eio_req* req) {
   Commit_data* aData = (Commit_data*) req->data;
 
   try {
@@ -351,7 +351,7 @@ int WritableDatabase::Commit_pool(eio_req *req) {
   return 0;
 }
 
-int WritableDatabase::Commit_done(eio_req *req) {
+int WritableDatabase::Commit_done(eio_req* req) {
   HandleScope scope;
 
   Commit_data* aData = (Commit_data*) req->data;
@@ -558,7 +558,7 @@ Handle<Value> Document::GetData(const Arguments& args) {
   return Undefined();
 }
 
-int Document::GetData_pool(eio_req *req) {
+int Document::GetData_pool(eio_req* req) {
   GetData_data* aData = (GetData_data*) req->data;
 
   try {
@@ -571,7 +571,7 @@ int Document::GetData_pool(eio_req *req) {
   return 0;
 }
 
-int Document::GetData_done(eio_req *req) {
+int Document::GetData_done(eio_req* req) {
   HandleScope scope;
 
   GetData_data* aData = (GetData_data*) req->data;
@@ -633,7 +633,7 @@ Handle<Value> Mime2Text::Convert(const Arguments& args) {
   return Undefined();
 }
 
-int Mime2Text::Convert_pool(eio_req *req) {
+int Mime2Text::Convert_pool(eio_req* req) {
   Convert_data* aData = (Convert_data*) req->data;
 
   try {
@@ -650,7 +650,7 @@ int Mime2Text::Convert_pool(eio_req *req) {
   return 0;
 }
 
-int Mime2Text::Convert_done(eio_req *req) {
+int Mime2Text::Convert_done(eio_req* req) {
   HandleScope scope;
 
   Convert_data* aData = (Convert_data*) req->data;
@@ -784,7 +784,7 @@ static Handle<Value> AssembleDocument(const Arguments& args) {
   return Undefined();
 }
 
-static int Main_pool(eio_req *req) {
+static int Main_pool(eio_req* req) {
   Main_data* aData = (Main_data*) req->data;
 
   try {
@@ -824,7 +824,7 @@ static int Main_pool(eio_req *req) {
   return 0;
 }
 
-static int Main_done(eio_req *req) {
+static int Main_done(eio_req* req) {
   HandleScope scope;
 
   Main_data* aData = (Main_data*) req->data;

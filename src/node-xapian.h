@@ -40,8 +40,8 @@ struct AsyncOpBase {
   Xapian::Error* error;
 };
 
-typedef void (*FuncProcess) (void *data, void *that);
-typedef Handle<Value> (*FuncConvert) (void *data);
+typedef void (*FuncProcess) (void* data, void* that);
+typedef Handle<Value> (*FuncConvert) (void* data);
 
 template <class T>
 struct AsyncOp : public AsyncOpBase {
@@ -65,7 +65,7 @@ struct AsyncOp : public AsyncOpBase {
 };
 
 template<class T>
-int async_pool(eio_req *req) {
+int async_pool(eio_req* req) {
   AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   try {
     (*aAsOp->process)(aAsOp->data, aAsOp->object);
@@ -77,7 +77,7 @@ int async_pool(eio_req *req) {
 }
 
 template<class T>
-int async_done(eio_req *req) {
+int async_done(eio_req* req) {
   HandleScope scope;
   AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   Handle<Value> aArgv[2];
@@ -132,7 +132,7 @@ protected:
 
   friend struct AsyncOp<Enquire>;
   friend Handle<Value> invoke<Enquire>(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert);
-  friend int async_pool<Enquire>(eio_req *req);
+  friend int async_pool<Enquire>(eio_req* req);
 
   static Handle<Value> New(const Arguments& args);
 
@@ -189,8 +189,8 @@ protected:
   static Handle<Value> AddDatabase(const Arguments& args);
 
   static Handle<Value> Reopen(const Arguments& args);
-  static int Open_pool(eio_req *req);
-  static int Open_done(eio_req *req);
+  static int Open_pool(eio_req* req);
+  static int Open_done(eio_req* req);
   struct Open_data : AsyncOp<Database> {
     Open_data(Handle<Object> ob, Handle<String> file, int wop=0)
       : AsyncOp<Database>(ob, Handle<Function>()), filename(file), writeopts(wop) {}
@@ -218,8 +218,8 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   static Handle<Value> ReplaceDocument(const Arguments& args);
-  static int AddDocument_pool(eio_req *req);
-  static int AddDocument_done(eio_req *req);
+  static int AddDocument_pool(eio_req* req);
+  static int AddDocument_done(eio_req* req);
   struct AddDocument_data : AsyncOp<WritableDatabase> {
     AddDocument_data(Handle<Object> ob, Handle<Function> cb, const Xapian::Document& doc, Handle<String> id)
       : AsyncOp<WritableDatabase>(ob, cb), document(doc), idterm(id) {}
@@ -232,8 +232,8 @@ protected:
   static Handle<Value> BeginTransaction(const Arguments& args);
   static Handle<Value> CommitTransaction(const Arguments& args);
 
-  static int Commit_pool(eio_req *req);
-  static int Commit_done(eio_req *req);
+  static int Commit_pool(eio_req* req);
+  static int Commit_done(eio_req* req);
   struct Commit_data : AsyncOp<WritableDatabase> {
     Commit_data(Handle<Object> ob, Handle<Function> cb, int op, bool fl=false)
       : AsyncOp<WritableDatabase>(ob, cb), type(op), flush(fl) {}
@@ -327,8 +327,8 @@ protected:
 
 
   static Handle<Value> GetData(const Arguments& args);
-  static int GetData_pool(eio_req *req);
-  static int GetData_done(eio_req *req);
+  static int GetData_pool(eio_req* req);
+  static int GetData_done(eio_req* req);
   struct GetData_data : AsyncOp<Document> {
     GetData_data(Handle<Object> ob, Handle<Function> cb)
       : AsyncOp<Document>(ob, cb) {}

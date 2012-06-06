@@ -82,7 +82,7 @@ void Enquire::GetMset_process(void* pData, void* pThat) {
   }
 }
 
-Handle<Value> Enquire::GetMset_convert(void *pData) {
+Handle<Value> Enquire::GetMset_convert(void* pData) {
   GetMset_data* data = (GetMset_data*) pData;
   Local<Array> aList(Array::New(data->size));
   Local<Function> aCtor(Document::constructor_template->GetFunction());
