@@ -19,77 +19,67 @@ atg.set_stemmer(stem);
 makeDb('db1');
 function makeDb(path) {
   var wdb = new xapian.WritableDatabase(path, xapian.DB_CREATE_OR_OVERWRITE);
-  wdb.on('open', function(err) {
+  console.log('opened WritableDatabase');
+  atg.set_database(wdb);
+  atg.set_flags(xapian.TermGenerator.FLAG_SPELLING);
+  wdb.begin_transaction(true, function(err) {
     if (err) throw err;
-    console.log('opened WritableDatabase');
-    atg.set_database(wdb);
-    atg.set_flags(xapian.TermGenerator.FLAG_SPELLING);
-    wdb.begin_transaction(true, function(err) {
-      if (err) throw err;
-      fAdd(0);
-      function fAdd(n) {
-        if (n < aDocs.length) {
-          xapian.assemble_document(atg, m2t, aDocs[n], function(err, doc) {
-            if (err) throw err;
-            wdb.replace_document(aDocs[n].id_term||'', doc, function(err) {
-              if (err) throw err;
-              console.log('added "'+aDocs[n].data+'"');
-              fAdd(++n);
-            });
-          });
-          return;
-        }
-        wdb.commit_transaction(function(err) {
+    fAdd(0);
+    function fAdd(n) {
+      if (n < aDocs.length) {
+        xapian.assemble_document(atg, m2t, aDocs[n], function(err, doc) {
           if (err) throw err;
-          console.log('committed '+path);
-          if (path === 'db1')
-            makeDb('db2');
-          else {
-            wdb = null;
-            fRead();
-          }
+          wdb.replace_document(aDocs[n].id_term||'', doc, function(err) {
+            if (err) throw err;
+            console.log('added "'+aDocs[n].data+'"');
+            fAdd(++n);
+          });
         });
+        return;
       }
-    });
+      wdb.commit_transaction(function(err) {
+        if (err) throw err;
+        console.log('committed '+path);
+        if (path === 'db1')
+          makeDb('db2');
+        else {
+          wdb = null;
+          fRead();
+        }
+      });
+    }
   });
 }
 
 function fRead() {
   var databases = new xapian.Database('db1');
-  databases.on('open', function(err) {
-    if (err) throw err;
-    console.log('opened Database');
+  console.log('opened Database');
 
-    var db2 = new xapian.Database('db2');
-    db2.on('open', function(err) {
+  var db2 = new xapian.Database('db2');
+  databases.add_database(db2);
+  var enquire = new xapian.Enquire(databases); // assumes no i/o
+  var query = new xapian.Query(xapian.Query.OP_OR, 'one', 'six', 'min');
+  console.log("Performing query [" + query.description + "]");
+  enquire.set_query(query); // assumes no i/o
+
+  var mset=enquire.get_mset_sync(0, 10);
+  console.log(mset.length + " results found");
+  console.log(require('util').inspect(mset));
+  iter(0);
+  function iter(i) { // can't for-loop when depending on callback
+    if (i < mset.length) {
+      mset[i].document.get_data(function(err, data) {
+        if (err) throw err;
+        console.log("Document ID " + mset[i].id + "\t" + mset[i].percent + "% [" + data + "]");
+        iter(++i);
+      });
+      return;
+    }
+    databases = null;
+    m2t.convert('mime-test.html', null, function(err, result) {
       if (err) throw err;
-      databases.add_database(db2);
-      var enquire = new xapian.Enquire(databases); // assumes no i/o
-      var query = new xapian.Query(xapian.Query.OP_OR, 'one', 'six', 'min');
-      console.log("Performing query [" + query.description + "]");
-      enquire.set_query(query); // assumes no i/o
-
-      var mset=enquire.get_mset_sync(0, 10);
-        console.log(mset.length + " results found");
-        console.log(require('util').inspect(mset));
-        iter(0);
-        function iter(i) { // can't for-loop when depending on callback
-          if (i < mset.length) {
-            mset[i].document.get_data(function(err, data) {
-              if (err) throw err;
-              console.log("Document ID " + mset[i].id + "\t" + mset[i].percent + "% [" + data + "]");
-              iter(++i);
-            });
-            return;
-          }
-          databases = null;
-          m2t.convert('mime-test.html', null, function(err, result) {
-            if (err) throw err;
-            console.log(result.title+' '+result.body);
-          });
-        }
-
+      console.log(result.title+' '+result.body);
     });
-  });
+  }
 }
 

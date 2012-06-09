@@ -1,4 +1,3 @@
-
 #include "node-xapian.h"
 
 

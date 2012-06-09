@@ -99,7 +99,7 @@ Handle<Value> invoke(bool async, const Arguments& args, void* data, FuncProcess 
     throw Exception::Error(kBusyMsg);
   if (async) {
     that->mBusy = true;
-    AsyncOp<T>* aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[2]), data, process, convert);
+    AsyncOp<T>* aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[args.Length()-1]), data, process, convert);
     int (*aPool)(eio_req*) = async_pool<T>;
     int (*aDone)(eio_req*) = async_done<T>;
     sendToThreadPool((void*)aPool, (void*)aDone, aAsOp);
@@ -167,7 +167,7 @@ protected:
   static Handle<Value> GetMset_convert(void* data);
 };
 
-class Database : public EventEmitter {
+class Database : public XapWrap<Database> {
 public:
   static void Init(Handle<Object> target);
 
@@ -176,7 +176,7 @@ public:
   Xapian::Database& getDb() { return *mDb; }
 
 protected:
-  Database() : EventEmitter(), mDb(NULL), mBusy(false) {}
+  Database() : mDb(NULL) {}
 
   virtual ~Database() {
     if (mDb) {
@@ -189,23 +189,21 @@ protected:
     Xapian::Database* mDb;
     Xapian::WritableDatabase* mWdb;
   };
-  bool mBusy;
-
-  friend struct AsyncOp<Database>;
 
   static Handle<Value> New(const Arguments& args);
+
+  struct Open_data {
+    Open_data(Database* th, Handle<String> fn, int wop=0): that(th), filename(fn), writeopts(wop) {}
+    Database* that;
+    String::Utf8Value filename;
+    int writeopts;
+  };
+  static void Open_process(void* data, void* that);
+  static Handle<Value> Open_convert(void* data);
 
   static Handle<Value> AddDatabase(const Arguments& args);
 
   static Handle<Value> Reopen(const Arguments& args);
-  static int Open_pool(eio_req* req);
-  static int Open_done(eio_req* req);
-  struct Open_data : AsyncOp<Database> {
-    Open_data(Handle<Object> ob, Handle<String> file, int wop=0)
-      : AsyncOp<Database>(ob, Handle<Function>()), filename(file), writeopts(wop) {}
-    String::Utf8Value filename;
-    int writeopts;
-  };
 };
 
 
@@ -222,6 +220,7 @@ protected:
 
   ~WritableDatabase() { }
 
+  //used by AddDocument_data
   friend struct AsyncOp<WritableDatabase>;
 
   static Handle<Value> New(const Arguments& args);

@@ -18,8 +18,7 @@ atg.set_stemmer(stem);
 
 makeDb('db1');
 function makeDb(path) {
-  var wdb = new xapian.WritableDatabase(path, xapian.DB_CREATE_OR_OVERWRITE);
-  wdb.on('open', function(err) {
+  new xapian.WritableDatabase(path, xapian.DB_CREATE_OR_OVERWRITE, function(err,wdb) {
     if (err) throw err;
     console.log('opened WritableDatabase');
     atg.set_database(wdb);
@@ -55,13 +54,11 @@ function makeDb(path) {
 }
 
 function fRead() {
-  var databases = new xapian.Database('db1');
-  databases.on('open', function(err) {
+  new xapian.Database('db1', function(err, databases) {
     if (err) throw err;
     console.log('opened Database');
 
-    var db2 = new xapian.Database('db2');
-    db2.on('open', function(err) {
+    new xapian.Database('db2', function(err, db2) {
       if (err) throw err;
       databases.add_database(db2);
       var enquire = new xapian.Enquire(databases); // assumes no i/o
