@@ -3,11 +3,11 @@ Database
   methods similar to the C++ API
     Database()
         Create a Database with no databases in. 
-    Database(string_path)
+*    Database(string_path, [function])
         Open a Database, automatically determining the database backend to use. 
     add_database_sync(Database)
         Add an existing database (or group of databases) to those accessed by this object. 
-    reopen_sync()
+*    reopen([function])
         Re-open the database. 
     close_sync()
         Close the database.
@@ -79,10 +79,9 @@ WritableDatabase - all the methods from Database plus the following
   methods similar to the C++ API
     WritableDatabase()
         Create an empty WritableDatabase.
-    WritableDatabase(string_path,uint32_action)
+*    WritableDatabase(string_path, uint32_action, [function])
         Open a database for update, automatically determining the database backend to use.
-          ?uint32_action can be: DB_CREATE_OR_OPEN, DB_CREATE, DB_CREATE_OR_OVERWRITE, DB_OPEN
-          maybe define it as a string?
+          uint32_action can be: DB_CREATE_OR_OPEN, DB_CREATE, DB_CREATE_OR_OVERWRITE, DB_OPEN
     commit_sync()
         Commit any pending modifications made to the database.  
     begin_transaction_sync(bool_flushed=true)
@@ -166,7 +165,7 @@ Document
 Enquire
 ```
   methods similar to the C++ API
-    Enquire (object_database)
+*    Enquire(object_database)
         Create a Xapian::Enquire object. 
     set_query_sync(object_query, uint32_qlen=0)
         Set the query to run. 
@@ -201,7 +200,7 @@ Enquire
         flags: TODO
     get_matching_terms_sync (uint32_did) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         Get terms which match a given document, by document id. 
-    get_mset_sync(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
+    get_mset(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
         Get (a portion of) the match set for the current query.
 ```
 Query
