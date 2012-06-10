@@ -225,6 +225,7 @@ protected:
 
   static Handle<Value> New(const Arguments& args);
 
+
   struct ReplaceDocument_data {
     ReplaceDocument_data(const Xapian::Document& doc): document(doc), idterm(Handle<String>()), action(ReplaceDocument_data::eAdd) {}
     ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term): document(doc), idterm(term), action(ReplaceDocument_data::eRepleceTerm) {}
@@ -242,19 +243,18 @@ protected:
   static Handle<Value> AddDocument(const Arguments& args);
 
 
-  static Handle<Value> Commit(const Arguments& args);
-  static Handle<Value> BeginTransaction(const Arguments& args);
-  static Handle<Value> CommitTransaction(const Arguments& args);
-
-  static int Commit_pool(eio_req* req);
-  static int Commit_done(eio_req* req);
-  struct Commit_data : AsyncOp<WritableDatabase> {
-    Commit_data(Handle<Object> ob, Handle<Function> cb, int op, bool fl=false)
-      : AsyncOp<WritableDatabase>(ob, cb), type(op), flush(fl) {}
+  struct Commit_data {
+    Commit_data(int op, bool fl=false) : type(op), flush(fl) {}
     enum { eCommit, eBeginTx, eCommitTx };
     int type;
     bool flush;
   };
+  static void Commit_process(void* data, void* that);
+  static Handle<Value> Commit_convert(void* data);
+
+  static Handle<Value> Commit(const Arguments& args);
+  static Handle<Value> BeginTransaction(const Arguments& args);
+  static Handle<Value> CommitTransaction(const Arguments& args);
 };
 
 class TermGenerator : public ObjectWrap {

@@ -82,11 +82,11 @@ WritableDatabase - all the methods from Database plus the following
 *    WritableDatabase(string_path, uint32_action, [function])
         Open a database for update, automatically determining the database backend to use.
           uint32_action can be: DB_CREATE_OR_OPEN, DB_CREATE, DB_CREATE_OR_OVERWRITE, DB_OPEN
-    commit_sync()
+*    commit([function])
         Commit any pending modifications made to the database.  
-    begin_transaction_sync(bool_flushed=true)
+*    begin_transaction([bool_flushed=true], [function])
         Begin a transaction. 
-    commit_transaction_sync()
+*    commit_transaction([function])
         Complete the transaction currently in progress. 
     cancel_transaction_sync()
         Abort the transaction currently in progress, discarding the pending modifications made to the database. 

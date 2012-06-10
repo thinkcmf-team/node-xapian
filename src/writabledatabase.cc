@@ -97,15 +97,15 @@ void WritableDatabase::ReplaceDocument_process(void* pData, void* pThat) {
   WritableDatabase* that = (WritableDatabase *) pThat;
 
   switch (data->action) {
-    case ReplaceDocument_data::eAdd:
-      data->docid = that->mWdb->add_document(data->document);
-      break;
-    case ReplaceDocument_data::eRepleceTerm:
-      data->docid = that->mWdb->replace_document(*data->idterm, data->document);
-      break;
-    case ReplaceDocument_data::eReplaceDocId:
-      that->mWdb->replace_document(data->docid, data->document);
-      break;
+  case ReplaceDocument_data::eAdd:
+    data->docid = that->mWdb->add_document(data->document);
+    break;
+  case ReplaceDocument_data::eRepleceTerm:
+    data->docid = that->mWdb->replace_document(*data->idterm, data->document);
+    break;
+  case ReplaceDocument_data::eReplaceDocId:
+    that->mWdb->replace_document(data->docid, data->document);
+    break;
   }
 }
 
@@ -115,13 +115,13 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   Handle<Value> aResult;
 
   switch (data->action) {
-    case ReplaceDocument_data::eAdd:
-    case ReplaceDocument_data::eRepleceTerm:
-      aResult = Integer::NewFromUnsigned(data->docid);
-      break;
-    case ReplaceDocument_data::eReplaceDocId:
-      aResult = Undefined();
-      break;
+  case ReplaceDocument_data::eAdd:
+  case ReplaceDocument_data::eRepleceTerm:
+    aResult = Integer::NewFromUnsigned(data->docid);
+    break;
+  case ReplaceDocument_data::eReplaceDocId:
+    aResult = Undefined();
+    break;
   }
 
   delete data;
@@ -131,83 +131,74 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
 Handle<Value> WritableDatabase::Commit(const Arguments& args) {
   HandleScope scope;
 
-  if (args.Length() < 1 || !args[0]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (function)")));
-  Commit_data* aData;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Commit_data* aData = new Commit_data(Commit_data::eCommit); //deleted by Commit_convert on non error
+
+  Handle<Value> aResult;
   try {
-    aData = new Commit_data(args.This(), Local<Function>::Cast(args[0]), Commit_data::eCommit);
-  } catch (Local<Value> ex) {
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
     return ThrowException(ex);
   }
-
-  eio_custom(Commit_pool, EIO_PRI_DEFAULT, Commit_done, aData);
-
-  return Undefined();
+  return scope.Close(aResult);
 }
 
 Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
   HandleScope scope;
 
-  if (args.Length() < 2 || !args[0]->IsBoolean() || !args[1]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (boolean, function)")));
-  Commit_data* aData;
+  bool aAsync = (args.Length() == 1 && args[0]->IsFunction()) || (args.Length() == 2 && args[1]->IsFunction());
+  bool aHasFlushParameter = (args.Length()>0 && args[0]->IsBoolean());
+  if (args.Length() != +aAsync+aHasFlushParameter)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([boolean], [function])")));
+
+  Commit_data* aData = new Commit_data(Commit_data::eBeginTx, aHasFlushParameter && args[0]->BooleanValue()); //deleted by Commit_convert on non error
+
+  Handle<Value> aResult;
   try {
-    aData = new Commit_data(args.This(), Local<Function>::Cast(args[1]), Commit_data::eBeginTx, args[0]->BooleanValue());
-  } catch (Local<Value> ex) {
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
     return ThrowException(ex);
   }
-
-  eio_custom(Commit_pool, EIO_PRI_DEFAULT, Commit_done, aData);
-
-  return Undefined();
+  return scope.Close(aResult);
 }
 
 Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   HandleScope scope;
 
-  if (args.Length() < 1 || !args[0]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (function)")));
-  Commit_data* aData;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Commit_data* aData = new Commit_data(Commit_data::eCommitTx); //deleted by Commit_convert on non error
+
+  Handle<Value> aResult;
   try {
-    aData = new Commit_data(args.This(), Local<Function>::Cast(args[0]), Commit_data::eCommitTx);
-  } catch (Local<Value> ex) {
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
     return ThrowException(ex);
   }
-
-  eio_custom(Commit_pool, EIO_PRI_DEFAULT, Commit_done, aData);
-
-  return Undefined();
+  return scope.Close(aResult);
 }
 
-int WritableDatabase::Commit_pool(eio_req* req) {
-  Commit_data* aData = (Commit_data*) req->data;
+void WritableDatabase::Commit_process(void* pData, void* pThat) {
+  Commit_data* data = (Commit_data*) pData;
+  WritableDatabase* that = (WritableDatabase *) pThat;
 
-  try {
-    switch (aData->type) {
-    case Commit_data::eCommit:   aData->object->mWdb->commit();                        break;
-    case Commit_data::eBeginTx:  aData->object->mWdb->begin_transaction(aData->flush); break;
-    case Commit_data::eCommitTx: aData->object->mWdb->commit_transaction();            break;
-    }
-  } catch (const Xapian::Error& err) {
-    aData->error = new Xapian::Error(err);
+  switch (data->type) {
+  case Commit_data::eCommit:   that->mWdb->commit();                        break;
+  case Commit_data::eBeginTx:  that->mWdb->begin_transaction(data->flush); break;
+  case Commit_data::eCommitTx: that->mWdb->commit_transaction();            break;
   }
-
-  aData->poolDone();
-  return 0;
 }
 
-int WritableDatabase::Commit_done(eio_req* req) {
-  HandleScope scope;
-
-  Commit_data* aData = (Commit_data*) req->data;
-
-  Handle<Value> argv[1];
-  if (aData->error)
-    argv[0] = Exception::Error(String::New(aData->error->get_msg().c_str()));
-
-  tryCallCatch(aData->callback, aData->object->handle_, aData->error ? 1 : 0, argv);
-
-  delete aData;
-
-  return 0;
+Handle<Value> WritableDatabase::Commit_convert(void* pData) {
+  Commit_data* data = (Commit_data*) pData;
+  delete data;
+  return Undefined();
 }

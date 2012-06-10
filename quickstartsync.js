@@ -35,16 +35,14 @@ function makeDb(path) {
         });
         return;
       }
-      wdb.commit_transaction(function(err) {
-        if (err) throw err;
-        console.log('committed '+path);
-        if (path === 'db1')
-          makeDb('db2');
-        else {
-          wdb = null;
-          fRead();
-        }
-      });
+      wdb.commit_transaction();
+      console.log('committed '+path);
+      if (path === 'db1')
+        makeDb('db2');
+      else {
+        wdb = null;
+        fRead();
+      }
     }
   });
 }
