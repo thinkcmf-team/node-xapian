@@ -225,16 +225,21 @@ protected:
 
   static Handle<Value> New(const Arguments& args);
 
-  static Handle<Value> ReplaceDocument(const Arguments& args);
-  static int AddDocument_pool(eio_req* req);
-  static int AddDocument_done(eio_req* req);
-  struct AddDocument_data : AsyncOp<WritableDatabase> {
-    AddDocument_data(Handle<Object> ob, Handle<Function> cb, const Xapian::Document& doc, Handle<String> id)
-      : AsyncOp<WritableDatabase>(ob, cb), document(doc), idterm(id) {}
+  struct ReplaceDocument_data {
+    ReplaceDocument_data(const Xapian::Document& doc): document(doc), idterm(Handle<String>()), action(1) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term): document(doc), idterm(term), action(2) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Xapian::docid id): document(doc), docid(id), idterm(Handle<String>()), action(3) {}
     const Xapian::Document& document;
     Xapian::docid docid;
     String::Utf8Value idterm;
+    int action;
   };
+  static void ReplaceDocument_process(void* data, void* that);
+  static Handle<Value> ReplaceDocument_convert(void* data);
+
+  static Handle<Value> ReplaceDocument(const Arguments& args);
+  static Handle<Value> AddDocument(const Arguments& args);
+
 
   static Handle<Value> Commit(const Arguments& args);
   static Handle<Value> BeginTransaction(const Arguments& args);

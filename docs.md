@@ -90,16 +90,16 @@ WritableDatabase - all the methods from Database plus the following
         Complete the transaction currently in progress. 
     cancel_transaction_sync()
         Abort the transaction currently in progress, discarding the pending modifications made to the database. 
-    add_document_sync(object_document) - return uint32
+*    add_document(object_document, [function]) - return uint32
         Add a new document to the database. 
     delete_document_sync(uint32_did)
         Delete a document from the database. 
     delete_document_sync(string_unique_term)
         Delete any documents indexed by a term from the database. 
-    replace_document_sync(uint32_did, object_document)
+*    replace_document(uint32_did, object_document, [function])
         Replace a given document in the database. 
-    replace_document_sync(string_unique_term, object_document) - return uint32_docid
-        Replace any documents matching a term. 
+*    replace_document(string_unique_term, object_document, [function]) - return uint32
+        Replace any documents matching a term. If the term is '', the method acts as add_document.
     add_spelling_sync(string_word, uint32_freqinc=1)
         Add a word to the spelling dictionary. 
     remove_spelling_sync(string_word, uint32_freqdec=1)
