@@ -190,8 +190,6 @@ protected:
     Xapian::WritableDatabase* mWdb;
   };
 
-  static Handle<Value> New(const Arguments& args);
-
   struct Open_data {
     Open_data(Database* th, Handle<String> fn, int wop=0): that(th), filename(fn), writeopts(wop) {}
     Database* that;
@@ -201,9 +199,12 @@ protected:
   static void Open_process(void* data, void* that);
   static Handle<Value> Open_convert(void* data);
 
+  static Handle<Value> New(const Arguments& args);
+  static Handle<Value> Reopen(const Arguments& args);
+
+
   static Handle<Value> AddDatabase(const Arguments& args);
 
-  static Handle<Value> Reopen(const Arguments& args);
 };
 
 
