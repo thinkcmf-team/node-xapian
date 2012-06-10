@@ -226,9 +226,10 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   struct ReplaceDocument_data {
-    ReplaceDocument_data(const Xapian::Document& doc): document(doc), idterm(Handle<String>()), action(1) {}
-    ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term): document(doc), idterm(term), action(2) {}
-    ReplaceDocument_data(const Xapian::Document& doc, Xapian::docid id): document(doc), docid(id), idterm(Handle<String>()), action(3) {}
+    ReplaceDocument_data(const Xapian::Document& doc): document(doc), idterm(Handle<String>()), action(ReplaceDocument_data::eAdd) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term): document(doc), idterm(term), action(ReplaceDocument_data::eRepleceTerm) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Xapian::docid id): document(doc), docid(id), idterm(Handle<String>()), action(ReplaceDocument_data::eReplaceDocId) {}
+    enum { eAdd, eRepleceTerm, eReplaceDocId };
     const Xapian::Document& document;
     Xapian::docid docid;
     String::Utf8Value idterm;
