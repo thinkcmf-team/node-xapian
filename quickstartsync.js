@@ -22,29 +22,27 @@ function makeDb(path) {
   console.log('opened WritableDatabase');
   atg.set_database(wdb);
   atg.set_flags(xapian.TermGenerator.FLAG_SPELLING);
-  wdb.begin_transaction(true, function(err) {
-    if (err) throw err;
-    fAdd(0);
-    function fAdd(n) {
-      if (n < aDocs.length) {
-        xapian.assemble_document(atg, m2t, aDocs[n], function(err, doc) {
-          if (err) throw err;
-          wdb.replace_document(aDocs[n].id_term||'', doc);
-          console.log('added "'+aDocs[n].data+'"');
-          fAdd(++n);
-        });
-        return;
-      }
-      wdb.commit_transaction();
-      console.log('committed '+path);
-      if (path === 'db1')
-        makeDb('db2');
-      else {
-        wdb = null;
-        fRead();
-      }
+  wdb.begin_transaction(true);
+  fAdd(0);
+  function fAdd(n) {
+    if (n < aDocs.length) {
+      xapian.assemble_document(atg, m2t, aDocs[n], function(err, doc) {
+        if (err) throw err;
+        wdb.replace_document(aDocs[n].id_term||'', doc);
+        console.log('added "'+aDocs[n].data+'"');
+        fAdd(++n);
+      });
+      return;
     }
-  });
+    wdb.commit_transaction();
+    console.log('committed '+path);
+    if (path === 'db1')
+      makeDb('db2');
+    else {
+      wdb = null;
+      fRead();
+    }
+  }
 }
 
 function fRead() {
