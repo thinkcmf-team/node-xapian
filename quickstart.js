@@ -62,7 +62,7 @@ function fRead() {
       if (err) throw err;
       databases.add_database(db2);
       var enquire = new xapian.Enquire(databases); // assumes no i/o
-      var query = new xapian.Query(xapian.Query.OP_OR, 'one', 'six', 'min');
+      var query = new xapian.Query({op: xapian.Query.OP_OR, queries: ['one', 'six', 'min']});
       console.log("Performing query [" + query.description + "]");
       enquire.set_query(query); // assumes no i/o
 

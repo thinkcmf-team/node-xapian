@@ -306,8 +306,9 @@ public:
   Xapian::Query mQry;
 
 protected:
-  template <class T>
-  Query(Xapian::Query::op o, T a, T b) : ObjectWrap(), mQry(o, a, b) {}
+  Query(Xapian::Query q) : ObjectWrap(), mQry(q) {}
+
+  static Xapian::Query GetQuery(Handle<Value> obj);
 
   ~Query() {}
 

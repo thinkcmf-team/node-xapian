@@ -216,7 +216,7 @@ Query
                 tname: string,
                 wqf: uint32, //default 1
                 pos: uint32 //default 0
-            }
+            } or string
             A query consisting of two or more subqueries, opp-ed together.
             AND, OR, XOR, SYNONYM, NEAR, PHRASE, OP_FILTER, OP_AND_NOT, OP_AND_MAYBE, ELITE_SET can take any number of subqueries. 
             Other operators take only the first two subqueries.

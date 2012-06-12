@@ -30,21 +30,79 @@ void Query::Init(Handle<Object> target) {
 
 Handle<Value> Query::New(const Arguments& args) {
   HandleScope scope;
-  int aN;
-  std::vector<std::string> aList;
-  for (aN = 1; aN < args.Length() && args[aN]->IsString(); ++aN)
-    aList.push_back(*String::Utf8Value(args[aN]));
-  if (args.Length() < 2 || !args[0]->IsInt32() || aN < args.Length())
-    return ThrowException(Exception::TypeError(String::New("arguments are (Query.op, string ...)")));
+  if (args.Length() !=1)
+    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject) or (string)")));
   Query* that;
   const char* aDesc;
   try {
-  that = new Query((Xapian::Query::op)args[0]->Int32Value(), aList.begin(), aList.end());
-  aDesc = that->mQry.get_description().c_str();
+    that = new Query(GetQuery(args[0]));
+    aDesc = that->mQry.get_description().c_str();
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }
   args.This()->Set(String::NewSymbol("description"), String::New(aDesc));
   that->Wrap(args.This());
   return args.This();
+
 }
+
+Xapian::Query Query::GetQuery(Handle<Value> obj) {
+
+  if (obj->IsString()) {
+    return Xapian::Query(*String::Utf8Value(obj));
+  }
+
+  if (!obj->IsObject())
+    ;//throw
+  Local<Object> aObj = obj->ToObject();
+  Local<String> aKey, aKey2;
+  Local<Value> aVal, aVal2;
+
+  if (aObj->Has(aKey = String::New("tname"))) {
+    aVal = aObj->Get(aKey);
+    if (!aVal->IsString())
+      ;//throw
+    unsigned aWqf = 1, aPos = 0;
+    if (aObj->Has(aKey2 = String::New("wqf"))) {
+      aVal2 = aObj->Get(aKey2);
+      if (!aVal->IsUint32())
+        ;//throw
+      aWqf = aVal->Uint32Value();
+    }
+    if (aObj->Has(aKey2 = String::New("pos"))) {
+      aVal2 = aObj->Get(aKey2);
+      if (!aVal->IsUint32())
+        ;//throw
+      aPos = aVal->Uint32Value();
+    }
+    return Xapian::Query(*String::Utf8Value(aVal), aWqf, aPos);
+  }
+
+  if (aObj->Has(aKey = String::New("op"))) {
+    aVal = aObj->Get(aKey);
+    if (!aVal->IsInt32())
+      ;//throw
+    int op = aVal->Int32Value();
+
+    if (aObj->Has(aKey = String::New("queries"))) {
+      aVal = aObj->Get(aKey);
+      if (!aVal->IsArray())
+        ;//throw
+      std::vector<Xapian::Query> aList;
+      Handle<Array> aArr = Handle<Array>::Cast(aVal);
+      for (unsigned i = 0; i < aArr->Length(); i++) {
+        aList.push_back(GetQuery(aArr->Get(Int32::New(i))));
+      }
+      return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end());
+    }
+
+    //throw unknown query object
+  }
+
+  //throw unknown query object
+  return Xapian::Query();
+}
+
+
+
+
