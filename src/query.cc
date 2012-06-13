@@ -36,7 +36,7 @@ static Xapian::Query Parse(Handle<Value> obj) {
   }
 
   if (!obj->IsObject())
-    ;//throw
+    throw Exception::TypeError(String::New("a QueryObject is invalid - not object or string"));
   Local<Object> aObj = obj->ToObject();
   Local<String> aKey, aKey2;
   Local<Value> aVal, aVal2;
@@ -44,18 +44,18 @@ static Xapian::Query Parse(Handle<Value> obj) {
   if (aObj->Has(aKey = String::New("tname"))) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsString())
-      ;//throw
+      throw Exception::TypeError(String::New("tname in a QueryObject is not string"));
     unsigned aWqf = 1, aPos = 0;
     if (aObj->Has(aKey2 = String::New("wqf"))) {
       aVal2 = aObj->Get(aKey2);
       if (!aVal->IsUint32())
-        ;//throw
+        throw Exception::TypeError(String::New("wqf in a QueryObject is not uint32"));
       aWqf = aVal->Uint32Value();
     }
     if (aObj->Has(aKey2 = String::New("pos"))) {
       aVal2 = aObj->Get(aKey2);
       if (!aVal->IsUint32())
-        ;//throw
+        throw Exception::TypeError(String::New("wqf in a QueryObject is not uint32"));
       aPos = aVal->Uint32Value();
     }
     return Xapian::Query(*String::Utf8Value(aVal), aWqf, aPos);
@@ -64,13 +64,13 @@ static Xapian::Query Parse(Handle<Value> obj) {
   if (aObj->Has(aKey = String::New("op"))) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsInt32())
-      ;//throw
+      throw Exception::TypeError(String::New("op in a QueryObject is not valid"));
     int op = aVal->Int32Value();
 
     if (aObj->Has(aKey = String::New("queries"))) {
       aVal = aObj->Get(aKey);
       if (!aVal->IsArray())
-        ;//throw
+        throw Exception::TypeError(String::New("queries in a QueryObject is not array"));
       std::vector<Xapian::Query> aList;
       Handle<Array> aArr = Handle<Array>::Cast(aVal);
       for (unsigned i = 0; i < aArr->Length(); i++) {
@@ -79,10 +79,9 @@ static Xapian::Query Parse(Handle<Value> obj) {
       return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end());
     }
 
-    //throw unknown query object
   }
 
-  //throw unknown query object
+  throw Exception::TypeError(String::New("unknown type of QueryObject in query"));
   return Xapian::Query();
 }
 
@@ -97,6 +96,8 @@ Handle<Value> Query::New(const Arguments& args) {
     aDesc = that->mQry.get_description().c_str();
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  } catch (Handle<Value> ex) {
+    return ThrowException(ex);
   }
   args.This()->Set(String::NewSymbol("description"), String::New(aDesc));
   that->Wrap(args.This());
