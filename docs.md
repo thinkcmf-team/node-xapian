@@ -222,7 +222,8 @@ Query
             Other operators take only the first two subqueries.
             {
                 op: string,
-                queries: [ object_querystructure1, ...]
+                queries: [ object_querystructure1, ...],
+                parameter: number //default 0
             }
             A query consisting of two termnames opp-ed together. 
             {
