@@ -228,10 +228,10 @@ protected:
 
 
   struct ReplaceDocument_data {
-    ReplaceDocument_data(const Xapian::Document& doc): document(doc), idterm(Handle<String>()), action(ReplaceDocument_data::eAdd) {}
-    ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term): document(doc), idterm(term), action(ReplaceDocument_data::eRepleceTerm) {}
-    ReplaceDocument_data(const Xapian::Document& doc, Xapian::docid id): document(doc), docid(id), idterm(Handle<String>()), action(ReplaceDocument_data::eReplaceDocId) {}
-    enum { eAdd, eRepleceTerm, eReplaceDocId };
+    enum { eAdd, eReplaceTerm, eReplaceDocId };
+    ReplaceDocument_data(const Xapian::Document& doc) : document(doc), idterm(Handle<String>()), action(eAdd) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Handle<String> term) : document(doc), idterm(term), action(eReplaceTerm) {}
+    ReplaceDocument_data(const Xapian::Document& doc, Xapian::docid id) : document(doc), docid(id), idterm(Handle<String>()), action(eReplaceDocId) {}
     const Xapian::Document& document;
     Xapian::docid docid;
     String::Utf8Value idterm;
@@ -284,6 +284,7 @@ class Stem : public ObjectWrap {
 public:
   static void Init(Handle<Object> target);
 
+
   static Persistent<FunctionTemplate> constructor_template;
 
   Xapian::Stem mStem;
@@ -307,8 +308,6 @@ public:
 
 protected:
   Query(Xapian::Query q) : ObjectWrap(), mQry(q) {}
-
-  static Xapian::Query GetQuery(Handle<Value> obj);
 
   ~Query() {}
 

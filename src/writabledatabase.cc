@@ -100,7 +100,7 @@ void WritableDatabase::ReplaceDocument_process(void* pData, void* pThat) {
   case ReplaceDocument_data::eAdd:
     data->docid = that->mWdb->add_document(data->document);
     break;
-  case ReplaceDocument_data::eRepleceTerm:
+  case ReplaceDocument_data::eReplaceTerm:
     data->docid = that->mWdb->replace_document(*data->idterm, data->document);
     break;
   case ReplaceDocument_data::eReplaceDocId:
@@ -116,7 +116,7 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
 
   switch (data->action) {
   case ReplaceDocument_data::eAdd:
-  case ReplaceDocument_data::eRepleceTerm:
+  case ReplaceDocument_data::eReplaceTerm:
     aResult = Integer::NewFromUnsigned(data->docid);
     break;
   case ReplaceDocument_data::eReplaceDocId:

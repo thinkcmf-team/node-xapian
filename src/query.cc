@@ -28,25 +28,8 @@ void Query::Init(Handle<Object> target) {
   aO->Set(String::NewSymbol("OP_SYNONYM"     ), Integer::New(Xapian::Query::OP_SYNONYM     ), ReadOnly);
 }
 
-Handle<Value> Query::New(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() !=1)
-    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject) or (string)")));
-  Query* that;
-  const char* aDesc;
-  try {
-    that = new Query(GetQuery(args[0]));
-    aDesc = that->mQry.get_description().c_str();
-  } catch (const Xapian::Error& err) {
-    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
-  }
-  args.This()->Set(String::NewSymbol("description"), String::New(aDesc));
-  that->Wrap(args.This());
-  return args.This();
-
-}
-
-Xapian::Query Query::GetQuery(Handle<Value> obj) {
+//TODO: add JS query spec
+static Xapian::Query Parse(Handle<Value> obj) {
 
   if (obj->IsString()) {
     return Xapian::Query(*String::Utf8Value(obj));
@@ -91,7 +74,7 @@ Xapian::Query Query::GetQuery(Handle<Value> obj) {
       std::vector<Xapian::Query> aList;
       Handle<Array> aArr = Handle<Array>::Cast(aVal);
       for (unsigned i = 0; i < aArr->Length(); i++) {
-        aList.push_back(GetQuery(aArr->Get(Int32::New(i))));
+        aList.push_back(Parse(aArr->Get(Int32::New(i))));
       }
       return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end());
     }
@@ -103,6 +86,23 @@ Xapian::Query Query::GetQuery(Handle<Value> obj) {
   return Xapian::Query();
 }
 
+Handle<Value> Query::New(const Arguments& args) {
+  HandleScope scope;
+  if (args.Length() !=1)
+    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject) or (string)")));
+  Query* that;
+  const char* aDesc;
+  try {
+    that = new Query(Parse(args[0]));
+    aDesc = that->mQry.get_description().c_str();
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+  args.This()->Set(String::NewSymbol("description"), String::New(aDesc));
+  that->Wrap(args.This());
+  return args.This();
+
+}
 
 
 
