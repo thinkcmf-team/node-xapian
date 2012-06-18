@@ -28,7 +28,48 @@ void Query::Init(Handle<Object> target) {
   aO->Set(String::NewSymbol("OP_SYNONYM"     ), Integer::New(Xapian::Query::OP_SYNONYM     ), ReadOnly);
 }
 
-//TODO: add JS query spec
+/*
+JS QueryObject:
+
+string
+
+{
+  tname: string,
+  wqf: uint32, //default 1
+  pos: uint32 //default 0
+}
+
+{
+  op: string,
+  queries: [ QueryObject, ...],
+  parameter: number //default 0
+}
+ 
+{
+  op: string,
+  left: string,
+  right: string
+}
+
+{
+  op: string,
+  query: QueryObject,
+  parameter: number
+}
+
+{
+  op: string,
+  slot: uint32,
+  begin: string,
+  end: string
+}
+
+{
+  op: string,
+  slot: uint32,
+  value: string,
+}
+*/
 static Xapian::Query Parse(Handle<Value> obj) {
 
   if (obj->IsString()) {
@@ -113,6 +154,31 @@ static Xapian::Query Parse(Handle<Value> obj) {
       return Xapian::Query(aOp, Parse(aVal), aParameter);
     }
 
+    if (aObj->Has(aKey = String::New("slot"))) {
+      aVal = aObj->Get(aKey);
+      if (!aVal->IsUint32())
+        throw Exception::TypeError(String::New("QueryObject.slot is uint32"));
+      Xapian::valueno aSlot = aVal2->Uint32Value();
+
+      if (aObj->Has(aKey = String::New("begin"))) {
+        aVal = aObj->Get(aKey);
+        if (!aVal->IsString())
+          throw Exception::TypeError(String::New("QueryObject.begin is string"));
+        if (!aObj->Has(aKey2 = String::New("end")))
+          throw Exception::TypeError(String::New("QueryObject.end is missing"));
+        aVal2 = aObj->Get(aKey2);
+        if (!aVal2->IsString())
+          throw Exception::TypeError(String::New("QueryObject.end is string"));
+        return Xapian::Query(aOp, aSlot, *String::Utf8Value(aVal), *String::Utf8Value(aVal2));
+      }
+
+      if (aObj->Has(aKey = String::New("value"))) {
+        aVal = aObj->Get(aKey);
+        if (!aVal->IsString())
+          throw Exception::TypeError(String::New("QueryObject.value is string"));
+        return Xapian::Query(aOp, aSlot, *String::Utf8Value(aVal));
+      }
+    }
   }
 
   throw Exception::TypeError(String::New("QueryObject invalid"));
