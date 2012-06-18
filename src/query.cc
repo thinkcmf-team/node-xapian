@@ -45,7 +45,8 @@ static Xapian::Query Parse(Handle<Value> obj) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsString())
       throw Exception::TypeError(String::New("QueryObject.tname is string"));
-    unsigned aWqf = 1, aPos = 0;
+    Xapian::termcount aWqf = 1;
+    Xapian::termpos aPos = 0;
     if (aObj->Has(aKey2 = String::New("wqf"))) {
       aVal2 = aObj->Get(aKey2);
       if (!aVal2->IsUint32())
@@ -65,25 +66,25 @@ static Xapian::Query Parse(Handle<Value> obj) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsInt32())
       throw Exception::TypeError(String::New("QueryObject.op is invalid"));
-    Xapian::Query::op op = (Xapian::Query::op)aVal->Int32Value();
+    Xapian::Query::op aOp = (Xapian::Query::op)aVal->Int32Value();
 
     if (aObj->Has(aKey = String::New("queries"))) {
 
-      unsigned aParameter = 0;
+      Xapian::termcount aParameter = 0;
       if (aObj->Has(aKey2 = String::New("parameter"))) {
         aVal2 = aObj->Get(aKey2);
         if (!aVal2->IsUint32())
           throw Exception::TypeError(String::New("QueryObject.parameter is uint32"));
         aParameter = aVal2->Uint32Value();
       }
+      aVal = aObj->Get(aKey);
       if (!aVal->IsArray())
         throw Exception::TypeError(String::New("QueryObject.queries is array"));
       std::vector<Xapian::Query> aList;
-      aVal = aObj->Get(aKey);
       Handle<Array> aArr = Handle<Array>::Cast(aVal);
       for (unsigned i = 0; i < aArr->Length(); i++)
-        aList.push_back(Parse(aArr->Get(Int32::New(i))));
-      return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end(), aParameter);
+        aList.push_back(Parse(aArr->Get(i)));
+      return Xapian::Query(aOp, aList.begin(), aList.end(), aParameter);
     }
 
     if (aObj->Has(aKey = String::New("left"))) {
@@ -91,11 +92,25 @@ static Xapian::Query Parse(Handle<Value> obj) {
       if (!aVal->IsString())
         throw Exception::TypeError(String::New("QueryObject.left is string"));
       if (!aObj->Has(aKey2 = String::New("right")))
-        throw Exception::TypeError(String::New("QueryObject has left but not right"));
+        throw Exception::TypeError(String::New("QueryObject.right is missing"));
       aVal2 = aObj->Get(aKey2);
       if (!aVal2->IsString())
         throw Exception::TypeError(String::New("QueryObject.right is string"));
-      return Xapian::Query((Xapian::Query::op)op, std::string(*String::Utf8Value(aVal)), std::string(*String::Utf8Value(aVal2)));
+      return Xapian::Query(aOp, std::string(*String::Utf8Value(aVal)), std::string(*String::Utf8Value(aVal2)));
+    }
+
+    if (aObj->Has(aKey = String::New("query"))) {
+      aVal = aObj->Get(aKey);
+      if (!aVal->IsObject())
+        throw Exception::TypeError(String::New("QueryObject.query is QueryObject"));
+      double aParameter = 0;
+      if (aObj->Has(aKey2 = String::New("parameter"))) {
+        aVal2 = aObj->Get(aKey2);
+        if (!aVal2->IsNumber())
+          throw Exception::TypeError(String::New("QueryObject.parameter is number"));
+        aParameter = aVal2->NumberValue();
+      }
+      return Xapian::Query(aOp, Parse(aVal), aParameter);
     }
 
   }
