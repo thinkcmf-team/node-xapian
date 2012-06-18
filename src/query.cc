@@ -38,8 +38,8 @@ static Xapian::Query Parse(Handle<Value> obj) {
   if (!obj->IsObject())
     throw Exception::TypeError(String::New("QueryObject invalid, not object or string"));
   Local<Object> aObj = obj->ToObject();
-  Local<String> aKey, aKey2;
-  Local<Value> aVal, aVal2;
+  Local<String> aKey, aKey2, aKey3;
+  Local<Value> aVal, aVal2, aVal3;
 
   if (aObj->Has(aKey = String::New("tname"))) {
     aVal = aObj->Get(aKey);
@@ -65,11 +65,11 @@ static Xapian::Query Parse(Handle<Value> obj) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsInt32())
       throw Exception::TypeError(String::New("QueryObject.op is invalid"));
-    int op = aVal->Int32Value();
+    Xapian::Query::op op = (Xapian::Query::op)aVal->Int32Value();
 
     if (aObj->Has(aKey = String::New("queries"))) {
-      aVal = aObj->Get(aKey);
-      unsigned aParameter=0;
+
+      unsigned aParameter = 0;
       if (aObj->Has(aKey2 = String::New("parameter"))) {
         aVal2 = aObj->Get(aKey2);
         if (!aVal2->IsUint32())
@@ -79,11 +79,11 @@ static Xapian::Query Parse(Handle<Value> obj) {
       if (!aVal->IsArray())
         throw Exception::TypeError(String::New("QueryObject.queries is array"));
       std::vector<Xapian::Query> aList;
+      aVal = aObj->Get(aKey);
       Handle<Array> aArr = Handle<Array>::Cast(aVal);
-      for (unsigned i = 0; i < aArr->Length(); i++) {
+      for (unsigned i = 0; i < aArr->Length(); i++)
         aList.push_back(Parse(aArr->Get(Int32::New(i))));
-      }
-      return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end(),aParameter);
+      return Xapian::Query((Xapian::Query::op)op, aList.begin(), aList.end(), aParameter);
     }
 
     if (aObj->Has(aKey = String::New("left"))) {
@@ -101,7 +101,6 @@ static Xapian::Query Parse(Handle<Value> obj) {
   }
 
   throw Exception::TypeError(String::New("QueryObject invalid"));
-  return Xapian::Query();
 }
 
 Handle<Value> Query::New(const Arguments& args) {
