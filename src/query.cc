@@ -36,7 +36,7 @@ static Xapian::Query Parse(Handle<Value> obj) {
   }
 
   if (!obj->IsObject())
-    throw Exception::TypeError(String::New("a QueryObject is invalid - not object or string"));
+    throw Exception::TypeError(String::New("QueryObject invalid, not object or string"));
   Local<Object> aObj = obj->ToObject();
   Local<String> aKey, aKey2;
   Local<Value> aVal, aVal2;
@@ -44,18 +44,18 @@ static Xapian::Query Parse(Handle<Value> obj) {
   if (aObj->Has(aKey = String::New("tname"))) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsString())
-      throw Exception::TypeError(String::New("tname in a QueryObject is not string"));
+      throw Exception::TypeError(String::New("QueryObject.tname is string"));
     unsigned aWqf = 1, aPos = 0;
     if (aObj->Has(aKey2 = String::New("wqf"))) {
       aVal2 = aObj->Get(aKey2);
       if (!aVal2->IsUint32())
-        throw Exception::TypeError(String::New("wqf in a QueryObject is not uint32"));
+        throw Exception::TypeError(String::New("QueryObject.wqf is uint32"));
       aWqf = aVal2->Uint32Value();
     }
     if (aObj->Has(aKey2 = String::New("pos"))) {
       aVal2 = aObj->Get(aKey2);
       if (!aVal2->IsUint32())
-        throw Exception::TypeError(String::New("wqf in a QueryObject is not uint32"));
+        throw Exception::TypeError(String::New("QueryObject.wqf is uint32"));
       aPos = aVal2->Uint32Value();
     }
     return Xapian::Query(*String::Utf8Value(aVal), aWqf, aPos);
@@ -64,7 +64,7 @@ static Xapian::Query Parse(Handle<Value> obj) {
   if (aObj->Has(aKey = String::New("op"))) {
     aVal = aObj->Get(aKey);
     if (!aVal->IsInt32())
-      throw Exception::TypeError(String::New("op in a QueryObject is not valid"));
+      throw Exception::TypeError(String::New("QueryObject.op is invalid"));
     int op = aVal->Int32Value();
 
     if (aObj->Has(aKey = String::New("queries"))) {
@@ -73,11 +73,11 @@ static Xapian::Query Parse(Handle<Value> obj) {
       if (aObj->Has(aKey2 = String::New("parameter"))) {
         aVal2 = aObj->Get(aKey2);
         if (!aVal2->IsUint32())
-          throw Exception::TypeError(String::New("parameter in a QueryObject qith queries is not uint32"));
+          throw Exception::TypeError(String::New("QueryObject.parameter is uint32"));
         aParameter = aVal2->Uint32Value();
       }
       if (!aVal->IsArray())
-        throw Exception::TypeError(String::New("queries in a QueryObject is not array"));
+        throw Exception::TypeError(String::New("QueryObject.queries is array"));
       std::vector<Xapian::Query> aList;
       Handle<Array> aArr = Handle<Array>::Cast(aVal);
       for (unsigned i = 0; i < aArr->Length(); i++) {
@@ -89,25 +89,25 @@ static Xapian::Query Parse(Handle<Value> obj) {
     if (aObj->Has(aKey = String::New("left"))) {
       aVal = aObj->Get(aKey);
       if (!aVal->IsString())
-        throw Exception::TypeError(String::New("left in a QueryObject is not string"));
+        throw Exception::TypeError(String::New("QueryObject.left is string"));
       if (!aObj->Has(aKey2 = String::New("right")))
-        throw Exception::TypeError(String::New("a QueryObject has left but not right"));
+        throw Exception::TypeError(String::New("QueryObject has left but not right"));
       aVal2 = aObj->Get(aKey2);
       if (!aVal2->IsString())
-        throw Exception::TypeError(String::New("right in a QueryObject is not string"));
+        throw Exception::TypeError(String::New("QueryObject.right is string"));
       return Xapian::Query((Xapian::Query::op)op, std::string(*String::Utf8Value(aVal)), std::string(*String::Utf8Value(aVal2)));
     }
 
   }
 
-  throw Exception::TypeError(String::New("unknown type of QueryObject in query"));
+  throw Exception::TypeError(String::New("QueryObject invalid"));
   return Xapian::Query();
 }
 
 Handle<Value> Query::New(const Arguments& args) {
   HandleScope scope;
   if (args.Length() !=1)
-    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject) or (string)")));
+    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject | string)")));
   Query* that;
   const char* aDesc;
   try {
