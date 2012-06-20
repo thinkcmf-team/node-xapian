@@ -95,15 +95,9 @@ void WritableDatabase::ReplaceDocument_process(void* pData, void* pThat) {
   WritableDatabase* that = (WritableDatabase *) pThat;
 
   switch (data->action) {
-  case ReplaceDocument_data::eAdd:
-  data->docid = that->mWdb->add_document(data->document);
-    break;
-  case ReplaceDocument_data::eReplaceTerm:
-    data->docid = that->mWdb->replace_document(*data->idterm, data->document);
-    break;
-  case ReplaceDocument_data::eReplaceDocId:
-    that->mWdb->replace_document(data->docid, data->document);
-    break;
+  case ReplaceDocument_data::eAdd:          data->docid = that->mWdb->add_document(data->document);                    break;
+  case ReplaceDocument_data::eReplaceTerm:  data->docid = that->mWdb->replace_document(*data->idterm, data->document); break;
+  case ReplaceDocument_data::eReplaceDocId: that->mWdb->replace_document(data->docid, data->document);                 break;
   }
 }
 
