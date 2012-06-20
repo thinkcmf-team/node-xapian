@@ -338,7 +338,10 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   struct Generic_data {
-    enum { eGetData };
+    enum { 
+      eGetValue, eAddValue, eRemoveValue, eClearValues, eGetData, eSetData, eAddPosting, eAddTerm, eAddBooleanTerm,
+      eRemovePosting, eRemoveTerm, eClearTerms, eTermlistCount, eValuesCount, eGetDocid, eSerialise, eGetDescription
+    };
     Generic_data(int a) : action(a) {}
     Generic_data(int a, uint32_t v1) : action(a), val1(v1) {}
     Generic_data(int a, const std::string &s) : action(a), str(s) {}
@@ -351,6 +354,8 @@ protected:
   static void Generic_process(void* data, void* that);
   static Handle<Value> Generic_convert(void* data);
 
+  static Handle<Value> GetValue(const Arguments& args);
+  static Handle<Value> AddValue(const Arguments& args);
   static Handle<Value> GetData(const Arguments& args);
 
 };
