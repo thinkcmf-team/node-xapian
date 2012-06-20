@@ -98,7 +98,7 @@ void WritableDatabase::ReplaceDocument_process(void* pData, void* pThat) {
 
   switch (data->action) {
   case ReplaceDocument_data::eAdd:
-    data->docid = that->mWdb->add_document(data->document);
+  data->docid = that->mWdb->add_document(data->document);
     break;
   case ReplaceDocument_data::eReplaceTerm:
     data->docid = that->mWdb->replace_document(*data->idterm, data->document);
@@ -116,12 +116,8 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
 
   switch (data->action) {
   case ReplaceDocument_data::eAdd:
-  case ReplaceDocument_data::eReplaceTerm:
-    aResult = Integer::NewFromUnsigned(data->docid);
-    break;
-  case ReplaceDocument_data::eReplaceDocId:
-    aResult = Undefined();
-    break;
+  case ReplaceDocument_data::eReplaceTerm:  aResult = Integer::NewFromUnsigned(data->docid); break;
+  case ReplaceDocument_data::eReplaceDocId: aResult = Undefined();                           break;
   }
 
   delete data;
@@ -192,7 +188,7 @@ void WritableDatabase::Commit_process(void* pData, void* pThat) {
 
   switch (data->type) {
   case Commit_data::eCommit:   that->mWdb->commit();                        break;
-  case Commit_data::eBeginTx:  that->mWdb->begin_transaction(data->flush); break;
+  case Commit_data::eBeginTx:  that->mWdb->begin_transaction(data->flush);  break;
   case Commit_data::eCommitTx: that->mWdb->commit_transaction();            break;
   }
 }

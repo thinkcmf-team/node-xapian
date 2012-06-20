@@ -307,7 +307,7 @@ public:
   Xapian::Query mQry;
 
 protected:
-  Query(Xapian::Query q) : ObjectWrap(), mQry(q) {}
+  Query(const Xapian::Query& q) : ObjectWrap(), mQry(q) {}
 
   ~Query() {}
 

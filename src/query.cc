@@ -29,58 +29,34 @@ void Query::Init(Handle<Object> target) {
 }
 
 /*
+//TODO: add link to the xapian equivalents online
 JS QueryObject:
 
 string
 
-{
-  tname: string,
-  wqf: uint32, //default 1
-  pos: uint32 //default 0
-}
+{tname: string, wqf: uint32=1, pos: uint32=0}
 
-{
-  op: string,
-  queries: [ QueryObject, ...],
-  parameter: number //default 0
-}
+{op: string, queries: [QueryObject, ...], parameter: number=0}
  
-{
-  op: string,
-  left: string,
-  right: string
-}
+{op: string, left: string, right: string}
 
-{
-  op: string,
-  query: QueryObject,
-  parameter: number
-}
+{ op: string, query: QueryObject, parameter: number}
 
-{
-  op: string,
-  slot: uint32,
-  begin: string,
-  end: string
-}
+{ op: string, slot: uint32, begin: string, end: string}
 
-{
-  op: string,
-  slot: uint32,
-  value: string,
-}
+{ op: string, slot: uint32, value: string}
 */
+
 static Xapian::Query Parse(Handle<Value> obj) {
 
-  if (obj->IsString()) {
+  if (obj->IsString())
     return Xapian::Query(*String::Utf8Value(obj));
-  }
 
   if (!obj->IsObject())
     throw Exception::TypeError(String::New("QueryObject invalid, not object or string"));
   Local<Object> aObj = obj->ToObject();
-  Local<String> aKey, aKey2, aKey3;
-  Local<Value> aVal, aVal2, aVal3;
+  Local<String> aKey, aKey2;
+  Local<Value> aVal, aVal2;
 
   if (aObj->Has(aKey = String::New("tname"))) {
     aVal = aObj->Get(aKey);
@@ -110,7 +86,6 @@ static Xapian::Query Parse(Handle<Value> obj) {
     Xapian::Query::op aOp = (Xapian::Query::op)aVal->Int32Value();
 
     if (aObj->Has(aKey = String::New("queries"))) {
-
       Xapian::termcount aParameter = 0;
       if (aObj->Has(aKey2 = String::New("parameter"))) {
         aVal2 = aObj->Get(aKey2);
