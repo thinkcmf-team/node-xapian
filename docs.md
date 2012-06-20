@@ -130,7 +130,7 @@ Document
         Remove any value with the given number. 
     clear_values_sync()
         Remove all values associated with the document. 
-    get_data_sync() - return string
+*    get_data([function]) - return string
         Get data stored in the document. 
     set_data_sync(string_data)
         Set data stored in the document. 

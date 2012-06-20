@@ -316,7 +316,7 @@ protected:
   //static Handle<Value> Fn(const Arguments& args);
 };
 
-class Document : public ObjectWrap {
+class Document : public XapWrap<Document> {
 public:
   static void Init(Handle<Object> target);
 
@@ -327,28 +327,32 @@ public:
   }
 
 protected:
-  Document(Xapian::Document* iDoc) : ObjectWrap(), mDoc(iDoc), mBusy(false) {}
+  Document(Xapian::Document* iDoc) : mDoc(iDoc) {}
 
   ~Document() {
     delete mDoc;
   }
 
   Xapian::Document* mDoc;
-  bool mBusy;
-
-  friend struct AsyncOp<Document>;
 
   static Handle<Value> New(const Arguments& args);
 
+  struct Generic_data {
+    enum { eGetData };
+    Generic_data(int a) : action(a) {}
+    Generic_data(int a, uint32_t v1) : action(a), val1(v1) {}
+    Generic_data(int a, const std::string &s) : action(a), str(s) {}
+    Generic_data(int a, const std::string &s, uint32_t v1) : action(a), str(s), val1(v1) {}
+    Generic_data(int a, const std::string &s, uint32_t v1, uint32_t v2) : action(a), str(s), val1(v1), val2(v2) {}
+    int action;
+    std::string str;
+    uint32_t val1, val2;
+  };
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> GetData(const Arguments& args);
-  static int GetData_pool(eio_req* req);
-  static int GetData_done(eio_req* req);
-  struct GetData_data : AsyncOp<Document> {
-    GetData_data(Handle<Object> ob, Handle<Function> cb)
-      : AsyncOp<Document>(ob, cb) {}
-    std::string data;
-  };
+
 };
 
 

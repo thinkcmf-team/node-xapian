@@ -26,50 +26,39 @@ Handle<Value> Document::New(const Arguments& args) {
 
 Handle<Value> Document::GetData(const Arguments& args) {
   HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
 
-  if (args.Length() < 1 || !args[0]->IsFunction())
-    return ThrowException(Exception::TypeError(String::New("arguments are (function)")));
-  GetData_data* aData;
+  Generic_data* aData = new Generic_data(Generic_data::eGetData); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
   try {
-    aData = new GetData_data(args.This(), Local<Function>::Cast(args[0]));
-  } catch (Local<Value> ex) {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
     return ThrowException(ex);
   }
-
-  eio_custom(GetData_pool, EIO_PRI_DEFAULT, GetData_done, aData);
-
-  return Undefined();
+  return scope.Close(aResult);
 }
 
-int Document::GetData_pool(eio_req* req) {
-  GetData_data* aData = (GetData_data*) req->data;
+void Document::Generic_process(void* pData, void* pThat) {
+  Generic_data* data = (Generic_data*) pData;
+  Document* that = (Document *) pThat;
 
-  try {
-  aData->data = aData->object->mDoc->get_data();
-  } catch (const Xapian::Error& err) {
-    aData->error = new Xapian::Error(err);
+  switch (data->action) {
+  case Generic_data::eGetData: data->str = that->mDoc->get_data(); break;
   }
-
-  aData->poolDone();
-  return 0;
 }
 
-int Document::GetData_done(eio_req* req) {
-  HandleScope scope;
+Handle<Value> Document::Generic_convert(void* pData) {
+  Generic_data* data = (Generic_data*) pData;
+  Handle<Value> aResult;
 
-  GetData_data* aData = (GetData_data*) req->data;
-
-  Handle<Value> argv[2];
-  if (aData->error) {
-    argv[0] = Exception::Error(String::New(aData->error->get_msg().c_str()));
-  } else {
-    argv[0] = Null();
-    argv[1] = String::New(aData->data.c_str());
+  switch (data->action) {
+  case Generic_data::eGetData:  aResult = String::New(data->str.c_str()); break;
   }
 
-  tryCallCatch(aData->callback, aData->object->handle_, aData->error ? 1 : 2, argv);
-
-  delete aData;
-
-  return 0;
+  delete data;
+  return aResult;
 }

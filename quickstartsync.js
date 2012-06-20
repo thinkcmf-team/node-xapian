@@ -62,11 +62,9 @@ function fRead() {
   iter(0);
   function iter(i) { // can't for-loop when depending on callback
     if (i < mset.length) {
-      mset[i].document.get_data(function(err, data) {
-        if (err) throw err;
-        console.log("Document ID " + mset[i].id + "\t" + mset[i].percent + "% [" + data + "]");
-        iter(++i);
-      });
+      var data = mset[i].document.get_data();
+      console.log("Document ID " + mset[i].id + "\t" + mset[i].percent + "% [" + data + "]");
+      iter(++i);
       return;
     }
     databases = null;
