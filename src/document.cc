@@ -14,6 +14,8 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_data", GetData);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_data", SetData);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_posting", AddPosting);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_term", AddTerm);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_boolean_term", AddBooleanTerm);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -146,6 +148,43 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
     return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
 
   Generic_data* aData = new Generic_data(Generic_data::eAddPosting, (char*)*args[0]->ToString(), args[1]->Uint32Value(), aHasWdfinc?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::AddTerm(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = (args.Length() == 2 && args[1]->IsFunction()) || (args.Length() == 3 && args[2]->IsFunction());
+  bool aHasWdfinc = (args.Length()>=2 && args[1]->IsUint32());
+  if (args.Length() != +aAsync+aHasWdfinc+1 || !args[0]->IsString())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, [uint32], [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, (char*)*args[0]->ToString(), aHasWdfinc?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
+  if (args.Length() != +aAsync+1 || !args[0]->IsString())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {

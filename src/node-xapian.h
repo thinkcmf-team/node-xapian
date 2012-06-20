@@ -361,6 +361,8 @@ protected:
   static Handle<Value> GetData(const Arguments& args);
   static Handle<Value> SetData(const Arguments& args);
   static Handle<Value> AddPosting(const Arguments& args);
+  static Handle<Value> AddTerm(const Arguments& args);
+  static Handle<Value> AddBooleanTerm(const Arguments& args);
 
 };
 

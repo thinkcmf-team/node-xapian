@@ -136,9 +136,9 @@ Document
         Set data stored in the document. 
 *    add_posting(string_tname, uint32_tpos, [uint32_wdfinc=1], [function])
         Add an occurrence of a term at a particular position. 
-    add_term_sync(string_tname, uint32_wdfinc=1)
+*    add_term(string_tname, [uint32_wdfinc=1], [function])
         Add a term to the document, without positional information. 
-    add_boolean_term_sync(string_term)
+*    add_boolean_term(string_term, [function])
         Add a boolean filter term to the document. 
     remove_posting_sync(string_tname, uint32_tpos, uint32_wdfdec=1)
         Remove a posting of a term from the document. 
