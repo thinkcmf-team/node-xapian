@@ -366,6 +366,11 @@ protected:
   static Handle<Value> RemovePosting(const Arguments& args);
   static Handle<Value> RemoveTerm(const Arguments& args);
   static Handle<Value> ClearTerms(const Arguments& args);
+  static Handle<Value> TermlistCount(const Arguments& args);
+  static Handle<Value> ValuesCount(const Arguments& args);
+  static Handle<Value> GetDocid(const Arguments& args);
+  static Handle<Value> Serialise(const Arguments& args);
+  static Handle<Value> GetDescription(const Arguments& args);
 
 };
 

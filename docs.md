@@ -146,15 +146,15 @@ Document
         Remove a term and all postings associated with it. 
 *    clear_terms([function])
         Remove all terms (and postings) from the document. 
-    termlist_count_sync() - return uint32
+*    termlist_count([function]) - return uint32
         The length of the termlist - i.e. 
-    values_count_sync() - return uint32
+*    values_count([function]) - return uint32
         Count the values in this document. 
-    get_docid_sync() - return uint32
+*    get_docid([function]) - return uint32
         Get the document id which is associated with this document (if any). 
-    serialise_sync() - return string
+*    serialise([function]) - return string
         Serialise document into a string. 
-    get_description_sync() - return string
+*    get_description([function]) - return string
         Return a string describing this object. 
     unserialise_sync(string_s) - return object_document
         Unserialise a document from a string produced by serialise().

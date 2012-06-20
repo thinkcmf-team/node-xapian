@@ -19,6 +19,11 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_posting", RemovePosting);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_term", RemoveTerm);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "clear_terms", ClearTerms);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist_count", TermlistCount);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "values_count", ValuesCount);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_docid", GetDocid);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "serialise", Serialise);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -243,6 +248,96 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
     return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
 
   Generic_data* aData = new Generic_data(Generic_data::eClearTerms); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::TermlistCount(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eTermlistCount); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::ValuesCount(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eValuesCount); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::GetDocid(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDocid); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::Serialise(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eSerialise); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::GetDescription(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
