@@ -40,11 +40,11 @@ string
  
 {op: string, left: string, right: string}
 
-{ op: string, query: QueryObject, parameter: number}
+{op: string, query: QueryObject, parameter: number}
 
-{ op: string, slot: uint32, begin: string, end: string}
+{op: string, slot: uint32, begin: string, end: string}
 
-{ op: string, slot: uint32, value: string}
+{op: string, slot: uint32, value: string}
 */
 
 static Xapian::Query Parse(Handle<Value> obj) {

@@ -30,7 +30,7 @@ function makeDb(path) {
         if (n < aDocs.length) {
           xapian.assemble_document(atg, m2t, aDocs[n], function(err, doc) {
             if (err) throw err;
-            wdb.replace_document(aDocs[n].id_term||'', doc, function(err) {
+            wdb.replace_document(aDocs[n].id_term||null, doc, function(err) {
               if (err) throw err;
               console.log('added "'+aDocs[n].data+'"');
               fAdd(++n);

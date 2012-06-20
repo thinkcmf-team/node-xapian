@@ -48,17 +48,15 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
 
   Document* aDoc;
   bool aAsync = args.Length() == 3 && args[2]->IsFunction();
-  if (args.Length() != +aAsync+2 || !(args[0]->IsString() || args[0]->IsUint32()) || !(aDoc = GetInstance<Document>(args[1])))
+  if (args.Length() != +aAsync+2 || !(args[0]->IsString() || args[0]->IsUint32() || args[0]->IsNull()) || !(aDoc = GetInstance<Document>(args[1])))
     return ThrowException(Exception::TypeError(String::New("arguments are (string, Document, [function]) or (uint32, Document, [function])")));
 
   ReplaceDocument_data* aData;
 
-  if (args[0]->IsString()) {
-    if (args[0]->ToString()->Length())
-      aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString()); //deleted by ReplaceDocument_convert on non error
-    else
-      aData = new ReplaceDocument_data(*aDoc->getDoc()); //deleted by ReplaceDocument_convert on non error
-  }
+  if (args[0]->IsNull())
+    aData = new ReplaceDocument_data(*aDoc->getDoc()); //deleted by ReplaceDocument_convert on non error
+  else if (args[0]->IsString())
+    aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString()); //deleted by ReplaceDocument_convert on non error
   else
     aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->Uint32Value()); //deleted by ReplaceDocument_convert on non error
 

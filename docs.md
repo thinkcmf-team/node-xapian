@@ -99,7 +99,9 @@ WritableDatabase - all the methods from Database plus the following
 *    replace_document(uint32_did, object_document, [function])
         Replace a given document in the database. 
 *    replace_document(string_unique_term, object_document, [function]) - return uint32
-        Replace any documents matching a term. If the term is '', the method acts as add_document.
+        Replace any documents matching a term.
+*    replace_document(null, object_document, [function]) - return uint32
+        The method acts as add_document.
     add_spelling_sync(string_word, uint32_freqinc=1)
         Add a word to the spelling dictionary. 
     remove_spelling_sync(string_word, uint32_freqdec=1)
@@ -208,48 +210,17 @@ Query
   methods similar to the C++ API
     Query ()
         Default constructor: makes an empty query which matches no documents. 
-    Query( object_query_structure )
+*    Query( object_query_structure )
         A query defined by a query structure.
           A query structure can be defined as:
-            A query consisting of a single term.
-            {
-                tname: string,
-                wqf: uint32, //default 1
-                pos: uint32 //default 0
-            } or string
-            A query consisting of two or more subqueries, opp-ed together.
-            AND, OR, XOR, SYNONYM, NEAR, PHRASE, OP_FILTER, OP_AND_NOT, OP_AND_MAYBE, ELITE_SET can take any number of subqueries. 
-            Other operators take only the first two subqueries.
-            {
-                op: string,
-                queries: [ object_querystructure1, ...],
-                parameter: number //default 0
-            }
-            A query consisting of two termnames opp-ed together. 
-            {
-              op: string,
-              left: string,
-              right: string
-            }
-            Apply the specified operator to a single QueryStructure object, with a double parameter. 
-            {
-              op: string,
-              query: object_querystructure,
-              parameter: number
-            }
-            A value range query on a document value.
-            {
-                op: string,
-                slot: uint32,
-                begin: string,
-                end: string
-            }
-            A value comparison query on a document value.
-            {
-                op: string,
-                slot: uint32,
-                value: string,
-            }
+            string
+            {tname: string, wqf: uint32=1, pos: uint32=0}
+            {op: string, queries: [QueryObject, ...], parameter: number=0}
+            {op: string, left: string, right: string}
+            {op: string, query: QueryObject, parameter: number}
+            {op: string, slot: uint32, begin: string, end: string}
+            {op: string, slot: uint32, value: string}
+            //TODO: add links
     get_length_sync() - return uint32
         Get the length of the query, used by some ranking formulae. 
     get_terms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
