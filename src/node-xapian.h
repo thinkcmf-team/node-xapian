@@ -221,9 +221,6 @@ protected:
 
   ~WritableDatabase() { }
 
-  //used by AddDocument_data
-  friend struct AsyncOp<WritableDatabase>;
-
   static Handle<Value> New(const Arguments& args);
 
 
