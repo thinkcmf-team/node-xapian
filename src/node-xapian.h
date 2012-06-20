@@ -356,6 +356,8 @@ protected:
 
   static Handle<Value> GetValue(const Arguments& args);
   static Handle<Value> AddValue(const Arguments& args);
+  static Handle<Value> RemoveValue(const Arguments& args);
+  static Handle<Value> ClearValues(const Arguments& args);
   static Handle<Value> GetData(const Arguments& args);
 
 };

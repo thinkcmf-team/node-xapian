@@ -122,13 +122,13 @@ Document
   methods similar to the C++ API
     Document()
         Make a new empty Document. 
-    get_value_sync(uint32_slot) - return string
+*    get_value(uint32_slot, [function]) - return string
         Get value by number.
-    add_value_sync(uint32_slot, string_value)
+*    add_value(uint32_slot, string_value, [function])
         Add a new value. 
-    remove_value_sync(uint32_slot)
+*    remove_value(uint32_slot, [function])
         Remove any value with the given number. 
-    clear_values_sync()
+*    clear_values([function])
         Remove all values associated with the document. 
 *    get_data([function]) - return string
         Get data stored in the document. 

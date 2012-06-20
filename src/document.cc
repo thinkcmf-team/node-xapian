@@ -9,6 +9,8 @@ void Document::Init(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_value", GetValue);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_value", AddValue);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_value", RemoveValue);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "clear_values", ClearValues);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_data", GetData);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
@@ -51,6 +53,42 @@ Handle<Value> Document::AddValue(const Arguments& args) {
     return ThrowException(Exception::TypeError(String::New("arguments are (uint32, string, [function])")));
 
   Generic_data* aData = new Generic_data(Generic_data::eAddValue, (char*)*args[1]->ToString(), args[0]->Uint32Value()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::RemoveValue(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
+  if (args.Length() != +aAsync+1 || !args[0]->IsUint32())
+    return ThrowException(Exception::TypeError(String::New("arguments are (uint32, [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eRemoveValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::ClearValues(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eClearValues); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
