@@ -16,6 +16,9 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_posting", AddPosting);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_term", AddTerm);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_boolean_term", AddBooleanTerm);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_posting", RemovePosting);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_term", RemoveTerm);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "clear_terms", ClearTerms);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -185,6 +188,61 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
     return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
 
   Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::RemovePosting(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
+  bool aHasWdfdec = (args.Length()>=3 && args[2]->IsUint32());
+  if (args.Length() != +aAsync+aHasWdfdec+2 || !args[0]->IsString() || !args[1]->IsUint32())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, (char*)*args[0]->ToString(), args[1]->Uint32Value(), aHasWdfdec?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::RemoveTerm(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
+  if (args.Length() != +aAsync+1 || !args[0]->IsString())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::ClearTerms(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
+  if (args.Length() != +aAsync)
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eClearTerms); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {

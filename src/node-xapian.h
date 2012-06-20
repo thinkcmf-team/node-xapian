@@ -363,6 +363,9 @@ protected:
   static Handle<Value> AddPosting(const Arguments& args);
   static Handle<Value> AddTerm(const Arguments& args);
   static Handle<Value> AddBooleanTerm(const Arguments& args);
+  static Handle<Value> RemovePosting(const Arguments& args);
+  static Handle<Value> RemoveTerm(const Arguments& args);
+  static Handle<Value> ClearTerms(const Arguments& args);
 
 };
 

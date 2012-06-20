@@ -140,11 +140,11 @@ Document
         Add a term to the document, without positional information. 
 *    add_boolean_term(string_term, [function])
         Add a boolean filter term to the document. 
-    remove_posting_sync(string_tname, uint32_tpos, uint32_wdfdec=1)
+*    remove_posting(string_tname, uint32_tpos, [uint32_wdfdec=1], [function])
         Remove a posting of a term from the document. 
-    remove_term_sync(string_tname)
+*    remove_term(string_tname, [function])
         Remove a term and all postings associated with it. 
-    clear_terms_sync()
+*    clear_terms([function])
         Remove all terms (and postings) from the document. 
     termlist_count_sync() - return uint32
         The length of the termlist - i.e. 
