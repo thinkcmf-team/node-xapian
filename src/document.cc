@@ -12,6 +12,8 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_value", RemoveValue);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "clear_values", ClearValues);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_data", GetData);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_data", SetData);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_posting", AddPosting);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -107,6 +109,43 @@ Handle<Value> Document::GetData(const Arguments& args) {
     return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
 
   Generic_data* aData = new Generic_data(Generic_data::eGetData); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::SetData(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
+  if (args.Length() != +aAsync+1 || !args[0]->IsString())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eSetData, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+Handle<Value> Document::AddPosting(const Arguments& args) {
+  HandleScope scope;
+  bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
+  bool aHasWdfinc = (args.Length()>=3 && args[2]->IsUint32());
+  if (args.Length() != +aAsync+aHasWdfinc+2 || !args[0]->IsString() || !args[1]->IsUint32())
+    return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
+
+  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, (char*)*args[0]->ToString(), args[1]->Uint32Value(), aHasWdfinc?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {

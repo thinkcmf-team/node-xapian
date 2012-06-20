@@ -359,6 +359,8 @@ protected:
   static Handle<Value> RemoveValue(const Arguments& args);
   static Handle<Value> ClearValues(const Arguments& args);
   static Handle<Value> GetData(const Arguments& args);
+  static Handle<Value> SetData(const Arguments& args);
+  static Handle<Value> AddPosting(const Arguments& args);
 
 };
 

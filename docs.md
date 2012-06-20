@@ -132,9 +132,9 @@ Document
         Remove all values associated with the document. 
 *    get_data([function]) - return string
         Get data stored in the document. 
-    set_data_sync(string_data)
+*    set_data(string_data, [function])
         Set data stored in the document. 
-    add_posting_sync(string_tname, uint32_tpos, uint32_wdfinc=1)
+*    add_posting(string_tname, uint32_tpos, [uint32_wdfinc=1], [function])
         Add an occurrence of a term at a particular position. 
     add_term_sync(string_tname, uint32_wdfinc=1)
         Add a term to the document, without positional information. 
