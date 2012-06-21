@@ -29,21 +29,27 @@ void Query::Init(Handle<Object> target) {
 }
 
 /*
-//TODO: add link to the xapian equivalents online
 JS QueryObject:
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#f396e213df0d8bcffa473a75ebf228d6
 string
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#f396e213df0d8bcffa473a75ebf228d6
 {tname: string, wqf: uint32=1, pos: uint32=0}
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#a2edfc5e6ae285afb9fde26d096c5ed8
 {op: string, queries: [QueryObject, ...], parameter: number=0}
  
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#cd51f1304501311c8dde31dc54c36048
 {op: string, left: string, right: string}
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#4004922547fec06087dc8a63ac484f9b
 {op: string, query: QueryObject, parameter: number}
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#27acaeb8ab8a0c111805a0139e3dc35b
 {op: string, slot: uint32, begin: string, end: string}
 
+http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#15e26a7bf7de2699377cad9e9448a482
 {op: string, slot: uint32, value: string}
 */
 
