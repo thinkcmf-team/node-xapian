@@ -64,7 +64,7 @@ Handle<Value> Document::AddValue(const Arguments& args) {
   if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsString())
     return ThrowException(Exception::TypeError(String::New("arguments are (uint32, string, [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddValue, (char*)*args[1]->ToString(), args[0]->Uint32Value()); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddValue, *String::Utf8Value(args[1]), args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -136,7 +136,7 @@ Handle<Value> Document::SetData(const Arguments& args) {
   if (args.Length() != +aAsync+1 || !args[0]->IsString())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eSetData, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eSetData, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -151,11 +151,11 @@ Handle<Value> Document::SetData(const Arguments& args) {
 Handle<Value> Document::AddPosting(const Arguments& args) {
   HandleScope scope;
   bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
-  bool aHasWdfinc = (args.Length()>=3 && args[2]->IsUint32());
+  bool aHasWdfinc = (args.Length() >= 3 && args[2]->IsUint32());
   if (args.Length() != +aAsync+aHasWdfinc+2 || !args[0]->IsString() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, (char*)*args[0]->ToString(), args[1]->Uint32Value(), aHasWdfinc?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aHasWdfinc?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -170,11 +170,11 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
 Handle<Value> Document::AddTerm(const Arguments& args) {
   HandleScope scope;
   bool aAsync = (args.Length() == 2 && args[1]->IsFunction()) || (args.Length() == 3 && args[2]->IsFunction());
-  bool aHasWdfinc = (args.Length()>=2 && args[1]->IsUint32());
+  bool aHasWdfinc = (args.Length() >=2 && args[1]->IsUint32());
   if (args.Length() != +aAsync+aHasWdfinc+1 || !args[0]->IsString())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, [uint32], [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, (char*)*args[0]->ToString(), aHasWdfinc?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), aHasWdfinc?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -192,7 +192,7 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   if (args.Length() != +aAsync+1 || !args[0]->IsString())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -207,11 +207,11 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
 Handle<Value> Document::RemovePosting(const Arguments& args) {
   HandleScope scope;
   bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
-  bool aHasWdfdec = (args.Length()>=3 && args[2]->IsUint32());
+  bool aHasWdfdec = (args.Length() >= 3 && args[2]->IsUint32());
   if (args.Length() != +aAsync+aHasWdfdec+2 || !args[0]->IsString() || !args[1]->IsUint32())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, (char*)*args[0]->ToString(), args[1]->Uint32Value(), aHasWdfdec?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aHasWdfdec?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -229,7 +229,7 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
   if (args.Length() != +aAsync+1 || !args[0]->IsString())
     return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
 
-  Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, (char*)*args[0]->ToString()); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -382,10 +382,12 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case Generic_data::eTermlistCount:
   case Generic_data::eValuesCount:
   case Generic_data::eGetDocid:       aResult = Integer::NewFromUnsigned(data->val1); break;
+
   case Generic_data::eGetValue:
   case Generic_data::eGetData:  
   case Generic_data::eSerialise:
   case Generic_data::eGetDescription: aResult = String::New(data->str.c_str());       break;
+
   case Generic_data::eAddValue:
   case Generic_data::eRemoveValue:
   case Generic_data::eClearValues:
