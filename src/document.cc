@@ -40,17 +40,18 @@ Handle<Value> Document::New(const Arguments& args) {
   return args.This();
 }
 
+int kGetValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::GetValue(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (uint32, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kGetValue, args, aOpt))
+    return ThrowException(getSignatureErr(kGetValue));
 
   Generic_data* aData = new Generic_data(Generic_data::eGetValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -58,17 +59,18 @@ Handle<Value> Document::GetValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
 Handle<Value> Document::AddValue(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 3 && args[2]->IsFunction();
-  if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (uint32, string, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kAddValue, args, aOpt))
+    return ThrowException(getSignatureErr(kAddValue));
 
   Generic_data* aData = new Generic_data(Generic_data::eAddValue, *String::Utf8Value(args[1]), args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -76,17 +78,18 @@ Handle<Value> Document::AddValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kRemoveValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::RemoveValue(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (uint32, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kRemoveValue, args, aOpt))
+    return ThrowException(getSignatureErr(kRemoveValue));
 
   Generic_data* aData = new Generic_data(Generic_data::eRemoveValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -94,17 +97,18 @@ Handle<Value> Document::RemoveValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kClearValues[] = { -eFunction, eEnd };
 Handle<Value> Document::ClearValues(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kClearValues, args, aOpt))
+    return ThrowException(getSignatureErr(kClearValues));
 
   Generic_data* aData = new Generic_data(Generic_data::eClearValues); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -112,17 +116,18 @@ Handle<Value> Document::ClearValues(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kGetData[] = { -eFunction, eEnd };
 Handle<Value> Document::GetData(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kGetData, args, aOpt))
+    return ThrowException(getSignatureErr(kGetData));
 
   Generic_data* aData = new Generic_data(Generic_data::eGetData); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -130,17 +135,18 @@ Handle<Value> Document::GetData(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kSetData[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::SetData(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kSetData, args, aOpt))
+    return ThrowException(getSignatureErr(kSetData));
 
   Generic_data* aData = new Generic_data(Generic_data::eSetData, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -148,18 +154,18 @@ Handle<Value> Document::SetData(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kAddPosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::AddPosting(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
-  bool aHasWdfinc = (args.Length() >= 3 && args[2]->IsUint32());
-  if (args.Length() != +aAsync+aHasWdfinc+2 || !args[0]->IsString() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
+  int aOpt[2];
+  if (!checkArguments(kAddPosting, args, aOpt))
+    return ThrowException(getSignatureErr(kAddPosting));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aHasWdfinc?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -167,18 +173,18 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kAddTerm[] = { eString, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::AddTerm(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = (args.Length() == 2 && args[1]->IsFunction()) || (args.Length() == 3 && args[2]->IsFunction());
-  bool aHasWdfinc = (args.Length() >=2 && args[1]->IsUint32());
-  if (args.Length() != +aAsync+aHasWdfinc+1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, [uint32], [function])")));
+  int aOpt[2];
+  if (!checkArguments(kAddTerm, args, aOpt))
+    return ThrowException(getSignatureErr(kAddTerm));
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), aHasWdfinc?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), (aOpt[0] != -1)?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -186,17 +192,18 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kAddBooleanTerm[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kAddBooleanTerm, args, aOpt))
+    return ThrowException(getSignatureErr(kAddBooleanTerm));
 
   Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -204,18 +211,18 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kRemovePosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::RemovePosting(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = (args.Length() == 3 && args[2]->IsFunction()) || (args.Length() == 4 && args[3]->IsFunction());
-  bool aHasWdfdec = (args.Length() >= 3 && args[2]->IsUint32());
-  if (args.Length() != +aAsync+aHasWdfdec+2 || !args[0]->IsString() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, uint32, [uint32], [function])")));
-
-  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aHasWdfdec?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  int aOpt[2];
+  if (!checkArguments(kRemovePosting, args, aOpt))
+    return ThrowException(getSignatureErr(kRemovePosting));
+ 
+  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -223,17 +230,18 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kRemoveTerm[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::RemoveTerm(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kRemoveTerm, args, aOpt))
+    return ThrowException(getSignatureErr(kRemoveTerm));
 
   Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -241,17 +249,18 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kClearTerms[] = { -eFunction, eEnd };
 Handle<Value> Document::ClearTerms(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kClearTerms, args, aOpt))
+    return ThrowException(getSignatureErr(kClearTerms));
 
   Generic_data* aData = new Generic_data(Generic_data::eClearTerms); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -259,17 +268,18 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kTermlistCount[] = { -eFunction, eEnd };
 Handle<Value> Document::TermlistCount(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kTermlistCount, args, aOpt))
+    return ThrowException(getSignatureErr(kTermlistCount));
 
   Generic_data* aData = new Generic_data(Generic_data::eTermlistCount); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -277,17 +287,18 @@ Handle<Value> Document::TermlistCount(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kValuesCount[] = { -eFunction, eEnd };
 Handle<Value> Document::ValuesCount(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kValuesCount, args, aOpt))
+    return ThrowException(getSignatureErr(kValuesCount));
 
   Generic_data* aData = new Generic_data(Generic_data::eValuesCount); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -295,17 +306,18 @@ Handle<Value> Document::ValuesCount(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kGetDocid[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDocid(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kGetDocid, args, aOpt))
+    return ThrowException(getSignatureErr(kGetDocid));
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDocid); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -313,17 +325,18 @@ Handle<Value> Document::GetDocid(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kSerialise[] = { -eFunction, eEnd };
 Handle<Value> Document::Serialise(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kGetDocid, args, aOpt))
+    return ThrowException(getSignatureErr(kGetDocid));
 
   Generic_data* aData = new Generic_data(Generic_data::eSerialise); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -331,17 +344,18 @@ Handle<Value> Document::Serialise(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kGetDescription[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDescription(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kGetDescription, args, aOpt))
+    return ThrowException(getSignatureErr(kGetDescription));
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

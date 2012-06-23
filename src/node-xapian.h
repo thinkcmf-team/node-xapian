@@ -114,6 +114,17 @@ Handle<Value> invoke(bool async, const Arguments& args, void* data, FuncProcess 
   }
 }
 
+enum ArgumentType {
+  eEnd,
+  eInt32,
+  eUint32,
+  eString,
+  eFunction
+};
+
+bool checkArguments(int signature[], const Arguments& args, int optionals[]);
+Handle<Value> getSignatureErr(int signature[]);
+
 template <class T>
 class XapWrap : public ObjectWrap {
 protected:

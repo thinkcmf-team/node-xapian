@@ -27,6 +27,55 @@ void sendToThreadPool(void* execute, void* done, void* data){
   eio_custom((eio_cb) execute, EIO_PRI_DEFAULT, (eio_cb) done, data);
 }
 
+bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
+  int aIndSig = 0, aIndArg = 0, aIndOpt = 0;
+
+  while (signature[aIndSig] != eEnd) {
+    if (signature[aIndSig] < 0) optionals[aIndOpt] = -1;
+    switch (signature[aIndSig]) {
+    case eInt32:     if (!args[aIndArg]->IsInt32()) return false;                     break;
+    case -eInt32:    if (args[aIndArg]->IsInt32()) optionals[aIndOpt] = aIndArg++;    break;
+    case eUint32:    if (!args[aIndArg]->IsUint32()) return false;                    break;
+    case -eUint32:   if (args[aIndArg]->IsUint32()) optionals[aIndOpt] = aIndArg++;   break;
+    case eString:    if (!args[aIndArg]->IsString()) return false;                    break;
+    case -eString:   if (args[aIndArg]->IsString()) optionals[aIndOpt] = aIndArg++;   break;
+    case eFunction:  if (!args[aIndArg]->IsFunction()) return false;                  break;
+    case -eFunction: if (args[aIndArg]->IsFunction()) optionals[aIndOpt] = aIndArg++; break;
+    default: return false;
+    }
+    if (signature[aIndSig] < 0) aIndOpt++;
+    else aIndArg++;
+    aIndSig++;
+  }
+
+  if (aIndArg != args.Length()) return false;
+  else return true;
+}
+
+Handle<Value> getSignatureErr(int signature[]) {
+  std::string aStr("arguments are (");
+  int aIndSig = 0;
+
+  while (signature[aIndSig] != eEnd) {
+    if (aIndSig != 0) aStr+=", ";
+    switch (signature[aIndSig]) {
+    case eInt32:     aStr+= "int32";       break;
+    case -eInt32:    aStr+= "[int32]";     break;
+    case eUint32:    aStr+= "uint32";      break;
+    case -eUint32:   aStr+= "[uint32]";    break;
+    case eString:    aStr+= "string";      break;
+    case -eString:   aStr+= "[string]";    break;
+    case eFunction:  aStr+= "function";    break;
+    case -eFunction: aStr+= "[function]";  break;
+    default: aStr+= "unknown"; 
+    }
+    aIndSig++;
+  }
+
+  aStr+=")";
+  return Exception::TypeError(String::New(aStr.c_str()));
+}
+
 class Mime2Text : public ObjectWrap {
 public:
   static void Init(Handle<Object> target);
