@@ -2,6 +2,7 @@
 #include <xapian.h>
 #include "mime2text.h"
 
+#include <stdlib.h>
 #include <v8.h>
 #include <node.h>
 #include <node_events.h>
@@ -28,52 +29,49 @@ void sendToThreadPool(void* execute, void* done, void* data){
 }
 
 bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
-  int aIndSig = 0, aIndArg = 0, aIndOpt = 0;
+  int aIndArg = 0, aIndOpt = 0;
 
-  while (signature[aIndSig] != eEnd) {
+  for (int aIndSig=0; signature[aIndSig] != eEnd; ++aIndSig) {
     if (signature[aIndSig] < 0) optionals[aIndOpt] = -1;
     switch (signature[aIndSig]) {
-    case eInt32:     if (!args[aIndArg]->IsInt32()) return false;                     break;
-    case -eInt32:    if (args[aIndArg]->IsInt32()) optionals[aIndOpt] = aIndArg++;    break;
-    case eUint32:    if (!args[aIndArg]->IsUint32()) return false;                    break;
-    case -eUint32:   if (args[aIndArg]->IsUint32()) optionals[aIndOpt] = aIndArg++;   break;
-    case eString:    if (!args[aIndArg]->IsString()) return false;                    break;
-    case -eString:   if (args[aIndArg]->IsString()) optionals[aIndOpt] = aIndArg++;   break;
-    case eFunction:  if (!args[aIndArg]->IsFunction()) return false;                  break;
-    case -eFunction: if (args[aIndArg]->IsFunction()) optionals[aIndOpt] = aIndArg++; break;
-    default: return false;
+    case eInt32:     if (!args[aIndArg]->IsInt32()) return false;                   break;
+    case -eInt32:    if (args[aIndArg]->IsInt32()) optionals[aIndOpt] = aIndArg;    break;
+    case eUint32:    if (!args[aIndArg]->IsUint32()) return false;                  break;
+    case -eUint32:   if (args[aIndArg]->IsUint32()) optionals[aIndOpt] = aIndArg;   break;
+    case eString:    if (!args[aIndArg]->IsString()) return false;                  break;
+    case -eString:   if (args[aIndArg]->IsString()) optionals[aIndOpt] = aIndArg;   break;
+    case eFunction:  if (!args[aIndArg]->IsFunction()) return false;                break;
+    case -eFunction: if (args[aIndArg]->IsFunction()) optionals[aIndOpt] = aIndArg; break;
+    default:         return false;
     }
-    if (signature[aIndSig] < 0) aIndOpt++;
-    else aIndArg++;
-    aIndSig++;
+    if (signature[aIndSig] < 0) {
+      if (optionals[aIndOpt] >= 0) ++aIndArg;
+      ++aIndOpt;
+    }
+    else ++aIndArg;
   }
 
-  if (aIndArg != args.Length()) return false;
-  else return true;
+  return aIndArg == args.Length();
 }
 
-Handle<Value> getSignatureErr(int signature[]) {
+Handle<Value> throwSignatureErr(int signature[]) {
   std::string aStr("arguments are (");
-  int aIndSig = 0;
 
-  while (signature[aIndSig] != eEnd) {
-    if (aIndSig != 0) aStr+=", ";
-    switch (signature[aIndSig]) {
-    case eInt32:     aStr+= "int32";       break;
-    case -eInt32:    aStr+= "[int32]";     break;
-    case eUint32:    aStr+= "uint32";      break;
-    case -eUint32:   aStr+= "[uint32]";    break;
-    case eString:    aStr+= "string";      break;
-    case -eString:   aStr+= "[string]";    break;
-    case eFunction:  aStr+= "function";    break;
-    case -eFunction: aStr+= "[function]";  break;
-    default: aStr+= "unknown"; 
+  for (int aIndSig=0; signature[aIndSig] != eEnd; ++aIndSig) {
+    if (aIndSig != 0) aStr += ", ";
+    if (signature[aIndSig] < 0) aStr += "[";
+    switch (abs(signature[aIndSig])) {
+    case eInt32:     aStr += "int32";    break;
+    case eUint32:    aStr += "uint32";   break;
+    case eString:    aStr += "string";   break;
+    case eFunction:  aStr += "function"; break;
+    default:         aStr += "unknown"; 
     }
-    aIndSig++;
+    if (signature[aIndSig] < 0) aStr += "]";
   }
 
-  aStr+=")";
-  return Exception::TypeError(String::New(aStr.c_str()));
+  aStr += ")";
+  return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }
 
 class Mime2Text : public ObjectWrap {

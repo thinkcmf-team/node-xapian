@@ -123,7 +123,7 @@ enum ArgumentType {
 };
 
 bool checkArguments(int signature[], const Arguments& args, int optionals[]);
-Handle<Value> getSignatureErr(int signature[]);
+Handle<Value> throwSignatureErr(int signature[]);
 
 template <class T>
 class XapWrap : public ObjectWrap {

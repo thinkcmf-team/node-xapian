@@ -45,7 +45,7 @@ Handle<Value> Document::GetValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kGetValue, args, aOpt))
-    return ThrowException(getSignatureErr(kGetValue));
+    return throwSignatureErr(kGetValue);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
@@ -64,7 +64,7 @@ Handle<Value> Document::AddValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kAddValue, args, aOpt))
-    return ThrowException(getSignatureErr(kAddValue));
+    return throwSignatureErr(kAddValue);
 
   Generic_data* aData = new Generic_data(Generic_data::eAddValue, *String::Utf8Value(args[1]), args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
@@ -83,7 +83,7 @@ Handle<Value> Document::RemoveValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kRemoveValue, args, aOpt))
-    return ThrowException(getSignatureErr(kRemoveValue));
+    return throwSignatureErr(kRemoveValue);
 
   Generic_data* aData = new Generic_data(Generic_data::eRemoveValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
@@ -102,7 +102,7 @@ Handle<Value> Document::ClearValues(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kClearValues, args, aOpt))
-    return ThrowException(getSignatureErr(kClearValues));
+    return throwSignatureErr(kClearValues);
 
   Generic_data* aData = new Generic_data(Generic_data::eClearValues); //deleted by Generic_convert on non error
 
@@ -121,7 +121,7 @@ Handle<Value> Document::GetData(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kGetData, args, aOpt))
-    return ThrowException(getSignatureErr(kGetData));
+    return throwSignatureErr(kGetData);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetData); //deleted by Generic_convert on non error
 
@@ -140,7 +140,7 @@ Handle<Value> Document::SetData(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kSetData, args, aOpt))
-    return ThrowException(getSignatureErr(kSetData));
+    return throwSignatureErr(kSetData);
 
   Generic_data* aData = new Generic_data(Generic_data::eSetData, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
@@ -159,7 +159,7 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
   if (!checkArguments(kAddPosting, args, aOpt))
-    return ThrowException(getSignatureErr(kAddPosting));
+    return throwSignatureErr(kAddPosting);
 
   Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
@@ -178,7 +178,7 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
   if (!checkArguments(kAddTerm, args, aOpt))
-    return ThrowException(getSignatureErr(kAddTerm));
+    return throwSignatureErr(kAddTerm);
 
   Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), (aOpt[0] != -1)?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
 
@@ -197,7 +197,7 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kAddBooleanTerm, args, aOpt))
-    return ThrowException(getSignatureErr(kAddBooleanTerm));
+    return throwSignatureErr(kAddBooleanTerm);
 
   Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
@@ -216,7 +216,7 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
   if (!checkArguments(kRemovePosting, args, aOpt))
-    return ThrowException(getSignatureErr(kRemovePosting));
+    return throwSignatureErr(kRemovePosting);
  
   Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
 
@@ -235,7 +235,7 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kRemoveTerm, args, aOpt))
-    return ThrowException(getSignatureErr(kRemoveTerm));
+    return throwSignatureErr(kRemoveTerm);
 
   Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
 
@@ -254,7 +254,7 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kClearTerms, args, aOpt))
-    return ThrowException(getSignatureErr(kClearTerms));
+    return throwSignatureErr(kClearTerms);
 
   Generic_data* aData = new Generic_data(Generic_data::eClearTerms); //deleted by Generic_convert on non error
 
@@ -273,7 +273,7 @@ Handle<Value> Document::TermlistCount(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kTermlistCount, args, aOpt))
-    return ThrowException(getSignatureErr(kTermlistCount));
+    return throwSignatureErr(kTermlistCount);
 
   Generic_data* aData = new Generic_data(Generic_data::eTermlistCount); //deleted by Generic_convert on non error
 
@@ -292,7 +292,7 @@ Handle<Value> Document::ValuesCount(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kValuesCount, args, aOpt))
-    return ThrowException(getSignatureErr(kValuesCount));
+    return throwSignatureErr(kValuesCount);
 
   Generic_data* aData = new Generic_data(Generic_data::eValuesCount); //deleted by Generic_convert on non error
 
@@ -311,7 +311,7 @@ Handle<Value> Document::GetDocid(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kGetDocid, args, aOpt))
-    return ThrowException(getSignatureErr(kGetDocid));
+    return throwSignatureErr(kGetDocid);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDocid); //deleted by Generic_convert on non error
 
@@ -330,7 +330,7 @@ Handle<Value> Document::Serialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kGetDocid, args, aOpt))
-    return ThrowException(getSignatureErr(kGetDocid));
+    return throwSignatureErr(kGetDocid);
 
   Generic_data* aData = new Generic_data(Generic_data::eSerialise); //deleted by Generic_convert on non error
 
@@ -349,7 +349,7 @@ Handle<Value> Document::GetDescription(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kGetDescription, args, aOpt))
-    return ThrowException(getSignatureErr(kGetDescription));
+    return throwSignatureErr(kGetDescription);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
 
