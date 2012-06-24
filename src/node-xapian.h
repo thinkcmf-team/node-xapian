@@ -119,6 +119,8 @@ enum ArgumentType {
   eInt32,
   eUint32,
   eString,
+  eObject,
+  eArray,
   eFunction
 };
 

@@ -29,45 +29,52 @@ void sendToThreadPool(void* execute, void* done, void* data){
 }
 
 bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
-  int aIndArg = 0, aIndOpt = 0;
+  int aArgN = 0, aOptN = 0;
 
-  for (int aIndSig=0; signature[aIndSig] != eEnd; ++aIndSig) {
-    if (signature[aIndSig] < 0) optionals[aIndOpt] = -1;
-    switch (signature[aIndSig]) {
-    case eInt32:     if (!args[aIndArg]->IsInt32()) return false;                   break;
-    case -eInt32:    if (args[aIndArg]->IsInt32()) optionals[aIndOpt] = aIndArg;    break;
-    case eUint32:    if (!args[aIndArg]->IsUint32()) return false;                  break;
-    case -eUint32:   if (args[aIndArg]->IsUint32()) optionals[aIndOpt] = aIndArg;   break;
-    case eString:    if (!args[aIndArg]->IsString()) return false;                  break;
-    case -eString:   if (args[aIndArg]->IsString()) optionals[aIndOpt] = aIndArg;   break;
-    case eFunction:  if (!args[aIndArg]->IsFunction()) return false;                break;
-    case -eFunction: if (args[aIndArg]->IsFunction()) optionals[aIndOpt] = aIndArg; break;
+  for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
+    int aIsType=true;
+    switch (abs(signature[aSigN])) {
+    case eInt32:     if (!args[aArgN]->IsInt32()) aIsType = false;    break;
+    case eUint32:    if (!args[aArgN]->IsUint32()) aIsType = false;   break;
+    case eString:    if (!args[aArgN]->IsString()) aIsType = false;   break;
+    case eObject:    if (!args[aArgN]->IsObject()) aIsType = false;   break;
+    case eArray:     if (!args[aArgN]->IsArray()) aIsType = false;    break;
+    case eFunction:  if (!args[aArgN]->IsFunction()) aIsType = false; break;
     default:         return false;
     }
-    if (signature[aIndSig] < 0) {
-      if (optionals[aIndOpt] >= 0) ++aIndArg;
-      ++aIndOpt;
+    if (signature[aSigN] < 0) {
+      if (aIsType) {
+        optionals[aOptN] = aArgN;
+        ++aArgN;
+      }
+      else optionals[aOptN] = -1;
+      ++aOptN;
     }
-    else ++aIndArg;
+    else {
+      if (!aIsType) return false;
+      ++aArgN;
+    }
   }
 
-  return aIndArg == args.Length();
+  return aArgN == args.Length();
 }
 
 Handle<Value> throwSignatureErr(int signature[]) {
   std::string aStr("arguments are (");
 
-  for (int aIndSig=0; signature[aIndSig] != eEnd; ++aIndSig) {
-    if (aIndSig != 0) aStr += ", ";
-    if (signature[aIndSig] < 0) aStr += "[";
-    switch (abs(signature[aIndSig])) {
+  for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
+    if (aSigN != 0) aStr += ", ";
+    if (signature[aSigN] < 0) aStr += "[";
+    switch (abs(signature[aSigN])) {
     case eInt32:     aStr += "int32";    break;
     case eUint32:    aStr += "uint32";   break;
     case eString:    aStr += "string";   break;
+    case eObject:    aStr += "object";   break;
+    case eArray:     aStr += "array";    break;
     case eFunction:  aStr += "function"; break;
     default:         aStr += "unknown"; 
     }
-    if (signature[aIndSig] < 0) aStr += "]";
+    if (signature[aSigN] < 0) aStr += "]";
   }
 
   aStr += ")";
