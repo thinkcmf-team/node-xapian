@@ -32,7 +32,7 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
   int aArgN = 0, aOptN = 0;
 
   for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
-    int aIsType = false;
+    int aIsType;
     switch (abs(signature[aSigN])) {
     case eInt32:     aIsType = args[aArgN]->IsInt32();    break;
     case eUint32:    aIsType = args[aArgN]->IsUint32();   break;
@@ -40,11 +40,11 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
     case eObject:    aIsType = args[aArgN]->IsObject();   break;
     case eArray:     aIsType = args[aArgN]->IsArray();    break;
     case eFunction:  aIsType = args[aArgN]->IsFunction(); break;
-    default:         return false;
+    default: { std::string aEx("incorrect signature member: "); aEx += (char)(signature[aSigN] + '0'); throw aEx; }
     }
 
     if (signature[aSigN] < 0) {
-      optionals[aOptN] = aIsType? aArgN++ : -1;
+      optionals[aOptN] = aIsType ? aArgN++ : -1;
       ++aOptN;
     } else {
       if (!aIsType) return false;
