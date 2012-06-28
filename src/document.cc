@@ -161,7 +161,7 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
   if (!checkArguments(kAddPosting, args, aOpt))
     return throwSignatureErr(kAddPosting);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -180,7 +180,7 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
   if (!checkArguments(kAddTerm, args, aOpt))
     return throwSignatureErr(kAddTerm);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), (aOpt[0] != -1)?args[1]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -218,7 +218,7 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
   if (!checkArguments(kRemovePosting, args, aOpt))
     return throwSignatureErr(kRemovePosting);
  
-  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), (aOpt[0] != -1)?args[2]->Uint32Value():1); //deleted by Generic_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {

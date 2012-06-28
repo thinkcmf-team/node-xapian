@@ -32,25 +32,21 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
   int aArgN = 0, aOptN = 0;
 
   for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
-    int aIsType=true;
+    int aIsType = false;
     switch (abs(signature[aSigN])) {
-    case eInt32:     if (!args[aArgN]->IsInt32()) aIsType = false;    break;
-    case eUint32:    if (!args[aArgN]->IsUint32()) aIsType = false;   break;
-    case eString:    if (!args[aArgN]->IsString()) aIsType = false;   break;
-    case eObject:    if (!args[aArgN]->IsObject()) aIsType = false;   break;
-    case eArray:     if (!args[aArgN]->IsArray()) aIsType = false;    break;
-    case eFunction:  if (!args[aArgN]->IsFunction()) aIsType = false; break;
+    case eInt32:     aIsType = args[aArgN]->IsInt32();    break;
+    case eUint32:    aIsType = args[aArgN]->IsUint32();   break;
+    case eString:    aIsType = args[aArgN]->IsString();   break;
+    case eObject:    aIsType = args[aArgN]->IsObject();   break;
+    case eArray:     aIsType = args[aArgN]->IsArray();    break;
+    case eFunction:  aIsType = args[aArgN]->IsFunction(); break;
     default:         return false;
     }
+
     if (signature[aSigN] < 0) {
-      if (aIsType) {
-        optionals[aOptN] = aArgN;
-        ++aArgN;
-      }
-      else optionals[aOptN] = -1;
+      optionals[aOptN] = aIsType? aArgN++ : -1;
       ++aOptN;
-    }
-    else {
+    } else {
       if (!aIsType) return false;
       ++aArgN;
     }
@@ -63,7 +59,7 @@ Handle<Value> throwSignatureErr(int signature[]) {
   std::string aStr("arguments are (");
 
   for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
-    if (aSigN != 0) aStr += ", ";
+    if (aSigN) aStr += ", ";
     if (signature[aSigN] < 0) aStr += "[";
     switch (abs(signature[aSigN])) {
     case eInt32:     aStr += "int32";    break;
