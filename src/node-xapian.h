@@ -394,6 +394,24 @@ protected:
 
   static Handle<Value> Unserialise(const Arguments& args);
 
+
+  struct Termlist_data {
+    Termlist_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL) {}
+    ~Termlist_data() { if (tlist) delete [] tlist; }
+    Xapian::termcount first, maxitems;
+    struct Termlist_item {
+      std::string tname, description;
+      Xapian::termcount wdf;
+      Xapian::doccount termfreq;
+    };
+    Termlist_item* tlist;
+    Xapian::termcount size;
+  };
+  static void Termlist_process(void* data, void* that);
+  static Handle<Value> Termlist_convert(void* data);
+
+  static Handle<Value> Termlist(const Arguments& args);
+
 };
 
 

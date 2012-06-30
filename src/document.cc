@@ -25,6 +25,7 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "serialise", Serialise);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "unserialise", Unserialise);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -452,4 +453,59 @@ Handle<Value> Document::Unserialise_convert(void* pData) {
 
   delete data;
   return aResult;
+}
+
+int kTermlist[] = { -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Document::Termlist(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kTermlist, args, aOpt))
+    return throwSignatureErr(kTermlist);
+
+  Termlist_data* aData = new Termlist_data(aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Termlist_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Termlist_process, Termlist_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Document::Termlist_process(void* pData, void* pThat) {
+  Termlist_data* data = (Termlist_data*) pData;
+  Document* that = (Document *) pThat;
+
+  data->size = that->mDoc->termlist_count();
+  if (data->maxitems != 0 && data->maxitems - data->first < data->size)
+    data->size = data->maxitems - data->first;
+  data->tlist = new Termlist_data::Termlist_item[data->size];
+
+  Xapian::TermIterator aIt = that->mDoc->termlist_begin();
+  for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
+
+  for (data->size = 0; aIt != that->mDoc->termlist_end(); ++data->size, ++aIt) {
+    data->tlist[data->size].tname = *aIt;
+    data->tlist[data->size].wdf = aIt.get_wdf();
+    data->tlist[data->size].termfreq = aIt.get_termfreq();
+    data->tlist[data->size].description = aIt.get_description();
+  }
+}
+
+Handle<Value> Document::Termlist_convert(void* pData) {
+ 
+  Termlist_data* data = (Termlist_data*) pData;
+  Local<Array> aList(Array::New(data->size));
+  for (Xapian::termcount a = 0; a < data->size; ++a) {
+    Local<Object> aO(Object::New());
+    aO->Set(String::NewSymbol("tname"      ), String::New(data->tlist[a].tname.c_str()      ));
+    aO->Set(String::NewSymbol("wdf"        ), Uint32::New(data->tlist[a].wdf                ));
+    aO->Set(String::NewSymbol("termfreq"   ), Uint32::New(data->tlist[a].termfreq           ));
+    aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
+    aList->Set(a, aO);
+  }
+  delete data;
+  return aList;
 }

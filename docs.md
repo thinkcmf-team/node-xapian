@@ -156,10 +156,10 @@ Document
         Serialise document into a string. 
 *    get_description([function]) - return string
         Return a string describing this object. 
-    unserialise_sync(string_s) - return object_document
+*    unserialise(string_s, [function]) - return object_document
         Unserialise a document from a string produced by serialise().
   methods different from the C++ API:
-    termlist_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    termlist([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of the terms in this document. 
     values_sync() - return an array of { value: string, docid: uint32, valueno: uint32, description: string } (ValueIterator)
         An array of the values in this document. 
