@@ -68,7 +68,7 @@ Handle<Value> throwSignatureErr(int signature[]) {
     case eObject:    aStr += "object";   break;
     case eArray:     aStr += "array";    break;
     case eFunction:  aStr += "function"; break;
-    default:         aStr += "unknown"; 
+    default:         throw "incorrect sig member"; 
     }
     if (signature[aSigN] < 0) aStr += "]";
   }
