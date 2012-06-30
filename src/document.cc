@@ -24,6 +24,7 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_docid", GetDocid);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "serialise", Serialise);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "unserialise", Unserialise);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -329,8 +330,8 @@ int kSerialise[] = { -eFunction, eEnd };
 Handle<Value> Document::Serialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
-  if (!checkArguments(kGetDocid, args, aOpt))
-    return throwSignatureErr(kGetDocid);
+  if (!checkArguments(kSerialise, args, aOpt))
+    return throwSignatureErr(kSerialise);
 
   Generic_data* aData = new Generic_data(Generic_data::eSerialise); //deleted by Generic_convert on non error
 
@@ -413,6 +414,41 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case Generic_data::eRemoveTerm:
   case Generic_data::eClearTerms:     aResult = Undefined();                          break;
   }
+
+  delete data;
+  return aResult;
+}
+
+
+int kUnserialise[] = { eString, -eFunction, eEnd };
+Handle<Value> Document::Unserialise(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kUnserialise, args, aOpt))
+    return throwSignatureErr(kUnserialise);
+
+  Unserialise_data* aData = new Unserialise_data(*String::Utf8Value(args[0])); //deleted by Unserialise_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Unserialise_process, Unserialise_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Document::Unserialise_process(void* pData, void* pThat) {
+  Unserialise_data* data = (Unserialise_data*) pData;
+  data->doc = new Xapian::Document(Xapian::Document::unserialise(data->str));
+}
+
+Handle<Value> Document::Unserialise_convert(void* pData) {
+  Unserialise_data* data = (Unserialise_data*) pData;
+  
+  Local<Value> aDoc[] = { External::New(data->doc) };
+  Handle<Value> aResult = Document::constructor_template->GetFunction()->NewInstance(1, aDoc);
 
   delete data;
   return aResult;

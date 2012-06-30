@@ -347,6 +347,7 @@ protected:
 
   static Handle<Value> New(const Arguments& args);
 
+
   struct Generic_data {
     enum { 
       eGetValue, eAddValue, eRemoveValue, eClearValues, eGetData, eSetData, eAddPosting, eAddTerm, eAddBooleanTerm,
@@ -381,6 +382,17 @@ protected:
   static Handle<Value> GetDocid(const Arguments& args);
   static Handle<Value> Serialise(const Arguments& args);
   static Handle<Value> GetDescription(const Arguments& args);
+
+
+  struct Unserialise_data {
+    Unserialise_data(const std::string &s) : str(s) {}
+    std::string str;
+    Xapian::Document* doc;
+  };
+  static void Unserialise_process(void* data, void* that);
+  static Handle<Value> Unserialise_convert(void* data);
+
+  static Handle<Value> Unserialise(const Arguments& args);
 
 };
 
