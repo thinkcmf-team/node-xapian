@@ -544,7 +544,6 @@ void Document::Values_process(void* pData, void* pThat) {
 
   for (data->size = 0; aIt != that->mDoc->values_end() && data->size < aSize; ++data->size, ++aIt) {
     data->vlist[data->size].value = *aIt;
-    data->vlist[data->size].docid = aIt.get_docid();
     data->vlist[data->size].valueno = aIt.get_valueno();
     data->vlist[data->size].description = aIt.get_description();
   }
@@ -557,7 +556,6 @@ Handle<Value> Document::Values_convert(void* pData) {
   for (Xapian::termcount a = 0; a < data->size; ++a) {
     Local<Object> aO(Object::New());
     aO->Set(String::NewSymbol("value"      ), String::New(data->vlist[a].value.c_str()      ));
-    aO->Set(String::NewSymbol("docid"      ), Uint32::New(data->vlist[a].docid              ));
     aO->Set(String::NewSymbol("valueno"    ), Uint32::New(data->vlist[a].valueno            ));
     aO->Set(String::NewSymbol("description"), String::New(data->vlist[a].description.c_str()));
     aList->Set(a, aO);

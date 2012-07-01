@@ -430,7 +430,6 @@ protected:
     Xapian::termcount first, maxitems;
     struct Values_item {
       std::string value, description;
-      Xapian::docid docid;
       Xapian::valueno valueno;
     };
     Values_item* vlist;

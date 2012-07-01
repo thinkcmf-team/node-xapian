@@ -161,7 +161,7 @@ Document
   methods different from the C++ API:
 *    termlist([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of the terms in this document. 
-*    values([uint32_first], [uint32_maxitems], [function]) - return an array of { value: string, docid: uint32, valueno: uint32, description: string } (ValueIterator)
+*    values([uint32_first], [uint32_maxitems], [function]) - return an array of { value: string, valueno: uint32, description: string } (ValueIterator)
         An array of the values in this document. 
 ```
 Enquire
