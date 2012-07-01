@@ -9,6 +9,7 @@ void Database::Init(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "reopen", Reopen);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_database", AddDatabase);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -88,3 +89,38 @@ Handle<Value> Database::AddDatabase(const Arguments& args) {
   return Undefined();
 }
 
+
+int kGetDocument[] = { eUint32, -eFunction, eEnd };
+Handle<Value> Database::GetDocument(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDocument, args, aOpt))
+    return throwSignatureErr(kGetDocument);
+
+  GetDocument_data* aData = new GetDocument_data(args[0]->Uint32Value()); //deleted by Getdocument_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, GetDocument_process, GetDocument_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Database::GetDocument_process(void* pData, void* pThat) {
+  GetDocument_data* data = (GetDocument_data*) pData;
+  Database* that = (Database *) pThat;
+  data->doc = new Xapian::Document(that->mDb->get_document(data->docid));
+}
+
+Handle<Value> Database::GetDocument_convert(void* pData) {
+  GetDocument_data* data = (GetDocument_data*) pData;
+  
+  Local<Value> aDoc[] = { External::New(data->doc) };
+  Handle<Value> aResult = Document::constructor_template->GetFunction()->NewInstance(1, aDoc);
+
+  delete data;
+  return aResult;
+}

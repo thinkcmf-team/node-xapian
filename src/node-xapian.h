@@ -218,6 +218,17 @@ protected:
 
   static Handle<Value> AddDatabase(const Arguments& args);
 
+
+  struct GetDocument_data {
+    GetDocument_data(Xapian::docid did) : docid(did) {}
+    Xapian::docid docid;
+    Xapian::Document* doc;
+  };
+  static void GetDocument_process(void* data, void* that);
+  static Handle<Value> GetDocument_convert(void* data);
+
+  static Handle<Value> GetDocument(const Arguments& args);
+
 };
 
 

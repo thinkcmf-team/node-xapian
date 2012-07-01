@@ -7,6 +7,7 @@ void WritableDatabase::Init(Handle<Object> target) {
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("WritableDatabase"));
 
+  constructor_template->Inherit(Database::constructor_template);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_document", AddDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "replace_document", ReplaceDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit", Commit);
