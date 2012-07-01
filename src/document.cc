@@ -478,15 +478,15 @@ void Document::Termlist_process(void* pData, void* pThat) {
   Termlist_data* data = (Termlist_data*) pData;
   Document* that = (Document *) pThat;
 
-  data->size = that->mDoc->termlist_count();
-  if (data->maxitems != 0 && data->maxitems - data->first < data->size)
-    data->size = data->maxitems - data->first;
-  data->tlist = new Termlist_data::Termlist_item[data->size];
+  Xapian::termcount aSize  = that->mDoc->termlist_count() - data->first;
+  if (data->maxitems != 0 && data->maxitems < aSize)
+    aSize = data->maxitems;
+  data->tlist = new Termlist_data::Termlist_item[aSize];
 
   Xapian::TermIterator aIt = that->mDoc->termlist_begin();
   for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
 
-  for (data->size = 0; aIt != that->mDoc->termlist_end(); ++data->size, ++aIt) {
+  for (data->size = 0; aIt != that->mDoc->termlist_end() && data->size < aSize; ++data->size, ++aIt) {
     data->tlist[data->size].tname = *aIt;
     data->tlist[data->size].wdf = aIt.get_wdf();
     data->tlist[data->size].termfreq = aIt.get_termfreq();
