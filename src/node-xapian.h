@@ -412,6 +412,24 @@ protected:
 
   static Handle<Value> Termlist(const Arguments& args);
 
+
+  struct Values_data {
+    Values_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), vlist(NULL) {}
+    ~Values_data() { if (vlist) delete [] vlist; }
+    Xapian::termcount first, maxitems;
+    struct Values_item {
+      std::string value, description;
+      Xapian::docid docid;
+      Xapian::valueno valueno;
+    };
+    Values_item* vlist;
+    Xapian::termcount size;
+  };
+  static void Values_process(void* data, void* that);
+  static Handle<Value> Values_convert(void* data);
+
+  static Handle<Value> Values(const Arguments& args);
+
 };
 
 

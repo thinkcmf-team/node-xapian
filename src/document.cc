@@ -26,6 +26,7 @@ void Document::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "unserialise", Unserialise);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "values", Values);
 
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
@@ -504,6 +505,61 @@ Handle<Value> Document::Termlist_convert(void* pData) {
     aO->Set(String::NewSymbol("wdf"        ), Uint32::New(data->tlist[a].wdf                ));
     aO->Set(String::NewSymbol("termfreq"   ), Uint32::New(data->tlist[a].termfreq           ));
     aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
+    aList->Set(a, aO);
+  }
+  delete data;
+  return aList;
+}
+
+int kValues[] = { -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Document::Values(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kValues, args, aOpt))
+    return throwSignatureErr(kValues);
+
+  Values_data* aData = new Values_data(aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Values_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Values_process, Values_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Document::Values_process(void* pData, void* pThat) {
+  Values_data* data = (Values_data*) pData;
+  Document* that = (Document *) pThat;
+
+  Xapian::termcount aSize  = that->mDoc->values_count() - data->first;
+  if (data->maxitems != 0 && data->maxitems < aSize)
+    aSize = data->maxitems;
+  data->vlist = new Values_data::Values_item[aSize];
+
+  Xapian::ValueIterator aIt = that->mDoc->values_begin();
+  for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
+
+  for (data->size = 0; aIt != that->mDoc->values_end() && data->size < aSize; ++data->size, ++aIt) {
+    data->vlist[data->size].value = *aIt;
+    data->vlist[data->size].docid = aIt.get_docid();
+    data->vlist[data->size].valueno = aIt.get_valueno();
+    data->vlist[data->size].description = aIt.get_description();
+  }
+}
+
+Handle<Value> Document::Values_convert(void* pData) {
+ 
+  Values_data* data = (Values_data*) pData;
+  Local<Array> aList(Array::New(data->size));
+  for (Xapian::termcount a = 0; a < data->size; ++a) {
+    Local<Object> aO(Object::New());
+    aO->Set(String::NewSymbol("value"      ), String::New(data->vlist[a].value.c_str()      ));
+    aO->Set(String::NewSymbol("docid"      ), Uint32::New(data->vlist[a].docid              ));
+    aO->Set(String::NewSymbol("valueno"    ), Uint32::New(data->vlist[a].valueno            ));
+    aO->Set(String::NewSymbol("description"), String::New(data->vlist[a].description.c_str()));
     aList->Set(a, aO);
   }
   delete data;
