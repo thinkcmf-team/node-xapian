@@ -14,21 +14,21 @@ void Database::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
 
-int kNew[] = { eString, -eFunction, eEnd };
+int kNewDatabase[] = { -eString, -eFunction, eEnd };
 Handle<Value> Database::New(const Arguments& args) {
   HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kNew, args, aOpt))
-    return throwSignatureErr(kNew);
+  int aOpt[2];
+  if (!checkArguments(kNewDatabase, args, aOpt))
+    return throwSignatureErr(kNewDatabase);
 
   Database* that = new Database();
   that->Wrap(args.This());
 
-  Open_data* aData = new Open_data(that, args[0]->ToString()); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eNewDatabase, that, aOpt[0] < 0 ? Handle<String>() : args[aOpt[0]]->ToString()); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -39,10 +39,12 @@ Handle<Value> Database::New(const Arguments& args) {
 void Database::Open_process(void* pData, void* pThat) {
   Open_data* data = (Open_data*) pData;
   Database* that = (Database *) pThat;
-  if (that->mDb)
-    that->mDb->reopen();
-  else
-    that->mDb = data->writeopts ? new Xapian::WritableDatabase(*data->filename, data->writeopts) : new Xapian::Database(*data->filename);
+  switch (data->action) {
+  case Open_data::eNewDatabase: that->mDb =  data->filename.length() == 0 ? new Xapian::Database() : new Xapian::Database(*data->filename); break;
+  case Open_data::eNewWDatabase: that->mDb =  
+    data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
+  case Open_data::eReopen: that->mDb->reopen(); break;
+  }
 }
 
 Handle<Value> Database::Open_convert(void* pData) {
@@ -61,7 +63,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
 
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
 
-  Open_data* aData = new Open_data(that, Handle<String>()); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eReopen, that, Handle<String>()); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {

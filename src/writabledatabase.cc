@@ -22,21 +22,24 @@ void WritableDatabase::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("WritableDatabase"), constructor_template->GetFunction());
 }
 
+int kNewWritableDatabase[] = { -eString, -eInt32, -eFunction, eEnd };
 Handle<Value> WritableDatabase::New(const Arguments& args) {
   HandleScope scope;
 
-  bool aAsync = args.Length() == 3 && args[2]->IsFunction();
-  if (args.Length() != +aAsync+2 || !args[0]->IsString() || !args[1]->IsInt32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, number, [function])")));
+  int aOpt[3];
+  if (!checkArguments(kNewWritableDatabase, args, aOpt))
+    return throwSignatureErr(kNewWritableDatabase);
+  if (!(aOpt[0] == aOpt[1] || (aOpt[0] != -1 && aOpt[1] != -1)))
+    return ThrowException(Exception::TypeError(String::New("arguments are ([function]) or (string, number, [function])")));
 
   WritableDatabase* that = new WritableDatabase();
   that->Wrap(args.This());
 
-  Open_data* aData = new Open_data(that, args[0]->ToString(), args[1]->Int32Value()); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eNewWDatabase, that, aOpt[0] < 0 ? Handle<String>() : args[aOpt[0]]->ToString(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Int32Value()); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[2] != -1, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

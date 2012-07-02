@@ -205,7 +205,9 @@ protected:
   };
 
   struct Open_data {
-    Open_data(Database* th, Handle<String> fn, int wop=0): that(th), filename(fn), writeopts(wop) {}
+    enum { eNewDatabase, eNewWDatabase, eReopen };
+    Open_data(int act, Database* th, Handle<String> fn, int wop=0): action(act), that(th), filename(fn), writeopts(wop) {}
+    int action;
     Database* that;
     String::Utf8Value filename;
     int writeopts;

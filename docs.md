@@ -1,7 +1,7 @@
 Database
 ```
   methods similar to the C++ API
-    Database()
+*    Database([function])
         Create a Database with no databases in. 
 *    Database(string_path, [function])
         Open a Database, automatically determining the database backend to use. 
@@ -77,7 +77,7 @@ Database
 WritableDatabase - all the methods from Database plus the following
 ```
   methods similar to the C++ API
-    WritableDatabase()
+*    WritableDatabase([function])
         Create an empty WritableDatabase.
 *    WritableDatabase(string_path, uint32_action, [function])
         Open a database for update, automatically determining the database backend to use.
