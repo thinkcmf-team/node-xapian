@@ -51,7 +51,15 @@ Handle<Value> Database::Open_convert(void* pData) {
   Open_data* data = (Open_data*) pData;
   Database* that = data->that;
   delete data;
-  return that->handle_;
+
+  switch (data->action) {
+  case Open_data::eNewDatabase:
+  case Open_data::eNewWDatabase: return that->handle_;
+
+  case Open_data::eReopen: 
+  default:                       return Undefined();
+  }
+
 }
 
 int kReopen[] = { -eFunction, eEnd };
