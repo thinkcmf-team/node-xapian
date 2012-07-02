@@ -205,10 +205,14 @@ protected:
   };
 
   struct Open_data {
-    enum { eNewDatabase, eNewWDatabase, eReopen };
-    Open_data(int act, Database* th, Handle<String> fn, int wop=0): action(act), that(th), filename(fn), writeopts(wop) {}
+    enum { eNewDatabase, eNewWDatabase, eReopen, eAddDatabase };
+    Open_data(int act, Database* th, Handle<String> fn, int wop=0): action(act), that(th), db(NULL), filename(fn), writeopts(wop) {}
+    Open_data(int act, Database* th): action(act), that(th), db(NULL), filename(Handle<String>()), writeopts(0) {}
+    Open_data(int act, Database* th, Database* pdb): action(act), that(th), db(pdb), filename(Handle<String>()), writeopts(0) { db->Ref(); }
+    ~Open_data() { if (db) db->Unref(); }
     int action;
     Database* that;
+    Database*  db;
     String::Utf8Value filename;
     int writeopts;
   };

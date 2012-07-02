@@ -43,7 +43,8 @@ void Database::Open_process(void* pData, void* pThat) {
   case Open_data::eNewDatabase: that->mDb =  data->filename.length() == 0 ? new Xapian::Database() : new Xapian::Database(*data->filename); break;
   case Open_data::eNewWDatabase: that->mDb =  
     data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
-  case Open_data::eReopen: that->mDb->reopen(); break;
+  case Open_data::eReopen:      that->mDb->reopen();                     break;
+  case Open_data::eAddDatabase: that->mDb->add_database(*data->db->mDb); break;
   }
 }
 
@@ -56,6 +57,7 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eNewDatabase:
   case Open_data::eNewWDatabase: return that->handle_;
 
+  case Open_data::eAddDatabase:
   case Open_data::eReopen: 
   default:                       return Undefined();
   }
@@ -71,7 +73,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
 
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
 
-  Open_data* aData = new Open_data(Open_data::eReopen, that, Handle<String>()); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eReopen, that); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -83,7 +85,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddDatabase[] = { eObjDatabase, eEnd };
+int kAddDatabase[] = { eObjDatabase, -eFunction, eEnd };
 Handle<Value> Database::AddDatabase(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -92,14 +94,17 @@ Handle<Value> Database::AddDatabase(const Arguments& args) {
 
   Database* aDb = GetInstance<Database>(args[0]);
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
-  if (that->mBusy)
-    return ThrowException(Exception::Error(kBusyMsg));
+
+  Open_data* aData = new Open_data(Open_data::eAddDatabase, that, aDb); //deleted by Open_convert on non error
+
+  Handle<Value> aResult;
   try {
-  that->mDb->add_database(*aDb->mDb);
-  } catch (const Xapian::Error& err) {
-    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
   }
-  return Undefined();
+  return scope.Close(aResult);
 }
 
 

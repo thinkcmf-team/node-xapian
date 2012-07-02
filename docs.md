@@ -5,7 +5,7 @@ Database
         Create a Database with no databases in. 
 *    Database(string_path, [function])
         Open a Database, automatically determining the database backend to use. 
-    add_database_sync(Database)
+*    add_database(Database, [function])
         Add an existing database (or group of databases) to those accessed by this object. 
 *    reopen([function])
         Re-open the database. 
