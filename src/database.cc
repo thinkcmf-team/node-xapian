@@ -14,12 +14,12 @@ void Database::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
 
+int kNew[] = { eString, -eFunction, eEnd };
 Handle<Value> Database::New(const Arguments& args) {
   HandleScope scope;
-
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, [function])")));
+  int aOpt[1];
+  if (!checkArguments(kNew, args, aOpt))
+    return throwSignatureErr(kNew);
 
   Database* that = new Database();
   that->Wrap(args.This());
@@ -28,7 +28,7 @@ Handle<Value> Database::New(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -52,12 +52,12 @@ Handle<Value> Database::Open_convert(void* pData) {
   return that->handle_;
 }
 
+int kReopen[] = { -eFunction, eEnd };
 Handle<Value> Database::Reopen(const Arguments& args) {
   HandleScope scope;
-
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kReopen, args, aOpt))
+    return throwSignatureErr(kReopen);
 
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
 
@@ -65,7 +65,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -73,11 +73,14 @@ Handle<Value> Database::Reopen(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+int kAddDatabase[] = { eObjDatabase, eEnd };
 Handle<Value> Database::AddDatabase(const Arguments& args) {
   HandleScope scope;
-  Database* aDb;
-  if (args.Length() < 1 || !(aDb = GetInstance<Database>(args[0])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (Database)")));
+  int aOpt[1];
+  if (!checkArguments(kAddDatabase, args, aOpt))
+    return throwSignatureErr(kAddDatabase);
+
+  Database* aDb = GetInstance<Database>(args[0]);
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
   if (that->mBusy)
     return ThrowException(Exception::Error(kBusyMsg));

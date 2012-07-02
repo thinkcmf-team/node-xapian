@@ -43,7 +43,7 @@ Database
         Get the length of a document. 
     keep_alive_sync()
         Send a "keep-alive" to remote databases to stop them timing out. 
-    get_document_sync(uint32_did) - return object_document
+*    get_document(uint32_did, [function]) - return object_document
         Get a document from the database, given its document id. 
     get_spelling_suggestion_sync (string_word, uint32_max_edit_distance=2) - return string
         Suggest a spelling correction.

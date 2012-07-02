@@ -121,6 +121,7 @@ enum ArgumentType {
   eString,
   eObject,
   eArray,
+  eObjDatabase,
   eFunction
 };
 
