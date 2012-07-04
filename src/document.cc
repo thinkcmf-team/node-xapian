@@ -43,7 +43,7 @@ Handle<Value> Document::New(const Arguments& args) {
   return args.This();
 }
 
-int kGetValue[] = { eUint32, -eFunction, eEnd };
+static int kGetValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::GetValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -62,7 +62,7 @@ Handle<Value> Document::GetValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
+static int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
 Handle<Value> Document::AddValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -81,7 +81,7 @@ Handle<Value> Document::AddValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kRemoveValue[] = { eUint32, -eFunction, eEnd };
+static int kRemoveValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::RemoveValue(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -100,7 +100,7 @@ Handle<Value> Document::RemoveValue(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kClearValues[] = { -eFunction, eEnd };
+static int kClearValues[] = { -eFunction, eEnd };
 Handle<Value> Document::ClearValues(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -119,7 +119,7 @@ Handle<Value> Document::ClearValues(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kGetData[] = { -eFunction, eEnd };
+static int kGetData[] = { -eFunction, eEnd };
 Handle<Value> Document::GetData(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -138,7 +138,7 @@ Handle<Value> Document::GetData(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kSetData[] = { eString, -eFunction, eEnd };
+static int kSetData[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::SetData(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -157,7 +157,7 @@ Handle<Value> Document::SetData(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddPosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
+static int kAddPosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::AddPosting(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
@@ -176,7 +176,7 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddTerm[] = { eString, -eUint32, -eFunction, eEnd };
+static int kAddTerm[] = { eString, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::AddTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
@@ -195,7 +195,7 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddBooleanTerm[] = { eString, -eFunction, eEnd };
+static int kAddBooleanTerm[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -214,7 +214,7 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kRemovePosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
+static int kRemovePosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::RemovePosting(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
@@ -233,7 +233,7 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kRemoveTerm[] = { eString, -eFunction, eEnd };
+static int kRemoveTerm[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::RemoveTerm(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -252,7 +252,7 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kClearTerms[] = { -eFunction, eEnd };
+static int kClearTerms[] = { -eFunction, eEnd };
 Handle<Value> Document::ClearTerms(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -271,7 +271,7 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kTermlistCount[] = { -eFunction, eEnd };
+static int kTermlistCount[] = { -eFunction, eEnd };
 Handle<Value> Document::TermlistCount(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -290,7 +290,7 @@ Handle<Value> Document::TermlistCount(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kValuesCount[] = { -eFunction, eEnd };
+static int kValuesCount[] = { -eFunction, eEnd };
 Handle<Value> Document::ValuesCount(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -309,7 +309,7 @@ Handle<Value> Document::ValuesCount(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kGetDocid[] = { -eFunction, eEnd };
+static int kGetDocid[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDocid(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -328,7 +328,7 @@ Handle<Value> Document::GetDocid(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kSerialise[] = { -eFunction, eEnd };
+static int kSerialise[] = { -eFunction, eEnd };
 Handle<Value> Document::Serialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -347,7 +347,7 @@ Handle<Value> Document::Serialise(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kGetDescription[] = { -eFunction, eEnd };
+static int kGetDescription[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDescription(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -422,7 +422,7 @@ Handle<Value> Document::Generic_convert(void* pData) {
 }
 
 
-int kUnserialise[] = { eString, -eFunction, eEnd };
+static int kUnserialise[] = { eString, -eFunction, eEnd };
 Handle<Value> Document::Unserialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -456,7 +456,7 @@ Handle<Value> Document::Unserialise_convert(void* pData) {
   return aResult;
 }
 
-int kTermlist[] = { -eUint32, -eUint32, -eFunction, eEnd };
+static int kTermlist[] = { -eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::Termlist(const Arguments& args) {
   HandleScope scope;
   int aOpt[3];
@@ -511,7 +511,7 @@ Handle<Value> Document::Termlist_convert(void* pData) {
   return aList;
 }
 
-int kValues[] = { -eUint32, -eUint32, -eFunction, eEnd };
+static int kValues[] = { -eUint32, -eUint32, -eFunction, eEnd };
 Handle<Value> Document::Values(const Arguments& args) {
   HandleScope scope;
   int aOpt[3];

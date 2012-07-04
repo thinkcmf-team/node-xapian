@@ -17,7 +17,7 @@ void Database::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
 
-int kNewDatabase[] = { -eString, -eFunction, eEnd };
+static int kNewDatabase[] = { -eString, -eFunction, eEnd };
 Handle<Value> Database::New(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
@@ -71,7 +71,7 @@ Handle<Value> Database::Open_convert(void* pData) {
 
 }
 
-int kClose[] = { -eFunction, eEnd };
+static int kClose[] = { -eFunction, eEnd };
 Handle<Value> Database::Close(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -90,7 +90,7 @@ Handle<Value> Database::Close(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kReopen[] = { -eFunction, eEnd };
+static int kReopen[] = { -eFunction, eEnd };
 Handle<Value> Database::Reopen(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -109,7 +109,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kKeepAlive[] = { -eFunction, eEnd };
+static int kKeepAlive[] = { -eFunction, eEnd };
 Handle<Value> Database::KeepAlive(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -128,7 +128,7 @@ Handle<Value> Database::KeepAlive(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-int kAddDatabase[] = { eObjDatabase, -eFunction, eEnd };
+static int kAddDatabase[] = { eObjDatabase, -eFunction, eEnd };
 Handle<Value> Database::AddDatabase(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
@@ -151,7 +151,7 @@ Handle<Value> Database::AddDatabase(const Arguments& args) {
 }
 
 
-int kGetDocument[] = { eUint32, -eFunction, eEnd };
+static int kGetDocument[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Database::GetDocument(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];

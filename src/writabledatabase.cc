@@ -22,13 +22,13 @@ void WritableDatabase::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("WritableDatabase"), constructor_template->GetFunction());
 }
 
-int kNewWritableDatabase[] = { -eString, -eInt32, -eFunction, eEnd };
+static int kNew[] = { -eString, -eInt32, -eFunction, eEnd };
 Handle<Value> WritableDatabase::New(const Arguments& args) {
   HandleScope scope;
 
   int aOpt[3];
-  if (!checkArguments(kNewWritableDatabase, args, aOpt))
-    return throwSignatureErr(kNewWritableDatabase);
+  if (!checkArguments(kNew, args, aOpt))
+    return throwSignatureErr(kNew);
   if (!(aOpt[0] == aOpt[1] || (aOpt[0] != -1 && aOpt[1] != -1)))
     return ThrowException(Exception::TypeError(String::New("arguments are ([function]) or (string, number, [function])")));
 
