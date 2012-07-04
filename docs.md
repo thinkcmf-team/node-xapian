@@ -9,7 +9,7 @@ Database
         Add an existing database (or group of databases) to those accessed by this object. 
 *    reopen([function])
         Re-open the database. 
-    close_sync()
+*    close([function])
         Close the database.
     get_description_sync() - return string
         Return a string describing this object. 

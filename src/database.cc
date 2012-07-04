@@ -7,6 +7,7 @@ void Database::Init(Handle<Object> target) {
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("Database"));
 
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "close", Reopen);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "reopen", Reopen);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_database", AddDatabase);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
@@ -44,6 +45,7 @@ void Database::Open_process(void* pData, void* pThat) {
   case Open_data::eNewWDatabase: that->mDb =  
     data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
   case Open_data::eReopen:      that->mDb->reopen();                     break;
+  case Open_data::eClose:       that->mDb->close();                      break;
   case Open_data::eAddDatabase: that->mDb->add_database(*data->db->mDb); break;
   }
 }
@@ -57,11 +59,31 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eNewDatabase:
   case Open_data::eNewWDatabase: return that->handle_;
 
-  case Open_data::eAddDatabase:
+  case Open_data::eClose: 
   case Open_data::eReopen: 
+  case Open_data::eAddDatabase:
   default:                       return Undefined();
   }
 
+}
+
+int kClose[] = { -eFunction, eEnd };
+Handle<Value> Database::Close(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kClose, args, aOpt))
+    return throwSignatureErr(kClose);
+
+  Open_data* aData = new Open_data(Open_data::eClose); //deleted by Open_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
 }
 
 int kReopen[] = { -eFunction, eEnd };
@@ -71,9 +93,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
   if (!checkArguments(kReopen, args, aOpt))
     return throwSignatureErr(kReopen);
 
-  Database* that = ObjectWrap::Unwrap<Database>(args.This());
-
-  Open_data* aData = new Open_data(Open_data::eReopen, that); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eReopen); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {

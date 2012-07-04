@@ -205,9 +205,10 @@ protected:
   };
 
   struct Open_data {
-    enum { eNewDatabase, eNewWDatabase, eReopen, eAddDatabase };
+    enum { eNewDatabase, eNewWDatabase, eClose, eReopen, eAddDatabase };
     Open_data(int act, Database* th, Handle<String> fn, int wop=0): action(act), that(th), db(NULL), filename(fn), writeopts(wop) {}
     Open_data(int act, Database* th): action(act), that(th), db(NULL), filename(Handle<String>()), writeopts(0) {}
+    Open_data(int act): action(act), that(NULL), db(NULL), filename(Handle<String>()), writeopts(0) {}
     Open_data(int act, Database* th, Database* pdb): action(act), that(th), db(pdb), filename(Handle<String>()), writeopts(0) { db->Ref(); }
     ~Open_data() { if (db) db->Unref(); }
     int action;
@@ -220,9 +221,8 @@ protected:
   static Handle<Value> Open_convert(void* data);
 
   static Handle<Value> New(const Arguments& args);
+  static Handle<Value> Close(const Arguments& args);
   static Handle<Value> Reopen(const Arguments& args);
-
-
   static Handle<Value> AddDatabase(const Arguments& args);
 
 
