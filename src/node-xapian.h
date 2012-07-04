@@ -241,6 +241,10 @@ protected:
     uint32_t val1, val2;
     double vald1;
   };
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
+  static Handle<Value> GetDescription(const Arguments& args);
 
 
   struct GetDocument_data {

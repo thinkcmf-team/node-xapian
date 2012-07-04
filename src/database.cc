@@ -12,6 +12,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "keep_alive", KeepAlive);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_database", AddDatabase);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -183,4 +184,44 @@ Handle<Value> Database::GetDocument_convert(void* pData) {
 
   delete data;
   return aResult;
+}
+
+void Database::Generic_process(void* pData, void* pThat) {
+  Generic_data* data = (Generic_data*) pData;
+  Database* that = (Database *) pThat;
+
+  switch (data->action) {
+  case Generic_data::eGetDescription:  data->str1 = that->mDb->get_description(); break;
+  }
+}
+
+Handle<Value> Database::Generic_convert(void* pData) {
+  Generic_data* data = (Generic_data*) pData;
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case Generic_data::eGetDescription: aResult = String::New(data->str1.c_str()); break;
+  }
+
+  delete data;
+  return aResult;
+}
+
+static int kGetDescription[] = { -eFunction, eEnd };
+Handle<Value> Database::GetDescription(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDescription, args, aOpt))
+    return throwSignatureErr(kGetDescription);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
 }

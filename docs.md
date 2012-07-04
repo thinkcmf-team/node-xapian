@@ -11,7 +11,7 @@ Database
         Re-open the database. 
 *    close([function])
         Close the database.
-    get_description_sync() - return string
+*    get_description([function]) - return string
         Return a string describing this object. 
     has_positions_sync() - return bool
         Does this database have any positional information? 
