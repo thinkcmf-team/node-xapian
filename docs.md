@@ -41,7 +41,7 @@ Database
         Get an upper bound on the wdf of term term. 
     get_doclength_sync(uint32_did) - return uint32
         Get the length of a document. 
-    keep_alive_sync()
+*    keep_alive([function])
         Send a "keep-alive" to remote databases to stop them timing out. 
 *    get_document(uint32_did, [function]) - return object_document
         Get a document from the database, given its document id. 

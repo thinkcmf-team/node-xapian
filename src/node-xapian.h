@@ -205,7 +205,7 @@ protected:
   };
 
   struct Open_data {
-    enum { eNewDatabase, eNewWDatabase, eClose, eReopen, eAddDatabase };
+    enum { eNewDatabase, eNewWDatabase, eClose, eReopen, eKeepAlive, eAddDatabase };
     Open_data(int act, Database* th, Handle<String> fn, int wop=0): action(act), that(th), db(NULL), filename(fn), writeopts(wop) {}
     Open_data(int act, Database* th): action(act), that(th), db(NULL), filename(Handle<String>()), writeopts(0) {}
     Open_data(int act): action(act), that(NULL), db(NULL), filename(Handle<String>()), writeopts(0) {}
@@ -223,7 +223,24 @@ protected:
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> Close(const Arguments& args);
   static Handle<Value> Reopen(const Arguments& args);
+  static Handle<Value> KeepAlive(const Arguments& args);
   static Handle<Value> AddDatabase(const Arguments& args);
+
+  struct Generic_data {
+    enum { 
+      eGetDescription, eHasPositions, eGetDoccount, eGetLastDocid, eGetAvlength, eGetTermfreq, eTermExists, eGetCollectionFreq,
+      eGetValueFreq, eGetValueLowerBound, eGetValueUpperBound, eGetDoclengthLowerBound, eGetDoclengthUpperBound, eGetWdfUpperBound,
+      eGetDoclength, eGetSpellingSuggestion, eGetMetadata, eGetUuid
+    };
+    Generic_data(int a) : action(a) {}
+    Generic_data(int a, const std::string &s) : action(a), str1(s) {}
+    Generic_data(int a, uint32_t v) : action(a), val1(v) {}
+    Generic_data(int a, const std::string &s, uint32_t v) : action(a), str1(s), val1(v) {}
+    int action;
+    std::string str1, str2;
+    uint32_t val1, val2;
+    double vald1;
+  };
 
 
   struct GetDocument_data {

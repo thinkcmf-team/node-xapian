@@ -7,8 +7,9 @@ void Database::Init(Handle<Object> target) {
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("Database"));
 
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "close", Reopen);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "close", Close);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "reopen", Reopen);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "keep_alive", KeepAlive);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_database", AddDatabase);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
 
@@ -46,6 +47,7 @@ void Database::Open_process(void* pData, void* pThat) {
     data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
   case Open_data::eReopen:      that->mDb->reopen();                     break;
   case Open_data::eClose:       that->mDb->close();                      break;
+  case Open_data::eKeepAlive:   that->mDb->keep_alive();                 break;
   case Open_data::eAddDatabase: that->mDb->add_database(*data->db->mDb); break;
   }
 }
@@ -61,6 +63,7 @@ Handle<Value> Database::Open_convert(void* pData) {
 
   case Open_data::eClose: 
   case Open_data::eReopen: 
+  case Open_data::eKeepAlive:
   case Open_data::eAddDatabase:
   default:                       return Undefined();
   }
@@ -94,6 +97,25 @@ Handle<Value> Database::Reopen(const Arguments& args) {
     return throwSignatureErr(kReopen);
 
   Open_data* aData = new Open_data(Open_data::eReopen); //deleted by Open_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+int kKeepAlive[] = { -eFunction, eEnd };
+Handle<Value> Database::KeepAlive(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kKeepAlive, args, aOpt))
+    return throwSignatureErr(kKeepAlive);
+
+  Open_data* aData = new Open_data(Open_data::eKeepAlive); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {
