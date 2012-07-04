@@ -13,6 +13,8 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_database", AddDatabase);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "has_positions", HasPositions);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doccount", GetDoccount);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -192,6 +194,8 @@ void Database::Generic_process(void* pData, void* pThat) {
 
   switch (data->action) {
   case Generic_data::eGetDescription:  data->str1 = that->mDb->get_description(); break;
+  case Generic_data::eHasPositions:    data->val1 = that->mDb->has_positions();   break;
+  case Generic_data::eGetDoccount:     data->val1 = that->mDb->get_doccount();    break;
   }
 }
 
@@ -201,6 +205,10 @@ Handle<Value> Database::Generic_convert(void* pData) {
 
   switch (data->action) {
   case Generic_data::eGetDescription: aResult = String::New(data->str1.c_str()); break;
+
+  case Generic_data::eHasPositions:   aResult = Boolean::New(data->val1);        break;
+
+  case Generic_data::eGetDoccount:    aResult = Uint32::New(data->val1);         break;
   }
 
   delete data;
@@ -215,6 +223,44 @@ Handle<Value> Database::GetDescription(const Arguments& args) {
     return throwSignatureErr(kGetDescription);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kHasPositions[] = { -eFunction, eEnd };
+Handle<Value> Database::HasPositions(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kHasPositions, args, aOpt))
+    return throwSignatureErr(kHasPositions);
+
+  Generic_data* aData = new Generic_data(Generic_data::eHasPositions); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetDoccount[] = { -eFunction, eEnd };
+Handle<Value> Database::GetDoccount(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDoccount, args, aOpt))
+    return throwSignatureErr(kGetDoccount);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDoccount); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {

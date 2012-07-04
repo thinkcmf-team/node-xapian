@@ -13,9 +13,9 @@ Database
         Close the database.
 *    get_description([function]) - return string
         Return a string describing this object. 
-    has_positions_sync() - return bool
+*    has_positions([function]) - return bool
         Does this database have any positional information? 
-    get_doccount_sync() - return uint32
+*    get_doccount([function]) - return uint32
         Get the number of documents in the database. 
     get_lastdocid_sync() - return uint32
         Get the highest document id which has been used in the database. 

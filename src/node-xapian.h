@@ -245,6 +245,8 @@ protected:
   static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> HasPositions(const Arguments& args);
+  static Handle<Value> GetDoccount(const Arguments& args);
 
 
   struct GetDocument_data {
