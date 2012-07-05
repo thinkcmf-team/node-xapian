@@ -249,6 +249,8 @@ protected:
   static Handle<Value> GetDoccount(const Arguments& args);
   static Handle<Value> GetLastdocid(const Arguments& args);
   static Handle<Value> GetAvlength(const Arguments& args);
+  static Handle<Value> GetTermfreq(const Arguments& args);
+  static Handle<Value> TermExists(const Arguments& args);
 
 
   struct GetDocument_data {

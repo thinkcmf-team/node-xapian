@@ -21,9 +21,9 @@ Database
         Get the highest document id which has been used in the database. 
 *    get_avlength([function]) - return number
         Get the average length of the documents in the database. 
-    get_termfreq_sync(string_tname) - return uint32
+*    get_termfreq(string_tname, [function]) - return uint32
         Get the number of documents in the database indexed by a given term. 
-    term_exists_sync(string_tname) - return bool
+*    term_exists(string_tname, [function]) - return bool
         Check if a given term exists in the database. 
     get_collection_freq_sync(string_tname) - return uint32
         Return the total number of occurrences of the given term. 
