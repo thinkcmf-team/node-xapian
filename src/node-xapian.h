@@ -251,6 +251,8 @@ protected:
   static Handle<Value> GetAvlength(const Arguments& args);
   static Handle<Value> GetTermfreq(const Arguments& args);
   static Handle<Value> TermExists(const Arguments& args);
+  static Handle<Value> GetCollectionFreq(const Arguments& args);
+  static Handle<Value> GetValueFreq(const Arguments& args);
 
 
   struct GetDocument_data {

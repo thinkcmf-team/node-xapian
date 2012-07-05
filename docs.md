@@ -25,9 +25,9 @@ Database
         Get the number of documents in the database indexed by a given term. 
 *    term_exists(string_tname, [function]) - return bool
         Check if a given term exists in the database. 
-    get_collection_freq_sync(string_tname) - return uint32
+*    get_collection_freq(string_tname, [function]) - return uint32
         Return the total number of occurrences of the given term. 
-    get_value_freq_sync(uint32_slot) - return uint32
+*    get_value_freq(uint32_slot, [function]) - return uint32
         Return the frequency of a given value slot. 
     get_value_lower_bound_sync(uint32_slot) - return string
         Get a lower bound on the values stored in the given value slot. 

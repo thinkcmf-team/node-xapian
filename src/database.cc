@@ -19,6 +19,8 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_avlength", GetAvlength);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_termfreq", GetTermfreq);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "term_exists", TermExists);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_collection_freq", GetCollectionFreq);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_value_freq", GetValueFreq);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -197,13 +199,15 @@ void Database::Generic_process(void* pData, void* pThat) {
   Database* that = (Database *) pThat;
 
   switch (data->action) {
-  case Generic_data::eGetDescription: data->str1 = that->mDb->get_description();        break;
-  case Generic_data::eHasPositions:   data->val1 = that->mDb->has_positions();          break;
-  case Generic_data::eGetDoccount:    data->val1 = that->mDb->get_doccount();           break;
-  case Generic_data::eGetLastdocid:   data->val1 = that->mDb->get_lastdocid();          break;
-  case Generic_data::eGetAvlength:    data->vald1 = that->mDb->get_avlength();          break;
-  case Generic_data::eGetTermfreq:    data->val1 = that->mDb->get_termfreq(data->str1); break;
-  case Generic_data::eTermExists:     data->val1 = that->mDb->term_exists(data->str1);  break;
+  case Generic_data::eGetDescription:    data->str1 = that->mDb->get_description();               break;
+  case Generic_data::eHasPositions:      data->val1 = that->mDb->has_positions();                 break;
+  case Generic_data::eGetDoccount:       data->val1 = that->mDb->get_doccount();                  break;
+  case Generic_data::eGetLastdocid:      data->val1 = that->mDb->get_lastdocid();                 break;
+  case Generic_data::eGetAvlength:       data->vald1 = that->mDb->get_avlength();                 break;
+  case Generic_data::eGetTermfreq:       data->val1 = that->mDb->get_termfreq(data->str1);        break;
+  case Generic_data::eTermExists:        data->val1 = that->mDb->term_exists(data->str1);         break;
+  case Generic_data::eGetCollectionFreq: data->val1 = that->mDb->get_collection_freq(data->str1); break;
+  case Generic_data::eGetValueFreq:      data->val2 = that->mDb->get_value_freq(data->val1);      break;
   }
 }
 
@@ -217,9 +221,12 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eTermExists:
   case Generic_data::eHasPositions:   aResult = Boolean::New(data->val1);        break;
 
+  case Generic_data::eGetCollectionFreq:
   case Generic_data::eGetTermfreq:
   case Generic_data::eGetLastdocid:
   case Generic_data::eGetDoccount:    aResult = Uint32::New(data->val1);         break;
+
+  case Generic_data::eGetValueFreq:   aResult = Uint32::New(data->val2);         break;
 
   case Generic_data::eGetAvlength:    aResult = Number::New(data->vald1);        break;
   }
@@ -350,6 +357,44 @@ Handle<Value> Database::TermExists(const Arguments& args) {
     return throwSignatureErr(kTermExists);
 
   Generic_data* aData = new Generic_data(Generic_data::eTermExists, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetCollectionFreq[] = { eString, -eFunction, eEnd };
+Handle<Value> Database::GetCollectionFreq(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetCollectionFreq, args, aOpt))
+    return throwSignatureErr(kGetCollectionFreq);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetCollectionFreq, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetValueFreq[] = { eUint32, -eFunction, eEnd };
+Handle<Value> Database::GetValueFreq(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetValueFreq, args, aOpt))
+    return throwSignatureErr(kGetValueFreq);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetValueFreq, args[0]->Uint32Value()); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
