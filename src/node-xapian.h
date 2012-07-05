@@ -228,7 +228,7 @@ protected:
 
   struct Generic_data {
     enum { 
-      eGetDescription, eHasPositions, eGetDoccount, eGetLastDocid, eGetAvlength, eGetTermfreq, eTermExists, eGetCollectionFreq,
+      eGetDescription, eHasPositions, eGetDoccount, eGetLastdocid, eGetAvlength, eGetTermfreq, eTermExists, eGetCollectionFreq,
       eGetValueFreq, eGetValueLowerBound, eGetValueUpperBound, eGetDoclengthLowerBound, eGetDoclengthUpperBound, eGetWdfUpperBound,
       eGetDoclength, eGetSpellingSuggestion, eGetMetadata, eGetUuid
     };
@@ -247,6 +247,8 @@ protected:
   static Handle<Value> GetDescription(const Arguments& args);
   static Handle<Value> HasPositions(const Arguments& args);
   static Handle<Value> GetDoccount(const Arguments& args);
+  static Handle<Value> GetLastdocid(const Arguments& args);
+  static Handle<Value> GetAvlength(const Arguments& args);
 
 
   struct GetDocument_data {

@@ -17,9 +17,9 @@ Database
         Does this database have any positional information? 
 *    get_doccount([function]) - return uint32
         Get the number of documents in the database. 
-    get_lastdocid_sync() - return uint32
+*    get_lastdocid([function]) - return uint32
         Get the highest document id which has been used in the database. 
-    get_avlength_sync() - return number
+*    get_avlength([function]) - return number
         Get the average length of the documents in the database. 
     get_termfreq_sync(string_tname) - return uint32
         Get the number of documents in the database indexed by a given term. 

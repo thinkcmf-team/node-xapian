@@ -15,6 +15,8 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "has_positions", HasPositions);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doccount", GetDoccount);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_lastdocid", GetLastdocid);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_avlength", GetAvlength);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -196,6 +198,8 @@ void Database::Generic_process(void* pData, void* pThat) {
   case Generic_data::eGetDescription:  data->str1 = that->mDb->get_description(); break;
   case Generic_data::eHasPositions:    data->val1 = that->mDb->has_positions();   break;
   case Generic_data::eGetDoccount:     data->val1 = that->mDb->get_doccount();    break;
+  case Generic_data::eGetLastdocid:    data->val1 = that->mDb->get_lastdocid();   break;
+  case Generic_data::eGetAvlength:     data->vald1 = that->mDb->get_avlength();   break;
   }
 }
 
@@ -208,7 +212,10 @@ Handle<Value> Database::Generic_convert(void* pData) {
 
   case Generic_data::eHasPositions:   aResult = Boolean::New(data->val1);        break;
 
+  case Generic_data::eGetLastdocid:
   case Generic_data::eGetDoccount:    aResult = Uint32::New(data->val1);         break;
+
+  case Generic_data::eGetAvlength:    aResult = Number::New(data->vald1);        break;
   }
 
   delete data;
@@ -261,6 +268,44 @@ Handle<Value> Database::GetDoccount(const Arguments& args) {
     return throwSignatureErr(kGetDoccount);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetDoccount); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetLastdocid[] = { -eFunction, eEnd };
+Handle<Value> Database::GetLastdocid(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetLastdocid, args, aOpt))
+    return throwSignatureErr(kGetLastdocid);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetLastdocid); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetAvlength[] = { -eFunction, eEnd };
+Handle<Value> Database::GetAvlength(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetAvlength, args, aOpt))
+    return throwSignatureErr(kGetAvlength);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetAvlength); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
