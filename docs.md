@@ -33,9 +33,9 @@ Database
         Get a lower bound on the values stored in the given value slot. 
 *    get_value_upper_bound_sync(uint32_slot, [function]) - return string
         Get an upper bound on the values stored in the given value slot. 
-    get_doclength_lower_bound_sync() - return uint32
+*    get_doclength_lower_bound([function]) - return uint32
         Get a lower bound on the length of a document in this DB. 
-    get_doclength_upper_bound_sync() - return uint32
+*    get_doclength_upper_bound([function]) - return uint32
         Get an upper bound on the length of a document in this DB. 
     get_wdf_upper_bound_sync(string_term) - return uint32
         Get an upper bound on the wdf of term term. 

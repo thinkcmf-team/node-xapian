@@ -255,6 +255,8 @@ protected:
   static Handle<Value> GetValueFreq(const Arguments& args);
   static Handle<Value> GetValueLowerBound(const Arguments& args);
   static Handle<Value> GetValueUpperBound(const Arguments& args);
+  static Handle<Value> GetDoclengthLowerBound(const Arguments& args);
+  static Handle<Value> GetDoclengthUpperBound(const Arguments& args);
 
 
   struct GetDocument_data {

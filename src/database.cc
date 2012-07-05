@@ -23,6 +23,8 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_value_freq", GetValueFreq);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_value_lower_bound", GetValueLowerBound);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_value_upper_bound", GetValueUpperBound);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doclength_lower_bound", GetDoclengthLowerBound);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doclength_upper_bound", GetDoclengthUpperBound);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -212,6 +214,8 @@ void Database::Generic_process(void* pData, void* pThat) {
   case Generic_data::eGetValueFreq:       data->val2 = that->mDb->get_value_freq(data->val1);        break;
   case Generic_data::eGetValueLowerBound: data->str1 = that->mDb->get_value_lower_bound(data->val1); break;
   case Generic_data::eGetValueUpperBound: data->str1 = that->mDb->get_value_upper_bound(data->val1); break;
+  case Generic_data::eGetDoclengthLowerBound: data->val1 = that->mDb->get_doclength_lower_bound();    break;
+  case Generic_data::eGetDoclengthUpperBound: data->val1 = that->mDb->get_doclength_upper_bound();    break;
   }
 }
 
@@ -227,6 +231,8 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eTermExists:
   case Generic_data::eHasPositions:   aResult = Boolean::New(data->val1);        break;
 
+  case Generic_data::eGetDoclengthUpperBound:
+  case Generic_data::eGetDoclengthLowerBound:
   case Generic_data::eGetCollectionFreq:
   case Generic_data::eGetTermfreq:
   case Generic_data::eGetLastdocid:
@@ -439,6 +445,44 @@ Handle<Value> Database::GetValueUpperBound(const Arguments& args) {
     return throwSignatureErr(kGetValueUpperBound);
 
   Generic_data* aData = new Generic_data(Generic_data::eGetValueUpperBound, args[0]->Uint32Value()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetDoclengthLowerBound[] = { -eFunction, eEnd };
+Handle<Value> Database::GetDoclengthLowerBound(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDoclengthLowerBound, args, aOpt))
+    return throwSignatureErr(kGetDoclengthLowerBound);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDoclengthLowerBound); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetDoclengthUpperBound[] = { -eFunction, eEnd };
+Handle<Value> Database::GetDoclengthUpperBound(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDoclengthUpperBound, args, aOpt))
+    return throwSignatureErr(kGetDoclengthUpperBound);
+
+  Generic_data* aData = new Generic_data(Generic_data::eGetDoclengthUpperBound); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
