@@ -253,6 +253,8 @@ protected:
   static Handle<Value> TermExists(const Arguments& args);
   static Handle<Value> GetCollectionFreq(const Arguments& args);
   static Handle<Value> GetValueFreq(const Arguments& args);
+  static Handle<Value> GetValueLowerBound(const Arguments& args);
+  static Handle<Value> GetValueUpperBound(const Arguments& args);
 
 
   struct GetDocument_data {

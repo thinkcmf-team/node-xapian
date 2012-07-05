@@ -29,9 +29,9 @@ Database
         Return the total number of occurrences of the given term. 
 *    get_value_freq(uint32_slot, [function]) - return uint32
         Return the frequency of a given value slot. 
-    get_value_lower_bound_sync(uint32_slot) - return string
+*    get_value_lower_bound(uint32_slot, [function]) - return string
         Get a lower bound on the values stored in the given value slot. 
-    get_value_upper_bound_sync(uint32_slot) - return string
+*    get_value_upper_bound_sync(uint32_slot, [function]) - return string
         Get an upper bound on the values stored in the given value slot. 
     get_doclength_lower_bound_sync() - return uint32
         Get a lower bound on the length of a document in this DB. 
