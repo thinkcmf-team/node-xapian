@@ -37,9 +37,9 @@ Database
         Get a lower bound on the length of a document in this DB. 
 *    get_doclength_upper_bound([function]) - return uint32
         Get an upper bound on the length of a document in this DB. 
-    get_wdf_upper_bound_sync(string_term) - return uint32
+*    get_wdf_upper_bound(string_term, [function]) - return uint32
         Get an upper bound on the wdf of term term. 
-    get_doclength_sync(uint32_did) - return uint32
+*    get_doclength(uint32_did, [function]) - return uint32
         Get the length of a document. 
 *    keep_alive([function])
         Send a "keep-alive" to remote databases to stop them timing out. 
