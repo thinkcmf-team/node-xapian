@@ -259,6 +259,9 @@ protected:
   static Handle<Value> GetDoclengthUpperBound(const Arguments& args);
   static Handle<Value> GetWdfUpperBound(const Arguments& args);
   static Handle<Value> GetDoclength(const Arguments& args);
+  static Handle<Value> GetSpellingSuggestion(const Arguments& args);
+  static Handle<Value> GetMetadata(const Arguments& args);
+  static Handle<Value> GetUuid(const Arguments& args);
 
 
   struct GetDocument_data {

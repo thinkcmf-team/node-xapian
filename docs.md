@@ -45,11 +45,11 @@ Database
         Send a "keep-alive" to remote databases to stop them timing out. 
 *    get_document(uint32_did, [function]) - return object_document
         Get a document from the database, given its document id. 
-    get_spelling_suggestion_sync (string_word, uint32_max_edit_distance=2) - return string
+*    get_spelling_suggestion(string_word, uint32_max_edit_distance=2, [function]) - return string
         Suggest a spelling correction.
-    get_metadata_sync(string_key) - return string
+*    get_metadata(string_key, [function]) - return string
         Get the user-specified metadata associated with a given key. 
-    get_uuid_sync() - return string
+*    get_uuid([function]) - return string
         Get a UUID for the database. 
   methods different from the C++ API:
     postlist_sync(string_tname) - return an array of { docid: uint32, doclength: uint32, wdf: uint32, description: string } (PostingIterator)
