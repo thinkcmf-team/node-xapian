@@ -27,6 +27,9 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doclength_upper_bound", GetDoclengthUpperBound);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_wdf_upper_bound", GetWdfUpperBound);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_doclength", GetDoclength);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_spelling_suggestion", GetSpellingSuggestion);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_metadata", GetMetadata);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_uuid", GetUuid);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
