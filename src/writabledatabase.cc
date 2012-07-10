@@ -74,14 +74,13 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-static int kAddDocument[] = { eObjDocument, -eFunction, eEnd };
+static int kAddDocument[] = { eObjectDocument, -eFunction, eEnd };
 Handle<Value> WritableDatabase::AddDocument(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
-  if (!checkArguments(kAddDocument, args, aOpt))
+  Document* aDoc;
+  if (!checkArguments(kAddDocument, args, aOpt) || !(aDoc = GetInstance<Document>(args[0])))
     return throwSignatureErr(kAddDocument);
-
-  Document* aDoc = GetInstance<Document>(args[0]);
 
   ReplaceDocument_data* aData = new ReplaceDocument_data(*aDoc->getDoc()); //deleted by ReplaceDocument_convert on non error
 

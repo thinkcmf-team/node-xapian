@@ -145,14 +145,14 @@ Handle<Value> Database::KeepAlive(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-static int kAddDatabase[] = { eObjDatabase, -eFunction, eEnd };
+static int kAddDatabase[] = { eObjectDatabase, -eFunction, eEnd };
 Handle<Value> Database::AddDatabase(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
-  if (!checkArguments(kAddDatabase, args, aOpt))
+  Database* aDb;
+  if (!checkArguments(kAddDatabase, args, aOpt) || !(aDb = GetInstance<Database>(args[0])))
     return throwSignatureErr(kAddDatabase);
 
-  Database* aDb = GetInstance<Database>(args[0]);
   Database* that = ObjectWrap::Unwrap<Database>(args.This());
 
   Open_data* aData = new Open_data(Open_data::eAddDatabase, that, aDb); //deleted by Open_convert on non error

@@ -122,8 +122,8 @@ enum ArgumentType {
   eString,
   eObject,
   eArray,
-  eObjDatabase,
-  eObjDocument,
+  eObjectDatabase,
+  eObjectDocument,
   eFunction
 };
 
