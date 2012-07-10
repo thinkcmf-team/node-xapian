@@ -74,19 +74,20 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kAddDocument[] = { eObjDocument, -eFunction, eEnd };
 Handle<Value> WritableDatabase::AddDocument(const Arguments& args) {
   HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kAddDocument, args, aOpt))
+    return throwSignatureErr(kAddDocument);
 
-  Document* aDoc;
-  bool aAsync = args.Length() == 2 && args[1]->IsFunction();
-  if (args.Length() != +aAsync+1 || !(aDoc = GetInstance<Document>(args[0])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (Document, [function])")));
+  Document* aDoc = GetInstance<Document>(args[0]);
 
   ReplaceDocument_data* aData = new ReplaceDocument_data(*aDoc->getDoc()); //deleted by ReplaceDocument_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -120,18 +121,18 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   return aResult;
 }
 
+static int kCommit[] = { -eFunction, eEnd };
 Handle<Value> WritableDatabase::Commit(const Arguments& args) {
   HandleScope scope;
-
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kCommit, args, aOpt))
+    return throwSignatureErr(kCommit);
 
   Generic_data* aData = new Generic_data(Generic_data::eCommit); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -139,19 +140,18 @@ Handle<Value> WritableDatabase::Commit(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kBeginTransaction[] = { -eBoolean, -eFunction, eEnd };
 Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
   HandleScope scope;
+  int aOpt[2];
+  if (!checkArguments(kBeginTransaction, args, aOpt))
+    return throwSignatureErr(kBeginTransaction);
 
-  bool aAsync = (args.Length() == 1 && args[0]->IsFunction()) || (args.Length() == 2 && args[1]->IsFunction());
-  bool aHasFlushParameter = (args.Length()>0 && args[0]->IsBoolean());
-  if (args.Length() != +aAsync+aHasFlushParameter)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([boolean], [function])")));
-
-  Generic_data* aData = new Generic_data(Generic_data::eBeginTx, aHasFlushParameter && args[0]->BooleanValue()); //deleted by Commit_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eBeginTx, aOpt[0] < 0 ? true : args[aOpt[0]]->BooleanValue()); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -159,18 +159,18 @@ Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kCommitTransaction[] = { -eFunction, eEnd };
 Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   HandleScope scope;
-
-  bool aAsync = args.Length() == 1 && args[0]->IsFunction();
-  if (args.Length() != +aAsync)
-    return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
+  int aOpt[1];
+  if (!checkArguments(kCommitTransaction, args, aOpt))
+    return throwSignatureErr(kCommitTransaction);
 
   Generic_data* aData = new Generic_data(Generic_data::eCommitTx); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

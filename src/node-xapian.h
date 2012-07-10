@@ -118,10 +118,12 @@ enum ArgumentType {
   eEnd,
   eInt32,
   eUint32,
+  eBoolean,
   eString,
   eObject,
   eArray,
   eObjDatabase,
+  eObjDocument,
   eFunction
 };
 

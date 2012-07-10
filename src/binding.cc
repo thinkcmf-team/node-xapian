@@ -36,10 +36,12 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
     switch (abs(signature[aSigN])) {
     case eInt32:       aIsType = args[aArgN]->IsInt32();                  break;
     case eUint32:      aIsType = args[aArgN]->IsUint32();                 break;
+    case eBoolean:     aIsType = args[aArgN]->IsBoolean();                break;
     case eString:      aIsType = args[aArgN]->IsString();                 break;
     case eObject:      aIsType = args[aArgN]->IsObject();                 break;
     case eArray:       aIsType = args[aArgN]->IsArray();                  break;
     case eObjDatabase: aIsType = (int)GetInstance<Database>(args[aArgN]); break;
+    case eObjDocument: aIsType = (int)GetInstance<Document>(args[aArgN]); break;
     case eFunction:    aIsType = args[aArgN]->IsFunction();               break;
     default: { std::string aEx("incorrect signature member: "); aEx += (char)(signature[aSigN] + '0'); throw aEx; }
     }
@@ -65,10 +67,12 @@ Handle<Value> throwSignatureErr(int signature[]) {
     switch (abs(signature[aSigN])) {
     case eInt32:       aStr += "int32";    break;
     case eUint32:      aStr += "uint32";   break;
+    case eBoolean:     aStr += "boolean";  break;
     case eString:      aStr += "string";   break;
     case eObject:      aStr += "object";   break;
     case eArray:       aStr += "array";    break;
     case eObjDatabase: aStr += "Database"; break;
+    case eObjDocument: aStr += "Document"; break;
     case eFunction:    aStr += "function"; break;
     default:         throw "incorrect sig member"; 
     }
