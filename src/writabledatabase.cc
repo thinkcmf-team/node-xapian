@@ -127,11 +127,11 @@ Handle<Value> WritableDatabase::Commit(const Arguments& args) {
   if (args.Length() != +aAsync)
     return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
 
-  Commit_data* aData = new Commit_data(Commit_data::eCommit); //deleted by Commit_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eCommit); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -147,11 +147,11 @@ Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
   if (args.Length() != +aAsync+aHasFlushParameter)
     return ThrowException(Exception::TypeError(String::New("arguments are ([boolean], [function])")));
 
-  Commit_data* aData = new Commit_data(Commit_data::eBeginTx, aHasFlushParameter && args[0]->BooleanValue()); //deleted by Commit_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eBeginTx, aHasFlushParameter && args[0]->BooleanValue()); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -166,11 +166,11 @@ Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   if (args.Length() != +aAsync)
     return ThrowException(Exception::TypeError(String::New("arguments are ([function])")));
 
-  Commit_data* aData = new Commit_data(Commit_data::eCommitTx); //deleted by Commit_convert on non error
+  Generic_data* aData = new Generic_data(Generic_data::eCommitTx); //deleted by Commit_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, Commit_process, Commit_convert);
+    aResult = invoke<Database>(aAsync, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -178,19 +178,26 @@ Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-void WritableDatabase::Commit_process(void* pData, void* pThat) {
-  Commit_data* data = (Commit_data*) pData;
+void WritableDatabase::Generic_process(void* pData, void* pThat) {
+  Generic_data* data = (Generic_data*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
 
-  switch (data->type) {
-  case Commit_data::eCommit:   that->mWdb->commit();                        break;
-  case Commit_data::eBeginTx:  that->mWdb->begin_transaction(data->flush);  break;
-  case Commit_data::eCommitTx: that->mWdb->commit_transaction();            break;
+  switch (data->action) {
+  case Generic_data::eCommit:   that->mWdb->commit();                      break;
+  case Generic_data::eBeginTx:  that->mWdb->begin_transaction(data->val1); break;
+  case Generic_data::eCommitTx: that->mWdb->commit_transaction();          break;
   }
 }
 
-Handle<Value> WritableDatabase::Commit_convert(void* pData) {
-  Commit_data* data = (Commit_data*) pData;
+Handle<Value> WritableDatabase::Generic_convert(void* pData) {
+  Generic_data* data = (Generic_data*) pData;
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case Generic_data::eCommitTx:
+  case Generic_data::eBeginTx:
+  case Generic_data::eCommit: aResult = Undefined(); break;
+  }
   delete data;
   return Undefined();
 }

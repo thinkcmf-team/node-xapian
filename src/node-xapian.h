@@ -310,14 +310,19 @@ protected:
   static Handle<Value> AddDocument(const Arguments& args);
 
 
-  struct Commit_data {
-    Commit_data(int op, bool fl=false) : type(op), flush(fl) {}
+  struct Generic_data {
+    Generic_data(int a) : action(a) {}
+    Generic_data(int a, uint32_t v) : action(a), val1(v) {}
+    Generic_data(int a, const std::string &s) : action(a), str1(s) {}
+    Generic_data(int a, const std::string &s, uint32_t v) : action(a), str1(s), val1(v) {}
+    Generic_data(int a, const std::string &s1, const std::string &s2) : action(a), str1(s1), str2(s2) {}
     enum { eCommit, eBeginTx, eCommitTx };
-    int type;
-    bool flush;
+    int action;
+    std::string str1, str2;
+    uint32_t val1;
   };
-  static void Commit_process(void* data, void* that);
-  static Handle<Value> Commit_convert(void* data);
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> Commit(const Arguments& args);
   static Handle<Value> BeginTransaction(const Arguments& args);
