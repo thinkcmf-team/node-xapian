@@ -482,7 +482,7 @@ void Document::Termlist_process(void* pData, void* pThat) {
   Xapian::termcount aSize  = that->mDoc->termlist_count() - data->first;
   if (data->maxitems != 0 && data->maxitems < aSize)
     aSize = data->maxitems;
-  data->tlist = new Termlist_data::Termlist_item[aSize];
+  data->tlist = new Termlist_data::Item[aSize];
 
   Xapian::TermIterator aIt = that->mDoc->termlist_begin();
   for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;

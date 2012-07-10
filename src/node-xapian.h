@@ -462,11 +462,11 @@ protected:
     Termlist_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL) {}
     ~Termlist_data() { if (tlist) delete [] tlist; }
     Xapian::termcount first, maxitems;
-    struct Termlist_item {
+    struct Item {
       std::string tname, description;
       Xapian::termcount wdf;
     };
-    Termlist_item* tlist;
+    Item* tlist;
     Xapian::termcount size;
   };
   static void Termlist_process(void* data, void* that);
