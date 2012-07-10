@@ -167,7 +167,7 @@ protected:
     GetMset_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), set(NULL) {}
     ~GetMset_data() { if (set) delete [] set; }
     Xapian::doccount first, maxitems;
-    struct Mset_item {
+    struct Item {
       Xapian::docid id;
       Xapian::Document* document;
       Xapian::doccount rank, collapse_count;
@@ -175,7 +175,7 @@ protected:
       std::string collapse_key, description;
       Xapian::percent percent;
     };
-    Mset_item* set;
+    Item* set;
     int size;
   };
   static Handle<Value> GetMset(const Arguments& args);
@@ -479,11 +479,11 @@ protected:
     Values_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), vlist(NULL) {}
     ~Values_data() { if (vlist) delete [] vlist; }
     Xapian::termcount first, maxitems;
-    struct Values_item {
+    struct Item {
       std::string value, description;
       Xapian::valueno valueno;
     };
-    Values_item* vlist;
+    Item* vlist;
     Xapian::termcount size;
   };
   static void Values_process(void* data, void* that);

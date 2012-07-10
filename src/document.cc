@@ -535,7 +535,7 @@ void Document::Values_process(void* pData, void* pThat) {
   Xapian::termcount aSize  = that->mDoc->values_count() - data->first;
   if (data->maxitems != 0 && data->maxitems < aSize)
     aSize = data->maxitems;
-  data->vlist = new Values_data::Values_item[aSize];
+  data->vlist = new Values_data::Item[aSize];
 
   Xapian::ValueIterator aIt = that->mDoc->values_begin();
   for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
