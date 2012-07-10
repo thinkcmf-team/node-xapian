@@ -490,7 +490,6 @@ void Document::Termlist_process(void* pData, void* pThat) {
   for (data->size = 0; aIt != that->mDoc->termlist_end() && data->size < aSize; ++data->size, ++aIt) {
     data->tlist[data->size].tname = *aIt;
     data->tlist[data->size].wdf = aIt.get_wdf();
-    data->tlist[data->size].termfreq = aIt.get_termfreq();
     data->tlist[data->size].description = aIt.get_description();
   }
 }
@@ -503,7 +502,6 @@ Handle<Value> Document::Termlist_convert(void* pData) {
     Local<Object> aO(Object::New());
     aO->Set(String::NewSymbol("tname"      ), String::New(data->tlist[a].tname.c_str()      ));
     aO->Set(String::NewSymbol("wdf"        ), Uint32::New(data->tlist[a].wdf                ));
-    aO->Set(String::NewSymbol("termfreq"   ), Uint32::New(data->tlist[a].termfreq           ));
     aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
     aList->Set(a, aO);
   }

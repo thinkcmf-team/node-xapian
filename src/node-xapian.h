@@ -458,7 +458,6 @@ protected:
     struct Termlist_item {
       std::string tname, description;
       Xapian::termcount wdf;
-      Xapian::doccount termfreq;
     };
     Termlist_item* tlist;
     Xapian::termcount size;
