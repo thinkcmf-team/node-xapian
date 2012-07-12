@@ -33,10 +33,7 @@ exports.runTests = function (name, tests, sync, callback) {
             fNext('ok', aTst.name);
         });
       } catch (ex) {
-         if (aTst.fatal) 
-           fNext('fatal', aTst.name, ex.message);
-         else
-           fNext('fail', aTst.name);
+        fNext(aTst.fatal ? 'fatal' : 'fail', aTst.name, aTst.fatal ? ex.message : undefined);
       }
     } else {
       if (sync) {
