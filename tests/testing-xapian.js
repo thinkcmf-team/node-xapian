@@ -9,11 +9,11 @@ exports.runTests = function (name, tests, sync, callback) {
     }
     var aTst = tests[tstN];
     function fNext(result, name, extra) {
-      var aStr = '';
+      var aStr;
       switch (result) {
-      case 'ok': aStr += '  ok    '; break;
-      case 'fail': aStr += '  fail  '; break;
-      case 'fatal': aStr += '  fatal '; break;
+      case 'ok':    aStr = '  ok    '; break;
+      case 'fail':  aStr = '  fail  '; break;
+      case 'fatal': aStr = '  fatal '; break;
       }
       aStr += aTst.name;
       if (extra) 
@@ -27,12 +27,9 @@ exports.runTests = function (name, tests, sync, callback) {
     if ('action' in aTst) {
       try {
        aTst.action(objects, sync, function(err) {
-          if (err) {
-            if (aTst.fatal) 
-              fNext('fatal', aTst.name, err);
-            else 
-              fNext('fail', aTst.name);
-          } else 
+          if (err)
+            fNext(aTst.fatal ? 'fatal' : 'fail', aTst.name, aTst.fatal ? err : undefined);
+          else 
             fNext('ok', aTst.name);
         });
       } catch (ex) {
@@ -53,16 +50,14 @@ exports.runTests = function (name, tests, sync, callback) {
           fNext(result ? 'ok' : 'fail', aTst.name);
         });
       } else {
-        var aAlteredParameters = [];
-        for (var i=0; i < aTst.parameters.length; i++ )
-          aAlteredParameters.push(aTst.parameters[i]);
-        aAlteredParameters.push(function(err, result){
+        aTst.parameters.push(function(err, result){
           aTst.result(err, result, function(result) {
+            aTst.parameters.pop();
             fNext(result ? 'ok' : 'fail', aTst.name);
-          });          
+          });
         });
         try {
-          objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aAlteredParameters);
+          objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aTst.parameters);
         } catch (ex) {
           aTst.result(ex.message, null, function(result) {
             fNext(result ? 'ok' : 'fail', aTst.name);
