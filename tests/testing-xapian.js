@@ -1,66 +1,71 @@
-exports.runTests = function (name, tests, sync, _done) {
+exports.runTests = function (name, tests, sync, callback) {
   console.log(name);
   var objects = {};
   runTest(0);
-  function runTest(indTst)
-  {
-    if (indTst == tests.length) { 
-      if (_done) _done();
+  function runTest(tstN) {
+    if (tstN == tests.length) { 
+      if (callback) callback();
       return; 
     }
-    if ('action' in tests[indTst]) {
+    var aTst = tests[tstN];
+    function fNext(result, name, extra) {
+      var aStr = '';
+      switch (result) {
+      case 'ok': aStr += '  ok    '; break;
+      case 'fail': aStr += '  fail  '; break;
+      case 'fatal': aStr += '  fatal '; break;
+      }
+      aStr += aTst.name;
+      if (extra) 
+        aStr += ' - ' + extra;
+      console.log(aStr);
+      if (result == 'fatal') {
+        if (callback) callback();
+      } else
+        runTest(tstN + 1);
+    }
+    if ('action' in aTst) {
       try {
-       tests[indTst].action(objects, sync, function(err) {
+       aTst.action(objects, sync, function(err) {
           if (err) {
-            if (tests[indTst].fatal) {
-              console.log('  fatal ' + tests[indTst].name + ' - ' + err);
-              if (_done) _done();
-            } else {
-              console.log('  fail  ' + tests[indTst].name);
-              runTest(indTst + 1);
-            }
-          } else {
-            console.log('  ok    ' + tests[indTst].name);
-            runTest(indTst + 1);
-          }
+            if (aTst.fatal) 
+              fNext('fatal', aTst.name, err);
+            else 
+              fNext('fail', aTst.name);
+          } else 
+            fNext('ok', aTst.name);
         });
       } catch (ex) {
-         if (tests[indTst].fatal) {
-           console.log('  fatal ' + tests[indTst].name + ' - ' + ex.message); 
-           if (_done) _done();
-         } else {
-           console.log('  fail  ' + tests[indTst].name);
-           runTest(indTst + 1);
-         }
+         if (aTst.fatal) 
+           fNext('fatal', aTst.name, ex.message);
+         else
+           fNext('fail', aTst.name);
       }
-    }
-    else {
+    } else {
       if (sync) {
         var aResult, aErr = null;
         try {
-          aResult = objects[tests[indTst].obj][tests[indTst].method].apply(objects[tests[indTst].obj], tests[indTst].parameters);
+          aResult = objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aTst.parameters);
         } catch (ex) {
           aErr = ex.message;
         }
-        tests[indTst].result(aErr, aResult, function(result) {
-          console.log((result ? '  ok    ' : '  fail  ') + tests[indTst].name); 
-          runTest(indTst + 1); 
+        aTst.result(aErr, aResult, function(result) {
+          fNext(result ? 'ok' : 'fail', aTst.name);
         });
       } else {
         var aAlteredParameters = [];
-        for (var i=0; i < tests[indTst].parameters.length; i++ ) aAlteredParameters.push(tests[indTst].parameters[i]);
+        for (var i=0; i < aTst.parameters.length; i++ )
+          aAlteredParameters.push(aTst.parameters[i]);
         aAlteredParameters.push(function(err, result){
-          tests[indTst].result(err, result, function(result) {
-            console.log((result ? '  ok    ' : '  fail  ') + tests[indTst].name); 
-            runTest(indTst + 1); 
+          aTst.result(err, result, function(result) {
+            fNext(result ? 'ok' : 'fail', aTst.name);
           });          
         });
         try {
-          objects[tests[indTst].obj][tests[indTst].method].apply(objects[tests[indTst].obj], aAlteredParameters);
+          objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aAlteredParameters);
         } catch (ex) {
-          tests[indTst].result(ex.message, null, function(result) {
-            console.log((result ? '  ok    ' : '  fail  ') + tests[indTst].name); 
-            runTest(indTst + 1); 
+          aTst.result(ex.message, null, function(result) {
+            fNext(result ? 'ok' : 'fail', aTst.name);
           });
         }
       }
