@@ -6,21 +6,30 @@ To create a test batch you must
 
 Each test from the test array will be executed sequentially, both sync and async. 
 
-The initialization/complex test: 
-` {
+The initialization/complex test:  
+```
+{  
   name: 'test name',
   fatal: true/false, // if true and the test fails the batch will be stopped
   action: function(objects, sync, fn) { fn(null); }
-    // objects - the global objects for the batch
+    // objects - the global objects for the batch 
     // sync - if it is the sync or async version of the tests
     // fn - the function to call with the result; if it is not null the test is considered failed
-} `
+}
+```
 
 The simple test: 
-`{
+```
+{
   name: 'test name',
   obj: 'obj', //the object from the global objects for the batch for which the function will be called
   method: 'set_data', // the function that will be called for the object
-  parameters: [ "a parameter" ], // the parameters with which the function will be called; for async a callback function will be added automatically
-  result: function(err, result, fn) { fn(err == null); } // the error or result of running the function; fn is the function to call with the result (true or false)
-}`
+  parameters: [ "a parameter" ], 
+    // the parameters with which the function will be called;
+    //for async a callback function will be added automatically
+  result: function(err, result, fn) { fn(err == null); } 
+    // error - the error thrown/returned after running the function
+    // result - the result of running the function
+    // fn - the function to call with the result of the test (true or false)
+}
+```
