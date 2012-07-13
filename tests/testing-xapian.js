@@ -1,26 +1,27 @@
 exports.runTests = function (name, tests, sync, callback) {
   console.log(name);
   var objects = {};
+  var okN = 0, failN = 0, fatalN = 0;
   runTest(0);
   function runTest(tstN) {
     if (tstN == tests.length) { 
-      if (callback) callback();
+      if (callback) callback(okN, failN, fatalN);
       return; 
     }
     var aTst = tests[tstN];
     function fNext(result, name, extra) {
       var aStr;
       switch (result) {
-      case 'ok':    aStr = '  ok    '; break;
-      case 'fail':  aStr = '  fail  '; break;
-      case 'fatal': aStr = '  fatal '; break;
+      case 'ok':    aStr = '  ok    '; okN++;    break;
+      case 'fail':  aStr = '  fail  '; failN++;  break;
+      case 'fatal': aStr = '  fatal '; fatalN++; break;
       }
       aStr += aTst.name;
       if (extra) 
         aStr += ' - ' + extra;
       console.log(aStr);
       if (result == 'fatal') {
-        if (callback) callback();
+        if (callback) callback(okN, failN, fatalN);
       } else
         runTest(tstN + 1);
     }
