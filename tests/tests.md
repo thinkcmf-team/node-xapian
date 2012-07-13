@@ -1,3 +1,7 @@
+To run a test:
+ * node run_tests.js
+ * node run_tests.js test_mask
+
 To create a test batch you must 
  * create a file with the name test_*.js
  * have it export a name and an array of tests

@@ -6,7 +6,8 @@ var aAllFiles = fs.readdirSync(path.dirname(module.filename));
 var aAllTestFiles = [];
 for (var i=0; i < aAllFiles.length; i++) {
   if (aAllFiles[i].match(/^test_.*\.js$/g))
-    aAllTestFiles.push(aAllFiles[i]);
+    if (process.argv.length < 3 || aAllFiles[i].match(process.argv[2]))
+      aAllTestFiles.push(aAllFiles[i]);
 }
 
 doTest(0, true);
