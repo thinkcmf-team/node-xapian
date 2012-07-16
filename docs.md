@@ -88,7 +88,7 @@ WritableDatabase - all the methods from Database plus the following
         Begin a transaction. 
 *    commit_transaction([function])
         Complete the transaction currently in progress. 
-    cancel_transaction_sync()
+*    cancel_transaction_sync()
         Abort the transaction currently in progress, discarding the pending modifications made to the database. 
 *    add_document(object_document, [function]) - return uint32
         Add a new document to the database. 

@@ -13,6 +13,7 @@ void WritableDatabase::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit", Commit);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "begin_transaction", BeginTransaction);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit_transaction", CommitTransaction);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "cancel_transaction", CancelTransaction);
 
   target->Set(String::NewSymbol("DB_OPEN"               ), Integer::New(Xapian::DB_OPEN               ), ReadOnly);
   target->Set(String::NewSymbol("DB_CREATE"             ), Integer::New(Xapian::DB_CREATE             ), ReadOnly);
@@ -177,6 +178,25 @@ Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kCancelTransaction[] = { -eFunction, eEnd };
+Handle<Value> WritableDatabase::CancelTransaction(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kCancelTransaction, args, aOpt))
+    return throwSignatureErr(kCancelTransaction);
+
+  Generic_data* aData = new Generic_data(Generic_data::eCancelTx); //deleted by Commit_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
 void WritableDatabase::Generic_process(void* pData, void* pThat) {
   Generic_data* data = (Generic_data*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
@@ -185,6 +205,7 @@ void WritableDatabase::Generic_process(void* pData, void* pThat) {
   case Generic_data::eCommit:   that->mWdb->commit();                      break;
   case Generic_data::eBeginTx:  that->mWdb->begin_transaction(data->val1); break;
   case Generic_data::eCommitTx: that->mWdb->commit_transaction();          break;
+  case Generic_data::eCancelTx: that->mWdb->cancel_transaction();          break;
   }
 }
 
@@ -193,6 +214,7 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   Handle<Value> aResult;
 
   switch (data->action) {
+  case Generic_data::eCancelTx:
   case Generic_data::eCommitTx:
   case Generic_data::eBeginTx:
   case Generic_data::eCommit: aResult = Undefined(); break;
