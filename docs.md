@@ -88,13 +88,13 @@ WritableDatabase - all the methods from Database plus the following
         Begin a transaction. 
 *    commit_transaction([function])
         Complete the transaction currently in progress. 
-*    cancel_transaction_sync()
+*    cancel_transaction([function])
         Abort the transaction currently in progress, discarding the pending modifications made to the database. 
 *    add_document(object_document, [function]) - return uint32
         Add a new document to the database. 
-    delete_document_sync(uint32_did)
+*    delete_document(uint32_did, [function])
         Delete a document from the database. 
-    delete_document_sync(string_unique_term)
+*    delete_document(string_unique_term, [function])
         Delete any documents indexed by a term from the database. 
 *    replace_document(uint32_did, object_document, [function])
         Replace a given document in the database. 
