@@ -104,7 +104,7 @@ WritableDatabase - all the methods from Database plus the following
         The method acts as add_document.
 *    add_spelling(string_word, uint32_freqinc=1, [function])
         Add a word to the spelling dictionary. 
-    remove_spelling_sync(string_word, uint32_freqdec=1)
+*    remove_spelling(string_word, uint32_freqdec=1, [function])
         Remove a word from the spelling dictionary. 
     add_synonym_sync(string_term, string_synonym)
         Add a synonym for a term. 
