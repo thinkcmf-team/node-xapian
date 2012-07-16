@@ -18,6 +18,7 @@ void WritableDatabase::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_spelling", AddSpelling);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_spelling", RemoveSpelling);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_synonym", AddSynonym);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_synonym", RemoveSynonym);
 
   target->Set(String::NewSymbol("DB_OPEN"               ), Integer::New(Xapian::DB_OPEN               ), ReadOnly);
   target->Set(String::NewSymbol("DB_CREATE"             ), Integer::New(Xapian::DB_CREATE             ), ReadOnly);
@@ -283,20 +284,40 @@ Handle<Value> WritableDatabase::AddSynonym(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kRemoveSynonym[] = { eString, eString, -eFunction, eEnd };
+Handle<Value> WritableDatabase::RemoveSynonym(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kRemoveSynonym, args, aOpt))
+    return throwSignatureErr(kRemoveSynonym);
+
+  Generic_data* aData = new Generic_data(Generic_data::eRemoveSynonym, *String::Utf8Value(args[0]), *String::Utf8Value(args[1])); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
 void WritableDatabase::Generic_process(void* pData, void* pThat) {
   Generic_data* data = (Generic_data*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
 
   switch (data->action) {
-  case Generic_data::eCommit:             that->mWdb->commit();                             break;
-  case Generic_data::eBeginTx:            that->mWdb->begin_transaction(data->val1);        break;
-  case Generic_data::eCommitTx:           that->mWdb->commit_transaction();                 break;
-  case Generic_data::eCancelTx:           that->mWdb->cancel_transaction();                 break;
-  case Generic_data::eDeleteDocumentDid:  that->mWdb->delete_document(data->val1);          break;
-  case Generic_data::eDeleteDocumentTerm: that->mWdb->delete_document(data->str1);          break;
-  case Generic_data::eAddSpelling:        that->mWdb->add_spelling(data->str1, data->val1); break;
-  case Generic_data::eRemoveSpelling:     that->mWdb->add_spelling(data->str1, data->val1); break;
-  case Generic_data::eAddSynonym:         that->mWdb->add_synonym(data->str1, data->str2);  break;
+  case Generic_data::eCommit:             that->mWdb->commit();                                break;
+  case Generic_data::eBeginTx:            that->mWdb->begin_transaction(data->val1);           break;
+  case Generic_data::eCommitTx:           that->mWdb->commit_transaction();                    break;
+  case Generic_data::eCancelTx:           that->mWdb->cancel_transaction();                    break;
+  case Generic_data::eDeleteDocumentDid:  that->mWdb->delete_document(data->val1);             break;
+  case Generic_data::eDeleteDocumentTerm: that->mWdb->delete_document(data->str1);             break;
+  case Generic_data::eAddSpelling:        that->mWdb->add_spelling(data->str1, data->val1);    break;
+  case Generic_data::eRemoveSpelling:     that->mWdb->add_spelling(data->str1, data->val1);    break;
+  case Generic_data::eAddSynonym:         that->mWdb->add_synonym(data->str1, data->str2);     break;
+  case Generic_data::eRemoveSynonym:      that->mWdb->remove_synonym(data->str1, data->str2);  break;
   }
 }
 
@@ -305,6 +326,7 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   Handle<Value> aResult;
 
   switch (data->action) {
+  case Generic_data::eRemoveSynonym:
   case Generic_data::eAddSynonym:
   case Generic_data::eRemoveSpelling:
   case Generic_data::eAddSpelling:
