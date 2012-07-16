@@ -112,9 +112,9 @@ WritableDatabase - all the methods from Database plus the following
         Remove a synonym for a term. 
 *    clear_synonyms(string_term, [function])
         Remove all synonyms for a term. 
-    set_metadata_sync(string_key, string_value)
+*    set_metadata(string_key, string_value, [function])
         Set the user-specified metadata associated with a given key. 
-    get_description_sync() - return string
+*    get_description([function]) - return string
         Return a string describing this object.
 ```
 Document
