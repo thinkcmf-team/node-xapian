@@ -318,7 +318,10 @@ protected:
     Generic_data(int a, const std::string &s) : action(a), str1(s) {}
     Generic_data(int a, const std::string &s, uint32_t v) : action(a), str1(s), val1(v) {}
     Generic_data(int a, const std::string &s1, const std::string &s2) : action(a), str1(s1), str2(s2) {}
-    enum { eCommit, eBeginTx, eCommitTx, eCancelTx, eDeleteDocumentDid, eDeleteDocumentTerm, eAddSpelling, eRemoveSpelling };
+    enum {
+      eCommit, eBeginTx, eCommitTx, eCancelTx, eDeleteDocumentDid, eDeleteDocumentTerm, eAddSpelling, eRemoveSpelling,
+      eAddSynonym
+    };
     int action;
     std::string str1, str2;
     uint32_t val1;
@@ -333,6 +336,7 @@ protected:
   static Handle<Value> DeleteDocument(const Arguments& args);
   static Handle<Value> AddSpelling(const Arguments& args);
   static Handle<Value> RemoveSpelling(const Arguments& args);
+  static Handle<Value> AddSynonym(const Arguments& args);
 };
 
 class TermGenerator : public ObjectWrap {

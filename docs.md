@@ -106,7 +106,7 @@ WritableDatabase - all the methods from Database plus the following
         Add a word to the spelling dictionary. 
 *    remove_spelling(string_word, uint32_freqdec=1, [function])
         Remove a word from the spelling dictionary. 
-    add_synonym_sync(string_term, string_synonym)
+*    add_synonym(string_term, string_synonym, [function])
         Add a synonym for a term. 
     remove_synonym_sync(string_erm, string_synonym)
         Remove a synonym for a term. 
