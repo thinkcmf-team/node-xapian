@@ -110,7 +110,7 @@ WritableDatabase - all the methods from Database plus the following
         Add a synonym for a term. 
 *    remove_synonym(string_term, string_synonym, [function])
         Remove a synonym for a term. 
-    clear_synonyms_sync(string_term)
+*    clear_synonyms(string_term, [function])
         Remove all synonyms for a term. 
     set_metadata_sync(string_key, string_value)
         Set the user-specified metadata associated with a given key. 
