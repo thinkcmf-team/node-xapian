@@ -20,6 +20,7 @@ void WritableDatabase::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_synonym", AddSynonym);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "remove_synonym", RemoveSynonym);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "clear_synonyms", ClearSynonyms);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_metadata", SetMetadata);
 
   target->Set(String::NewSymbol("DB_OPEN"               ), Integer::New(Xapian::DB_OPEN               ), ReadOnly);
   target->Set(String::NewSymbol("DB_CREATE"             ), Integer::New(Xapian::DB_CREATE             ), ReadOnly);
@@ -323,6 +324,25 @@ Handle<Value> WritableDatabase::ClearSynonyms(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kSetMetadata[] = { eString, eString, -eFunction, eEnd };
+Handle<Value> WritableDatabase::SetMetadata(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kSetMetadata, args, aOpt))
+    return throwSignatureErr(kSetMetadata);
+
+  Generic_data* aData = new Generic_data(Generic_data::eSetMetadata, *String::Utf8Value(args[0]), *String::Utf8Value(args[1])); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
 void WritableDatabase::Generic_process(void* pData, void* pThat) {
   Generic_data* data = (Generic_data*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
@@ -339,6 +359,7 @@ void WritableDatabase::Generic_process(void* pData, void* pThat) {
   case Generic_data::eAddSynonym:         that->mWdb->add_synonym(data->str1, data->str2);     break;
   case Generic_data::eRemoveSynonym:      that->mWdb->remove_synonym(data->str1, data->str2);  break;
   case Generic_data::eClearSynonyms:      that->mWdb->clear_synonyms(data->str1);              break;
+  case Generic_data::eSetMetadata:        that->mWdb->set_metadata(data->str1, data->str2);    break;
   }
 }
 
@@ -347,6 +368,7 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   Handle<Value> aResult;
 
   switch (data->action) {
+  case Generic_data::eSetMetadata:
   case Generic_data::eClearSynonyms:
   case Generic_data::eRemoveSynonym:
   case Generic_data::eAddSynonym:
