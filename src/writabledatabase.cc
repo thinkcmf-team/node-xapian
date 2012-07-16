@@ -15,6 +15,7 @@ void WritableDatabase::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit_transaction", CommitTransaction);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "cancel_transaction", CancelTransaction);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "delete_document", DeleteDocument);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "add_spelling", AddSpelling);
 
   target->Set(String::NewSymbol("DB_OPEN"               ), Integer::New(Xapian::DB_OPEN               ), ReadOnly);
   target->Set(String::NewSymbol("DB_CREATE"             ), Integer::New(Xapian::DB_CREATE             ), ReadOnly);
@@ -223,17 +224,37 @@ Handle<Value> WritableDatabase::DeleteDocument(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kAddSpelling[] = { eString, -eUint32, -eFunction, eEnd };
+Handle<Value> WritableDatabase::AddSpelling(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[2];
+  if (!checkArguments(kAddSpelling, args, aOpt))
+    return throwSignatureErr(kAddSpelling);
+
+  Generic_data* aData = new Generic_data(Generic_data::eAddSpelling, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
 void WritableDatabase::Generic_process(void* pData, void* pThat) {
   Generic_data* data = (Generic_data*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
 
   switch (data->action) {
-  case Generic_data::eCommit:             that->mWdb->commit();                      break;
-  case Generic_data::eBeginTx:            that->mWdb->begin_transaction(data->val1); break;
-  case Generic_data::eCommitTx:           that->mWdb->commit_transaction();          break;
-  case Generic_data::eCancelTx:           that->mWdb->cancel_transaction();          break;
-  case Generic_data::eDeleteDocumentDid:  that->mWdb->delete_document(data->val1);   break;
-  case Generic_data::eDeleteDocumentTerm: that->mWdb->delete_document(data->str1);   break;
+  case Generic_data::eCommit:             that->mWdb->commit();                             break;
+  case Generic_data::eBeginTx:            that->mWdb->begin_transaction(data->val1);        break;
+  case Generic_data::eCommitTx:           that->mWdb->commit_transaction();                 break;
+  case Generic_data::eCancelTx:           that->mWdb->cancel_transaction();                 break;
+  case Generic_data::eDeleteDocumentDid:  that->mWdb->delete_document(data->val1);          break;
+  case Generic_data::eDeleteDocumentTerm: that->mWdb->delete_document(data->str1);          break;
+  case Generic_data::eAddSpelling:        that->mWdb->add_spelling(data->str1, data->val1); break;
   }
 }
 
@@ -242,6 +263,7 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   Handle<Value> aResult;
 
   switch (data->action) {
+  case Generic_data::eAddSpelling:
   case Generic_data::eDeleteDocumentTerm:
   case Generic_data::eDeleteDocumentDid:
   case Generic_data::eCancelTx:

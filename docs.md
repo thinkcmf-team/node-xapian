@@ -102,7 +102,7 @@ WritableDatabase - all the methods from Database plus the following
         Replace any documents matching a term.
 *    replace_document(null, object_document, [function]) - return uint32
         The method acts as add_document.
-    add_spelling_sync(string_word, uint32_freqinc=1)
+*    add_spelling(string_word, uint32_freqinc=1, [function])
         Add a word to the spelling dictionary. 
     remove_spelling_sync(string_word, uint32_freqdec=1)
         Remove a word from the spelling dictionary. 
