@@ -479,6 +479,11 @@ void Document::Termlist_process(void* pData, void* pThat) {
   Termlist_data* data = (Termlist_data*) pData;
   Document* that = (Document *) pThat;
 
+  if (that->mDoc->termlist_count() < data->first) {
+    data->size = 0;
+    return;
+  }
+
   Xapian::termcount aSize  = that->mDoc->termlist_count() - data->first;
   if (data->maxitems != 0 && data->maxitems < aSize)
     aSize = data->maxitems;

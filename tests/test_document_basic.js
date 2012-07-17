@@ -149,6 +149,12 @@ exports.tests = [
     method: 'termlist',
     parameters: [],
     result: function(err, result, fn) { fn(err == null && result.length == 4 && result[2].wdf == 6); }
+  },{
+    name: 'doc1.termlist',
+    obj: 'doc1',
+    method: 'termlist',
+    parameters: [15,3],
+    result: function(err, result, fn) { fn(err == null && result.length == 0); }
   }, {
     name: 'doc1.remove_posting',
     obj: 'doc1',
