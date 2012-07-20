@@ -83,6 +83,37 @@ Handle<Value> throwSignatureErr(int signature[]) {
   return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }
 
+Handle<Value> throwSignatureErr(int *signatures[], int sigN) {
+  std::string aStr("arguments are ");
+
+  for (int n = 0; n < sigN; n++) {
+    if (n > 0)
+      aStr+=" or ";
+    aStr += "(";
+    for (int aSigN = 0; signatures[n][aSigN] != eEnd; ++aSigN) {
+      if (aSigN) aStr += ", ";
+      if (signatures[n][aSigN] < 0) aStr += "[";
+      switch (abs(signatures[n][aSigN])) {
+      case eInt32:          aStr += "int32";    break;
+      case eUint32:         aStr += "uint32";   break;
+      case eBoolean:        aStr += "boolean";  break;
+      case eString:         aStr += "string";   break;
+      case eObject:         aStr += "object";   break;
+      case eArray:          aStr += "array";    break;
+      case eObjectDatabase: aStr += "Database"; break;
+      case eObjectDocument: aStr += "Document"; break;
+      case eFunction:       aStr += "function"; break;
+      default:         throw "incorrect sig member"; 
+      }
+      if (signatures[n][aSigN] < 0) aStr += "]";
+    }
+    aStr += ")";
+  }
+
+
+  return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
+}
+
 class Mime2Text : public ObjectWrap {
 public:
   static void Init(Handle<Object> target);
