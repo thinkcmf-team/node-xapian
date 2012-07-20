@@ -5,7 +5,7 @@ exports.runTests = function (name, tests, sync, callback) {
   runTest(0);
   function runTest(tstN) {
     if (tstN == tests.length) { 
-      if (callback) callback(aTstSummary);
+      if (callback) callback(null, aTstSummary);
       return; 
     }
     var aTst = tests[tstN];
@@ -21,7 +21,7 @@ exports.runTests = function (name, tests, sync, callback) {
         aStr += ' - ' + extra;
       console.log(aStr);
       if (result == 'fatal') {
-        if (callback) callback(aTstSummary);
+        if (callback) callback(null, aTstSummary);
       } else
         runTest(tstN + 1);
     }

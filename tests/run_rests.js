@@ -16,9 +16,11 @@ doTest(0, true);
 function doTest(i, sync) {
   if(i < aTestData.length) {
     var aTest = aTestData[i];
-    lXapianTesting.runTests(aTest.name + (sync ? ' - sync' : ' - async'), aTest.tests, sync, function (result) {
-      console.log();
-      aResults.push([aTest.name + (sync ? ' - sync' : ' - async'), result.okN, result.failN, result.fatalN]);
+    lXapianTesting.runTests(aTest.name + (sync ? ' - sync' : ' - async'), aTest.tests, sync, function (err, result) {
+      if (!err) {
+        console.log();
+        aResults.push([aTest.name + (sync ? ' - sync' : ' - async'), result.okN, result.failN, result.fatalN]);
+      }
       doTest(i + !sync, !sync);
     });
     return;
