@@ -62,26 +62,41 @@ Handle<Value> WritableDatabase::New(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kReplaceDocument1[] = { eString, eObjectDocument, -eFunction, eEnd };
+static int kReplaceDocument2[] = { eUint32, eObjectDocument, -eFunction, eEnd };
+static int kReplaceDocument3[] = { eNull, eObjectDocument, -eFunction, eEnd };
 Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   HandleScope scope;
 
+  int aSignUsed;
+  int aOpt[1];
   Document* aDoc;
-  bool aAsync = args.Length() == 3 && args[2]->IsFunction();
-  if (args.Length() != +aAsync+2 || !(args[0]->IsString() || args[0]->IsUint32() || args[0]->IsNull()) || !(aDoc = GetInstance<Document>(args[1])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (string, Document, [function]) or (uint32, Document, [function])")));
+
+  if (checkArguments(kReplaceDocument1, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+    aSignUsed = 1;
+  else if (checkArguments(kReplaceDocument2, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+    aSignUsed = 2;
+  else if (checkArguments(kReplaceDocument3, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+    aSignUsed = 3;
+  else {
+      int *aSigArr[3];
+      aSigArr[0] = kReplaceDocument1;
+      aSigArr[1] = kReplaceDocument2;
+      aSigArr[2] = kReplaceDocument3;
+      return throwSignatureErr(aSigArr,3);
+  }
 
   ReplaceDocument_data* aData;
 
-  if (args[0]->IsNull())
-    aData = new ReplaceDocument_data(*aDoc->getDoc()); //deleted by ReplaceDocument_convert on non error
-  else if (args[0]->IsString())
-    aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString()); //deleted by ReplaceDocument_convert on non error
-  else
-    aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->Uint32Value()); //deleted by ReplaceDocument_convert on non error
+  switch (aSignUsed) {
+  case 1: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString());    break;
+  case 2: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->Uint32Value()); break;
+  case 3: aData = new ReplaceDocument_data(*aDoc->getDoc());                        break;
+  } //deleted by ReplaceDocument_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aAsync, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

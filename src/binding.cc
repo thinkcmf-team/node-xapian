@@ -42,6 +42,7 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
     case eObjectDatabase:
     case eObjectDocument:
     case eObject:         aIsType = args[aArgN]->IsObject();   break;
+    case eNull:           aIsType = args[aArgN]->IsNull();     break;
     case eFunction:       aIsType = args[aArgN]->IsFunction(); break;
     default: { std::string aEx("incorrect signature member: "); aEx += (char)(signature[aSigN] + '0'); throw aEx; }
     }
@@ -73,6 +74,7 @@ Handle<Value> throwSignatureErr(int signature[]) {
     case eArray:          aStr += "array";    break;
     case eObjectDatabase: aStr += "Database"; break;
     case eObjectDocument: aStr += "Document"; break;
+    case eNull:           aStr += "null";     break;
     case eFunction:       aStr += "function"; break;
     default:         throw "incorrect sig member"; 
     }
@@ -102,6 +104,7 @@ Handle<Value> throwSignatureErr(int *signatures[], int sigN) {
       case eArray:          aStr += "array";    break;
       case eObjectDatabase: aStr += "Database"; break;
       case eObjectDocument: aStr += "Document"; break;
+      case eNull:           aStr += "null";     break;
       case eFunction:       aStr += "function"; break;
       default:         throw "incorrect sig member"; 
       }
