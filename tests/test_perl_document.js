@@ -1,12 +1,11 @@
-var xapian = require('../xapian-binding');
-var sys = require('sys');
+var lXapian = require('../xapian-binding');
 
 exports.name = "Document tests from perl";
 exports.tests = [
   {
     name: 'doc1 = new Document',
     fatal: true,
-    action: function(objects, sync, fn) { objects.doc1 = new xapian.Document(); fn(null); }
+    action: function(objects, sync, fn) { objects.doc1 = new lXapian.Document(); fn(null); }
   }, {
     name: 'doc1.set_data hello world',
     obj: 'doc1',
@@ -89,10 +88,10 @@ exports.tests = [
     fatal: true,
     action: function(objects, sync, fn) { 
       if (sync) {
-        objects.db = new xapian.WritableDatabase('tmpdbs', xapian.DB_CREATE_OR_OVERWRITE); 
+        objects.db = new lXapian.WritableDatabase('tmpdbs', lXapian.DB_CREATE_OR_OVERWRITE); 
         fn(null); 
       } else {
-        new xapian.WritableDatabase('tmpdbas', xapian.DB_CREATE_OR_OVERWRITE, function(err, result) {
+        new lXapian.WritableDatabase('tmpdbas', lXapian.DB_CREATE_OR_OVERWRITE, function(err, result) {
           objects.db = result;
           fn(err);
         });
@@ -132,7 +131,7 @@ exports.tests = [
   }, {
     name: 'doc2 = new Document',
     fatal: true,
-    action: function(objects, sync, fn) { objects.doc2 = new xapian.Document(); fn(null); }
+    action: function(objects, sync, fn) { objects.doc2 = new lXapian.Document(); fn(null); }
   }, {
     name: 'doc2.add_posting',
     obj: 'doc2',
@@ -173,7 +172,7 @@ exports.tests = [
   }, {
     name: 'doc3 = new Document',
     fatal: true,
-    action: function(objects, sync, fn) { objects.doc3 = new xapian.Document(); fn(null); }
+    action: function(objects, sync, fn) { objects.doc3 = new lXapian.Document(); fn(null); }
   }, {
     name: 'doc3.add_term',
     obj: 'doc3',

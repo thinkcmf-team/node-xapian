@@ -1,12 +1,11 @@
-var xapian = require('../xapian-binding');
-var sys = require('sys');
+var lXapian = require('../xapian-binding');
 
 exports.name = "Document basic tests";
 exports.tests = [
   {
     name: 'doc1 = new Document',
     fatal: true,
-    action: function(objects, sync, fn) { objects.doc1 = new xapian.Document(); fn(null); }
+    action: function(objects, sync, fn) { objects.doc1 = new lXapian.Document(); fn(null); }
   }, {
     name: 'doc1.set_data',
     obj: 'doc1',

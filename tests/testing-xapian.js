@@ -1,27 +1,27 @@
 exports.runTests = function (name, tests, sync, callback) {
   console.log(name);
   var objects = {};
-  var okN = 0, failN = 0, fatalN = 0;
+  var aTstSummary = { okN: 0, failN: 0, fatalN: 0 };
   runTest(0);
   function runTest(tstN) {
     if (tstN == tests.length) { 
-      if (callback) callback(okN, failN, fatalN);
+      if (callback) callback(aTstSummary);
       return; 
     }
     var aTst = tests[tstN];
     function fNext(result, name, extra) {
       var aStr;
       switch (result) {
-      case 'ok':    aStr = '  ok    '; okN++;    break;
-      case 'fail':  aStr = '  fail  '; failN++;  break;
-      case 'fatal': aStr = '  fatal '; fatalN++; break;
+      case 'ok':    aStr = '  ok    '; aTstSummary.okN++;    break;
+      case 'fail':  aStr = '  fail  '; aTstSummary.failN++;  break;
+      case 'fatal': aStr = '  fatal '; aTstSummary.fatalN++; break;
       }
       aStr += aTst.name;
       if (extra) 
         aStr += ' - ' + extra;
       console.log(aStr);
       if (result == 'fatal') {
-        if (callback) callback(okN, failN, fatalN);
+        if (callback) callback(aTstSummary);
       } else
         runTest(tstN + 1);
     }
@@ -37,30 +37,23 @@ exports.runTests = function (name, tests, sync, callback) {
         fNext(aTst.fatal ? 'fatal' : 'fail', aTst.name, aTst.fatal ? ex.message : undefined);
       }
     } else {
-      if (sync) {
-        var aResult, aErr = null;
-        try {
-          aResult = objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aTst.parameters);
-        } catch (ex) {
-          aErr = ex.message;
-        }
-        aTst.result(aErr, aResult, function(result) {
-          fNext(result ? 'ok' : 'fail', aTst.name);
-        });
-      } else {
+      if (!sync)
         aTst.parameters.push(function(err, result){
           aTst.result(err, result, function(result) {
             aTst.parameters.pop();
             fNext(result ? 'ok' : 'fail', aTst.name);
           });
         });
-        try {
-          objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aTst.parameters);
-        } catch (ex) {
-          aTst.result(ex.message, null, function(result) {
-            fNext(result ? 'ok' : 'fail', aTst.name);
-          });
-        }
+      var aResult, aErr = null;
+      try {
+        aResult = objects[aTst.obj][aTst.method].apply(objects[aTst.obj], aTst.parameters);
+      } catch (ex) {
+        aErr = ex.message;
+      }
+      if (sync || aErr) {
+        aTst.result(aErr, aResult, function(result) {
+          fNext(result ? 'ok' : 'fail', aTst.name);
+        });
       }
     }
   }
