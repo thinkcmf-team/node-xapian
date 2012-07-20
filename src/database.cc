@@ -604,3 +604,79 @@ Handle<Value> Database::GetUuid(const Arguments& args) {
   }
   return scope.Close(aResult);
 }
+
+
+void Database::Termiterator_process(void* pData, void* pThat) {
+  Termiterator_data* data = (Termiterator_data*) pData;
+  Database* that = (Database *) pThat;
+
+  Xapian::TermIterator aStartIterator;
+  Xapian::TermIterator aEndIterator;
+
+  switch (data->action) {
+  case Termiterator_data::eTermlist: {
+    aStartIterator = that->mDb->termlist_begin(data->val);
+    aEndIterator = that->mDb->termlist_end(data->val);
+    break; }
+  }
+
+  Xapian::termcount aSize=0;
+  for (Xapian::TermIterator aIt = aStartIterator; aIt != aEndIterator; aIt++)
+    aSize++;
+
+  if (aSize < data->first ) {
+    data->size = 0;
+    return;
+  }
+
+  aSize -= data->first;
+  if (data->maxitems != 0 && data->maxitems < aSize)
+    aSize = data->maxitems;
+  data->tlist = new Termiterator_data::Item[aSize];
+
+
+  Xapian::TermIterator aIt = aStartIterator;
+  for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
+
+  for (data->size = 0; aIt != aEndIterator && data->size < aSize; ++data->size, ++aIt) {
+    data->tlist[data->size].tname = *aIt;
+    data->tlist[data->size].wdf = aIt.get_wdf();
+    data->tlist[data->size].termfreq = aIt.get_termfreq();
+    data->tlist[data->size].description = aIt.get_description();
+  }
+}
+
+Handle<Value> Database::Termiterator_convert(void* pData) {
+ 
+  Termiterator_data* data = (Termiterator_data*) pData;
+  Local<Array> aList(Array::New(data->size));
+  for (Xapian::termcount a = 0; a < data->size; ++a) {
+    Local<Object> aO(Object::New());
+    aO->Set(String::NewSymbol("tname"      ), String::New(data->tlist[a].tname.c_str()      ));
+    aO->Set(String::NewSymbol("wdf"        ), Uint32::New(data->tlist[a].wdf                ));
+    aO->Set(String::NewSymbol("termfreq"   ), Uint32::New(data->tlist[a].termfreq           ));
+    aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
+    aList->Set(a, aO);
+  }
+  delete data;
+  return aList;
+}
+
+static int kTermlist[] = { eUint32, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Termlist(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kTermlist, args, aOpt))
+    return throwSignatureErr(kTermlist);
+
+  Termiterator_data* aData = new Termiterator_data(Termiterator_data::eTermlist, args[0]->Uint32Value(), aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Termiterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}

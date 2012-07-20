@@ -54,7 +54,7 @@ Database
   methods different from the C++ API:
     postlist_sync(string_tname) - return an array of { docid: uint32, doclength: uint32, wdf: uint32, description: string } (PostingIterator)
         An array of the postlists for a given term.
-    termlist_sync(uint32_did) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    termlist(uint32_did, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of the  terms for a given document. 
     positionlist_sync(uint32_did, string_tname) - return an array of { description: string } (PositionIterator)
         An array of the positions for a given term in a given document.
