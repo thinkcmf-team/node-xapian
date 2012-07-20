@@ -30,6 +30,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_spelling_suggestion", GetSpellingSuggestion);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_metadata", GetMetadata);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_uuid", GetUuid);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -60,9 +61,10 @@ void Database::Open_process(void* pData, void* pThat) {
   Open_data* data = (Open_data*) pData;
   Database* that = (Database *) pThat;
   switch (data->action) {
-  case Open_data::eNewDatabase: that->mDb =  data->filename.length() == 0 ? new Xapian::Database() : new Xapian::Database(*data->filename); break;
-  case Open_data::eNewWDatabase: that->mDb =  
-    data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
+  case Open_data::eNewDatabase: 
+  that->mDb =  data->filename.length() == 0 ? new Xapian::Database() : new Xapian::Database(*data->filename); break;
+  case Open_data::
+  eNewWDatabase: that->mDb = data->filename.length() == 0 ? new Xapian::WritableDatabase() : new Xapian::WritableDatabase(*data->filename, data->writeopts); break;
   case Open_data::eReopen:      that->mDb->reopen();                     break;
   case Open_data::eClose:       that->mDb->close();                      break;
   case Open_data::eKeepAlive:   that->mDb->keep_alive();                 break;
@@ -77,15 +79,17 @@ Handle<Value> Database::Open_convert(void* pData) {
 
   switch (data->action) {
   case Open_data::eNewDatabase:
-  case Open_data::eNewWDatabase: return that->handle_;
+  case Open_data::eNewWDatabase: 
+  return that->handle_;
 
   case Open_data::eClose: 
   case Open_data::eReopen: 
   case Open_data::eKeepAlive:
-  case Open_data::eAddDatabase:
-  default:                       return Undefined();
+  case Open_data::eAddDatabase:  
+  return Undefined();                      
   }
 
+  return Undefined();
 }
 
 static int kClose[] = { -eFunction, eEnd };
@@ -153,9 +157,7 @@ Handle<Value> Database::AddDatabase(const Arguments& args) {
   if (!checkArguments(kAddDatabase, args, aOpt) || !(aDb = GetInstance<Database>(args[0])))
     return throwSignatureErr(kAddDatabase);
 
-  Database* that = ObjectWrap::Unwrap<Database>(args.This());
-
-  Open_data* aData = new Open_data(Open_data::eAddDatabase, that, aDb); //deleted by Open_convert on non error
+  Open_data* aData = new Open_data(Open_data::eAddDatabase, args.This(), aDb); //deleted by Open_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -237,13 +239,16 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eGetUuid:
   case Generic_data::eGetValueUpperBound:
   case Generic_data::eGetValueLowerBound:
-  case Generic_data::eGetDescription: aResult = String::New(data->str1.c_str()); break;
+  case Generic_data::eGetDescription: 
+  aResult = String::New(data->str1.c_str());  break;
 
   case Generic_data::eGetMetadata:
-  case Generic_data::eGetSpellingSuggestion: aResult = String::New(data->str2.c_str()); break;
+  case Generic_data::eGetSpellingSuggestion: 
+  aResult = String::New(data->str2.c_str());  break;
 
   case Generic_data::eTermExists:
-  case Generic_data::eHasPositions:   aResult = Boolean::New(data->val1);        break;
+  case Generic_data::eHasPositions:   
+  aResult = Boolean::New(data->val1);         break;
 
   case Generic_data::eGetWdfUpperBound:
   case Generic_data::eGetDoclengthUpperBound:
@@ -251,12 +256,15 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eGetCollectionFreq:
   case Generic_data::eGetTermfreq:
   case Generic_data::eGetLastdocid:
-  case Generic_data::eGetDoccount:    aResult = Uint32::New(data->val1);         break;
+  case Generic_data::eGetDoccount:    
+  aResult = Uint32::New(data->val1);          break;
 
   case Generic_data::eGetDoclength:
-  case Generic_data::eGetValueFreq:   aResult = Uint32::New(data->val2);         break;
+  case Generic_data::eGetValueFreq:   
+  aResult = Uint32::New(data->val2);          break;
 
-  case Generic_data::eGetAvlength:    aResult = Number::New(data->vald1);        break;
+  case Generic_data::eGetAvlength:    
+  aResult = Number::New(data->vald1);         break;
   }
 
   delete data;

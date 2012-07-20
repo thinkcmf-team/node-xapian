@@ -398,12 +398,14 @@ Handle<Value> Document::Generic_convert(void* pData) {
   switch (data->action) {
   case Generic_data::eTermlistCount:
   case Generic_data::eValuesCount:
-  case Generic_data::eGetDocid:       aResult = Integer::NewFromUnsigned(data->val1); break;
+  case Generic_data::eGetDocid:       
+  aResult = Integer::NewFromUnsigned(data->val1); break;
 
   case Generic_data::eGetValue:
   case Generic_data::eGetData:  
   case Generic_data::eSerialise:
-  case Generic_data::eGetDescription: aResult = String::New(data->str.c_str());       break;
+  case Generic_data::eGetDescription: 
+  aResult = String::New(data->str.c_str());       break;
 
   case Generic_data::eAddValue:
   case Generic_data::eRemoveValue:
@@ -414,7 +416,8 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case Generic_data::eAddBooleanTerm:
   case Generic_data::eRemovePosting:
   case Generic_data::eRemoveTerm:
-  case Generic_data::eClearTerms:     aResult = Undefined();                          break;
+  case Generic_data::eClearTerms:     
+  aResult = Undefined();                          break;
   }
 
   delete data;
