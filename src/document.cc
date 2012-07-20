@@ -54,7 +54,7 @@ Handle<Value> Document::GetValue(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -73,7 +73,7 @@ Handle<Value> Document::AddValue(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -92,7 +92,7 @@ Handle<Value> Document::RemoveValue(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -111,7 +111,7 @@ Handle<Value> Document::ClearValues(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -130,7 +130,7 @@ Handle<Value> Document::GetData(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -149,7 +149,7 @@ Handle<Value> Document::SetData(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -168,7 +168,7 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -187,7 +187,7 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -206,7 +206,7 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -225,7 +225,7 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -244,7 +244,7 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -263,7 +263,7 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -282,7 +282,7 @@ Handle<Value> Document::TermlistCount(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -301,7 +301,7 @@ Handle<Value> Document::ValuesCount(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -320,7 +320,7 @@ Handle<Value> Document::GetDocid(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -339,7 +339,7 @@ Handle<Value> Document::Serialise(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -358,7 +358,7 @@ Handle<Value> Document::GetDescription(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -433,7 +433,7 @@ Handle<Value> Document::Unserialise(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Unserialise_process, Unserialise_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Unserialise_process, Unserialise_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -467,7 +467,7 @@ Handle<Value> Document::Termlist(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Termlist_process, Termlist_convert);
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Termlist_process, Termlist_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -525,7 +525,7 @@ Handle<Value> Document::Values(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Values_process, Values_convert);
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Values_process, Values_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

@@ -38,7 +38,7 @@ Handle<Value> WritableDatabase::New(const Arguments& args) {
   int aOpt[3];
   if (!checkArguments(kNew, args, aOpt))
     return throwSignatureErr(kNew);
-  if (!(aOpt[0] == aOpt[1] || (aOpt[0] != -1 && aOpt[1] != -1)))
+  if (!(aOpt[0] == aOpt[1] || (aOpt[0] >= 0 && aOpt[1] >= 0)))
     return ThrowException(Exception::TypeError(String::New("arguments are ([function]) or (string, number, [function])")));
 
   WritableDatabase* that = new WritableDatabase();
@@ -48,7 +48,7 @@ Handle<Value> WritableDatabase::New(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[2] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[2] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -95,7 +95,7 @@ Handle<Value> WritableDatabase::AddDocument(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, ReplaceDocument_process, ReplaceDocument_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -140,7 +140,7 @@ Handle<Value> WritableDatabase::Commit(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -159,7 +159,7 @@ Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -178,7 +178,7 @@ Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -197,7 +197,7 @@ Handle<Value> WritableDatabase::CancelTransaction(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -222,7 +222,7 @@ Handle<Value> WritableDatabase::DeleteDocument(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -241,7 +241,7 @@ Handle<Value> WritableDatabase::AddSpelling(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -260,7 +260,7 @@ Handle<Value> WritableDatabase::RemoveSpelling(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -279,7 +279,7 @@ Handle<Value> WritableDatabase::AddSynonym(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -298,7 +298,7 @@ Handle<Value> WritableDatabase::RemoveSynonym(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -317,7 +317,7 @@ Handle<Value> WritableDatabase::ClearSynonyms(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -336,7 +336,7 @@ Handle<Value> WritableDatabase::SetMetadata(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -355,7 +355,7 @@ Handle<Value> WritableDatabase::GetDescription(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

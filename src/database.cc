@@ -48,7 +48,7 @@ Handle<Value> Database::New(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[1] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -99,7 +99,7 @@ Handle<Value> Database::Close(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -118,7 +118,7 @@ Handle<Value> Database::Reopen(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -137,7 +137,7 @@ Handle<Value> Database::KeepAlive(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -159,7 +159,7 @@ Handle<Value> Database::AddDatabase(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Database>(aOpt[0] != -1, args, (void*)aData, Open_process, Open_convert);
+    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Open_process, Open_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -179,7 +179,7 @@ Handle<Value> Database::GetDocument(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, GetDocument_process, GetDocument_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, GetDocument_process, GetDocument_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -274,7 +274,7 @@ Handle<Value> Database::GetDescription(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -293,7 +293,7 @@ Handle<Value> Database::HasPositions(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -312,7 +312,7 @@ Handle<Value> Database::GetDoccount(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -331,7 +331,7 @@ Handle<Value> Database::GetLastdocid(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -350,7 +350,7 @@ Handle<Value> Database::GetAvlength(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -369,7 +369,7 @@ Handle<Value> Database::GetTermfreq(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -388,7 +388,7 @@ Handle<Value> Database::TermExists(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -407,7 +407,7 @@ Handle<Value> Database::GetCollectionFreq(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -426,7 +426,7 @@ Handle<Value> Database::GetValueFreq(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -445,7 +445,7 @@ Handle<Value> Database::GetValueLowerBound(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -464,7 +464,7 @@ Handle<Value> Database::GetValueUpperBound(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -483,7 +483,7 @@ Handle<Value> Database::GetDoclengthLowerBound(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -502,7 +502,7 @@ Handle<Value> Database::GetDoclengthUpperBound(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -521,7 +521,7 @@ Handle<Value> Database::GetWdfUpperBound(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -540,7 +540,7 @@ Handle<Value> Database::GetDoclength(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -559,7 +559,7 @@ Handle<Value> Database::GetSpellingSuggestion(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[1] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -578,7 +578,7 @@ Handle<Value> Database::GetMetadata(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -597,7 +597,7 @@ Handle<Value> Database::GetUuid(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] != -1, args, (void*)aData, Generic_process, Generic_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -673,7 +673,7 @@ Handle<Value> Database::Termlist(const Arguments& args) {
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[2] != -1, args, (void*)aData, Termiterator_process, Termiterator_convert);
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
