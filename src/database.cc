@@ -33,6 +33,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "allterms", Allterms);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "spellings", Spellings);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "synonyms", Synonyms);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -640,6 +641,10 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->spellings_begin();
     aEndIterator = that->mDb->spellings_end();
     break; }
+  case Termiterator_data::eSynonyms: {
+    aStartIterator = that->mDb->synonyms_begin(data->str);
+    aEndIterator = that->mDb->synonyms_end(data->str);
+    break; }
   }
 
   Xapian::termcount aSize=0;
@@ -735,6 +740,25 @@ Handle<Value> Database::Spellings(const Arguments& args) {
     return throwSignatureErr(kSpellings);
 
   Termiterator_data* aData = new Termiterator_data(Termiterator_data::eSpellings, aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Termiterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kSynonyms[] = { eString, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Synonyms(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kSynonyms, args, aOpt))
+    return throwSignatureErr(kSynonyms);
+
+  Termiterator_data* aData = new Termiterator_data(Termiterator_data::eSynonyms, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Termiterator_convert on non error
 
   Handle<Value> aResult;
   try {
