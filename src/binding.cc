@@ -59,9 +59,8 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
   return aArgN == args.Length();
 }
 
-Handle<Value> throwSignatureErr(int signature[]) {
-  std::string aStr("arguments are (");
-
+static std::string generateSignatureString(int signature[]) {
+  std::string aStr = "(";
   for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
     if (aSigN) aStr += ", ";
     if (signature[aSigN] < 0) aStr += "[";
@@ -80,40 +79,23 @@ Handle<Value> throwSignatureErr(int signature[]) {
     }
     if (signature[aSigN] < 0) aStr += "]";
   }
-
   aStr += ")";
+  return aStr;
+}
+
+Handle<Value> throwSignatureErr(int signature[]) {
+  std::string aStr("arguments are ");
+  aStr += generateSignatureString(signature);
   return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }
 
 Handle<Value> throwSignatureErr(int *signatures[], int sigN) {
   std::string aStr("arguments are ");
-
   for (int n = 0; n < sigN; n++) {
     if (n > 0)
       aStr+=" or ";
-    aStr += "(";
-    for (int aSigN = 0; signatures[n][aSigN] != eEnd; ++aSigN) {
-      if (aSigN) aStr += ", ";
-      if (signatures[n][aSigN] < 0) aStr += "[";
-      switch (abs(signatures[n][aSigN])) {
-      case eInt32:          aStr += "int32";    break;
-      case eUint32:         aStr += "uint32";   break;
-      case eBoolean:        aStr += "boolean";  break;
-      case eString:         aStr += "string";   break;
-      case eObject:         aStr += "object";   break;
-      case eArray:          aStr += "array";    break;
-      case eObjectDatabase: aStr += "Database"; break;
-      case eObjectDocument: aStr += "Document"; break;
-      case eNull:           aStr += "null";     break;
-      case eFunction:       aStr += "function"; break;
-      default:         throw "incorrect sig member"; 
-      }
-      if (signatures[n][aSigN] < 0) aStr += "]";
-    }
-    aStr += ")";
+    aStr += generateSignatureString(signatures[n]);
   }
-
-
   return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }
 

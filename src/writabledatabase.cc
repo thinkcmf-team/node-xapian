@@ -31,18 +31,17 @@ void WritableDatabase::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("WritableDatabase"), constructor_template->GetFunction());
 }
 
-static int kNew1[] = { -eFunction, eEnd };
-static int kNew2[] = { eString, eInt32, -eFunction, eEnd };
+static int kNew[][4] = { { -eFunction, eEnd }, { eString, eInt32, -eFunction, eEnd } };
 Handle<Value> WritableDatabase::New(const Arguments& args) {
   HandleScope scope;
 
   bool aUse1;
   int aOpt[1];
-  if (!(aUse1=checkArguments(kNew1, args, aOpt)))
-    if (!checkArguments(kNew2, args, aOpt)) {
+
+  if (!(aUse1 = checkArguments(kNew[0], args, aOpt)) && !checkArguments(kNew[1], args, aOpt)) {
       int *aSigArr[2];
-      aSigArr[0] = kNew1;
-      aSigArr[1] = kNew2;
+      aSigArr[0] = kNew[0];
+      aSigArr[1] = kNew[1];
       return throwSignatureErr(aSigArr,2);
     }
 
@@ -62,9 +61,11 @@ Handle<Value> WritableDatabase::New(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-static int kReplaceDocument1[] = { eString, eObjectDocument, -eFunction, eEnd };
-static int kReplaceDocument2[] = { eUint32, eObjectDocument, -eFunction, eEnd };
-static int kReplaceDocument3[] = { eNull, eObjectDocument, -eFunction, eEnd };
+static int kReplaceDocument[3][4] = { 
+  { eString, eObjectDocument, -eFunction, eEnd },
+  { eUint32, eObjectDocument, -eFunction, eEnd },
+  { eNull, eObjectDocument, -eFunction, eEnd }
+};
 Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   HandleScope scope;
 
@@ -72,26 +73,26 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
   int aOpt[1];
   Document* aDoc;
 
-  if (checkArguments(kReplaceDocument1, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+  if (checkArguments(kReplaceDocument[0], args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+    aSignUsed = 0;
+  else if (checkArguments(kReplaceDocument[1], args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
     aSignUsed = 1;
-  else if (checkArguments(kReplaceDocument2, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
+  else if (checkArguments(kReplaceDocument[2], args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
     aSignUsed = 2;
-  else if (checkArguments(kReplaceDocument3, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
-    aSignUsed = 3;
   else {
-      int *aSigArr[3];
-      aSigArr[0] = kReplaceDocument1;
-      aSigArr[1] = kReplaceDocument2;
-      aSigArr[2] = kReplaceDocument3;
-      return throwSignatureErr(aSigArr,3);
+    int *aSigArr[3];
+    aSigArr[0] = kReplaceDocument[0];
+    aSigArr[1] = kReplaceDocument[1];
+    aSigArr[2] = kReplaceDocument[2];
+    return throwSignatureErr(aSigArr,3);
   }
 
   ReplaceDocument_data* aData;
 
   switch (aSignUsed) {
-  case 1: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString());    break;
-  case 2: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->Uint32Value()); break;
-  case 3: aData = new ReplaceDocument_data(*aDoc->getDoc());                        break;
+  case 0: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->ToString());    break;
+  case 1: aData = new ReplaceDocument_data(*aDoc->getDoc(),args[0]->Uint32Value()); break;
+  case 2: aData = new ReplaceDocument_data(*aDoc->getDoc());                        break;
   } //deleted by ReplaceDocument_convert on non error
 
   Handle<Value> aResult;
