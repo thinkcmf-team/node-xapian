@@ -91,10 +91,10 @@ Handle<Value> throwSignatureErr(int signature[]) {
 
 Handle<Value> throwSignatureErr(int *signatures[], int sigN) {
   std::string aStr("arguments are ");
-  for (int n = 0; n < sigN; n++) {
-    if (n > 0)
-      aStr+=" or ";
-    aStr += generateSignatureString(signatures[n]);
+  for (int a = 0; a < sigN; a++) {
+    if (a > 0)
+      aStr += " or ";
+    aStr += generateSignatureString(signatures[a]);
   }
   return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }

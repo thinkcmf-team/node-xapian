@@ -400,13 +400,11 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case Generic_data::eValuesCount:
   case Generic_data::eGetDocid:       
     aResult = Integer::NewFromUnsigned(data->val1); break;
-
   case Generic_data::eGetValue:
   case Generic_data::eGetData:  
   case Generic_data::eSerialise:
   case Generic_data::eGetDescription: 
     aResult = String::New(data->str.c_str());       break;
-
   case Generic_data::eAddValue:
   case Generic_data::eRemoveValue:
   case Generic_data::eClearValues:

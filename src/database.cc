@@ -86,7 +86,6 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eNewDatabase:
   case Open_data::eNewWDatabase: 
     return that->handle_;
-
   case Open_data::eClose: 
   case Open_data::eReopen: 
   case Open_data::eKeepAlive:
@@ -246,15 +245,12 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eGetValueLowerBound:
   case Generic_data::eGetDescription: 
     aResult = String::New(data->str1.c_str());  break;
-
   case Generic_data::eGetMetadata:
   case Generic_data::eGetSpellingSuggestion: 
     aResult = String::New(data->str2.c_str());  break;
-
   case Generic_data::eTermExists:
   case Generic_data::eHasPositions:   
     aResult = Boolean::New(data->val1);         break;
-
   case Generic_data::eGetWdfUpperBound:
   case Generic_data::eGetDoclengthUpperBound:
   case Generic_data::eGetDoclengthLowerBound:
@@ -263,11 +259,9 @@ Handle<Value> Database::Generic_convert(void* pData) {
   case Generic_data::eGetLastdocid:
   case Generic_data::eGetDoccount:    
     aResult = Uint32::New(data->val1);          break;
-
   case Generic_data::eGetDoclength:
   case Generic_data::eGetValueFreq:   
     aResult = Uint32::New(data->val2);          break;
-
   case Generic_data::eGetAvlength:    
     aResult = Number::New(data->vald1);         break;
   }
@@ -627,34 +621,34 @@ void Database::Termiterator_process(void* pData, void* pThat) {
   Xapian::TermIterator aEndIterator;
 
   switch (data->action) {
-  case Termiterator_data::eTermlist: {
+  case Termiterator_data::eTermlist:
     aStartIterator = that->mDb->termlist_begin(data->val);
     aEndIterator = that->mDb->termlist_end(data->val);
-    break; }
-  case Termiterator_data::eAllterms: {
+    break;
+  case Termiterator_data::eAllterms:
     aStartIterator = that->mDb->allterms_begin();
     aEndIterator = that->mDb->allterms_end();
-    break; }
-  case Termiterator_data::eAlltermsPrefix: {
+    break;
+  case Termiterator_data::eAlltermsPrefix:
     aStartIterator = that->mDb->allterms_begin(data->str);
     aEndIterator = that->mDb->allterms_end(data->str);
-    break; }
-  case Termiterator_data::eSpellings: {
+    break;
+  case Termiterator_data::eSpellings:
     aStartIterator = that->mDb->spellings_begin();
     aEndIterator = that->mDb->spellings_end();
-    break; }
-  case Termiterator_data::eSynonyms: {
+    break;
+  case Termiterator_data::eSynonyms:
     aStartIterator = that->mDb->synonyms_begin(data->str);
     aEndIterator = that->mDb->synonyms_end(data->str);
-    break; }
-  case Termiterator_data::eSynonymKeys: {
+    break;
+  case Termiterator_data::eSynonymKeys:
     aStartIterator = that->mDb->synonym_keys_begin(data->str);
     aEndIterator = that->mDb->synonym_keys_end(data->str);
-    break; }
-  case Termiterator_data::eMetadataKeys: {
+    break;
+  case Termiterator_data::eMetadataKeys:
     aStartIterator = that->mDb->metadata_keys_begin(data->str);
     aEndIterator = that->mDb->metadata_keys_end(data->str);
-    break; }
+    break;
   }
 
   Xapian::termcount aSize=0;
