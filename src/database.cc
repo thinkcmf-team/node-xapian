@@ -32,6 +32,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_uuid", GetUuid);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "allterms", Allterms);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "spellings", Spellings);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -635,6 +636,10 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->allterms_begin(data->str);
     aEndIterator = that->mDb->allterms_end(data->str);
     break; }
+  case Termiterator_data::eSpellings: {
+    aStartIterator = that->mDb->spellings_begin();
+    aEndIterator = that->mDb->spellings_end();
+    break; }
   }
 
   Xapian::termcount aSize=0;
@@ -715,6 +720,25 @@ Handle<Value> Database::Allterms(const Arguments& args) {
   Handle<Value> aResult;
   try {
     aResult = invoke<Enquire>(aOpt[3] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kSpellings[] = { -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Spellings(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kSpellings, args, aOpt))
+    return throwSignatureErr(kSpellings);
+
+  Termiterator_data* aData = new Termiterator_data(Termiterator_data::eSpellings, aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by Termiterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

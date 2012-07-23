@@ -64,7 +64,7 @@ Database
         An array of all the terms with a given prefix in the database. 
     valuestream_sync(uint32_slot) - return an array of { value: string, docid: uint32, valueno: uint32, description: string } (ValueIterator)
         An array of the values in slot slot for each document. 
-    spellings_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    spellings([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the spelling correction targets. 
     synonyms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the synonyms for a given term. 
