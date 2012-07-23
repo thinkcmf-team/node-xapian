@@ -31,6 +31,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_metadata", GetMetadata);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_uuid", GetUuid);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "termlist", Termlist);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "allterms", Allterms);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -626,6 +627,14 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->termlist_begin(data->val);
     aEndIterator = that->mDb->termlist_end(data->val);
     break; }
+  case Termiterator_data::eAllterms: {
+    aStartIterator = that->mDb->allterms_begin();
+    aEndIterator = that->mDb->allterms_end();
+    break; }
+  case Termiterator_data::eAlltermsPrefix: {
+    aStartIterator = that->mDb->allterms_begin(data->str);
+    aEndIterator = that->mDb->allterms_end(data->str);
+    break; }
   }
 
   Xapian::termcount aSize=0;
@@ -682,6 +691,30 @@ Handle<Value> Database::Termlist(const Arguments& args) {
   Handle<Value> aResult;
   try {
     aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kAllterms[] = { -eString, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Allterms(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[4];
+  if (!checkArguments(kAllterms, args, aOpt))
+    return throwSignatureErr(kTermlist);
+
+  Termiterator_data* aData;
+
+  if (aOpt[0] >= 0)
+    aData = new Termiterator_data(Termiterator_data::eAlltermsPrefix, *String::Utf8Value(args[0]), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value(), aOpt[2] < 0 ? 0 : args[aOpt[2]]->Uint32Value()); //deleted by Termiterator_convert on non error
+  else
+    aData = new Termiterator_data(Termiterator_data::eAllterms, aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value(), aOpt[2] < 0 ? 0 : args[aOpt[2]]->Uint32Value()); //deleted by Termiterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[3] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

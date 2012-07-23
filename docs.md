@@ -58,9 +58,9 @@ Database
         An array of the  terms for a given document. 
     positionlist_sync(uint32_did, string_tname) - return an array of { description: string } (PositionIterator)
         An array of the positions for a given term in a given document.
-    allterms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    allterms([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the terms in the database. 
-    allterms_sync(string_prefix) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    allterms(string_prefix, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the terms with a given prefix in the database. 
     valuestream_sync(uint32_slot) - return an array of { value: string, docid: uint32, valueno: uint32, description: string } (ValueIterator)
         An array of the values in slot slot for each document. 

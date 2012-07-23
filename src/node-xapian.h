@@ -281,9 +281,10 @@ protected:
   struct Termiterator_data {
     Termiterator_data(int act, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), action(act) {}
     Termiterator_data(int act, uint32_t did, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), val(did), action(act) {}
+    Termiterator_data(int act, const std::string &s, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), str(s), action(act) {}
     ~Termiterator_data() { if (tlist) delete [] tlist; }
     enum { 
-      eTermlist
+      eTermlist, eAllterms, eAlltermsPrefix
     };
     Xapian::termcount first, maxitems;
     struct Item {
@@ -294,12 +295,14 @@ protected:
     Item* tlist;
     Xapian::termcount size;
     uint32_t val;
+    std::string str;
     int action;
   };
   static void Termiterator_process(void* data, void* that);
   static Handle<Value> Termiterator_convert(void* data);
 
   static Handle<Value> Termlist(const Arguments& args);
+  static Handle<Value> Allterms(const Arguments& args);
 };
 
 
