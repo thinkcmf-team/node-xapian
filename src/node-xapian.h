@@ -284,7 +284,7 @@ protected:
     Termiterator_data(int act, const std::string &s, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), str(s), action(act) {}
     ~Termiterator_data() { if (tlist) delete [] tlist; }
     enum { 
-      eTermlist, eAllterms, eAlltermsPrefix, eSpellings, eSynonyms
+      eTermlist, eAllterms, eAlltermsPrefix, eSpellings, eSynonyms, eSynonymKeys
     };
     Xapian::termcount first, maxitems;
     struct Item {
@@ -305,6 +305,7 @@ protected:
   static Handle<Value> Allterms(const Arguments& args);
   static Handle<Value> Spellings(const Arguments& args);
   static Handle<Value> Synonyms(const Arguments& args);
+  static Handle<Value> SynonymKeys(const Arguments& args);
 };
 
 

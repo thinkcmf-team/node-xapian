@@ -68,7 +68,7 @@ Database
         An array of all the spelling correction targets. 
 *    synonyms(string_term, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the synonyms for a given term. 
-    synonym_keys_sync(string_prefix='') - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    synonym_keys(string_prefix='', [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all terms which have synonyms. 
     metadata_keys_sync(string_prefix='') - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all user-specified metadata keys. 
