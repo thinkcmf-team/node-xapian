@@ -35,6 +35,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "spellings", Spellings);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "synonyms", Synonyms);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "synonym_keys", SynonymKeys);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "metadata_keys", MetadataKeys);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -646,6 +647,14 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->synonyms_begin(data->str);
     aEndIterator = that->mDb->synonyms_end(data->str);
     break; }
+  case Termiterator_data::eSynonymKeys: {
+    aStartIterator = that->mDb->synonym_keys_begin(data->str);
+    aEndIterator = that->mDb->synonym_keys_end(data->str);
+    break; }
+  case Termiterator_data::eMetadataKeys: {
+    aStartIterator = that->mDb->metadata_keys_begin(data->str);
+    aEndIterator = that->mDb->metadata_keys_end(data->str);
+    break; }
   }
 
   Xapian::termcount aSize=0;
@@ -779,6 +788,25 @@ Handle<Value> Database::SynonymKeys(const Arguments& args) {
     return throwSignatureErr(kSynonymKeys);
 
   Termiterator_data* aData = new Termiterator_data(Termiterator_data::eSynonymKeys, aOpt[0] < 0 ? "" : *String::Utf8Value(args[aOpt[0]]), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value(), aOpt[2] < 0 ? 0 : args[aOpt[2]]->Uint32Value()); //deleted by Termiterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[3] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kMetadataKeys[] = { -eString, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::MetadataKeys(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[4];
+  if (!checkArguments(kMetadataKeys, args, aOpt))
+    return throwSignatureErr(kMetadataKeys);
+
+  Termiterator_data* aData = new Termiterator_data(Termiterator_data::eMetadataKeys, aOpt[0] < 0 ? "" : *String::Utf8Value(args[aOpt[0]]), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value(), aOpt[2] < 0 ? 0 : args[aOpt[2]]->Uint32Value()); //deleted by Termiterator_convert on non error
 
   Handle<Value> aResult;
   try {
