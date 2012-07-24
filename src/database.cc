@@ -80,7 +80,6 @@ void Database::Open_process(void* pData, void* pThat) {
 Handle<Value> Database::Open_convert(void* pData) {
   Open_data* data = (Open_data*) pData;
   Database* that = data->that;
-  delete data;
 
   switch (data->action) {
   case Open_data::eNewDatabase:
@@ -90,9 +89,11 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eReopen: 
   case Open_data::eKeepAlive:
   case Open_data::eAddDatabase:  
-    return Undefined();                      
+    return Undefined();
+  default: throw "invalid action";
   }
 
+  delete data;
   return Undefined();
 }
 
@@ -264,6 +265,7 @@ Handle<Value> Database::Generic_convert(void* pData) {
     aResult = Uint32::New(data->val2);          break;
   case Generic_data::eGetAvlength:    
     aResult = Number::New(data->vald1);         break;
+  default: throw "invalid action";
   }
 
   delete data;
@@ -649,6 +651,7 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->metadata_keys_begin(data->str);
     aEndIterator = that->mDb->metadata_keys_end(data->str);
     break;
+  default: throw "invalid action";
   }
 
   Xapian::termcount aSize=0;
@@ -678,8 +681,8 @@ void Database::Termiterator_process(void* pData, void* pThat) {
 }
 
 Handle<Value> Database::Termiterator_convert(void* pData) {
- 
   Termiterator_data* data = (Termiterator_data*) pData;
+
   Local<Array> aList(Array::New(data->size));
   for (Xapian::termcount a = 0; a < data->size; ++a) {
     Local<Object> aO(Object::New());

@@ -40,15 +40,13 @@ Handle<Value> WritableDatabase::New(const Arguments& args) {
   bool aUse1;
   int aOpt[1];
 
-  if (!(aUse1 = checkArguments(kNew1, args, aOpt)) && !checkArguments(kNew2, args, aOpt)) {
-      return throwSignatureErr(kNewSet,2);
-    }
+  if (!(aUse1 = checkArguments(kNew1, args, aOpt)) && !checkArguments(kNew2, args, aOpt))
+    return throwSignatureErr(kNewSet,2);
 
   WritableDatabase* that = new WritableDatabase();
   that->Wrap(args.This());
 
   Open_data* aData = new Open_data(Open_data::eNewWDatabase, that, aUse1 ? Handle<String>() : args[0]->ToString(), aUse1 ? 0 : args[1]->Int32Value()); //deleted by Open_convert on non error
-
 
   Handle<Value> aResult;
   try {
@@ -77,9 +75,8 @@ Handle<Value> WritableDatabase::ReplaceDocument(const Arguments& args) {
     aSignUsed = 2;
   else if (checkArguments(kReplaceDocument3, args, aOpt) && (aDoc = GetInstance<Document>(args[1])))
     aSignUsed = 3;
-  else {
+  else
     return throwSignatureErr(kReplaceDocumentSet,3);
-  }
 
   ReplaceDocument_data* aData;
 
@@ -139,6 +136,7 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   case ReplaceDocument_data::eAdd:
   case ReplaceDocument_data::eReplaceTerm:  aResult = Integer::NewFromUnsigned(data->docid); break;
   case ReplaceDocument_data::eReplaceDocId: aResult = Undefined();                           break;
+  default: throw "invalid action";
   }
 
   delete data;
@@ -417,7 +415,9 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   case Generic_data::eCancelTx:
   case Generic_data::eCommitTx:
   case Generic_data::eBeginTx:
-  case Generic_data::eCommit: aResult = Undefined(); break;
+  case Generic_data::eCommit:
+    aResult = Undefined(); break;
+  default: throw "invalid action";
   }
   delete data;
   return Undefined();

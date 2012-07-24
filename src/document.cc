@@ -416,6 +416,7 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case Generic_data::eRemoveTerm:
   case Generic_data::eClearTerms:     
     aResult = Undefined();                          break;
+  default: throw "invalid action";
   }
 
   delete data;
