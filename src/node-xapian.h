@@ -128,9 +128,27 @@ enum ArgumentType {
   eFunction
 };
 
+#define MAX_ARG_SIGNATURE_LENGTH 10
 bool checkArguments(int signature[], const Arguments& args, int optionals[]);
 Handle<Value> throwSignatureErr(int signature[]);
 Handle<Value> throwSignatureErr(int *signatures[], int sigN);
+
+struct GenericData {
+  struct Item {
+    union {
+      double dbl;
+      uint32_t uint32;
+      int32_t int32;
+      bool boolean;
+    };
+    std::string s;
+  };
+  GenericData();
+  GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]);
+  int action;
+  Item val[MAX_ARG_SIGNATURE_LENGTH];
+  Item retVal;
+};
 
 template <class T>
 class XapWrap : public ObjectWrap {

@@ -50,7 +50,8 @@ Handle<Value> Document::GetValue(const Arguments& args) {
   if (!checkArguments(kGetValue, args, aOpt))
     return throwSignatureErr(kGetValue);
 
-  Generic_data* aData = new Generic_data(Generic_data::eGetValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eGetValue, args, kGetValue, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -69,7 +70,8 @@ Handle<Value> Document::AddValue(const Arguments& args) {
   if (!checkArguments(kAddValue, args, aOpt))
     return throwSignatureErr(kAddValue);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddValue, *String::Utf8Value(args[1]), args[0]->Uint32Value()); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eAddValue, args, kAddValue, aOpt, aDefaults);
 
   Handle<Value> aResult;
   try {
@@ -88,7 +90,8 @@ Handle<Value> Document::RemoveValue(const Arguments& args) {
   if (!checkArguments(kRemoveValue, args, aOpt))
     return throwSignatureErr(kRemoveValue);
 
-  Generic_data* aData = new Generic_data(Generic_data::eRemoveValue, args[0]->Uint32Value()); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eRemoveValue, args, kRemoveValue, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -107,7 +110,8 @@ Handle<Value> Document::ClearValues(const Arguments& args) {
   if (!checkArguments(kClearValues, args, aOpt))
     return throwSignatureErr(kClearValues);
 
-  Generic_data* aData = new Generic_data(Generic_data::eClearValues); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eClearValues, args, kClearValues, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -126,7 +130,8 @@ Handle<Value> Document::GetData(const Arguments& args) {
   if (!checkArguments(kGetData, args, aOpt))
     return throwSignatureErr(kGetData);
 
-  Generic_data* aData = new Generic_data(Generic_data::eGetData); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eGetData, args, kGetData, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -145,7 +150,8 @@ Handle<Value> Document::SetData(const Arguments& args) {
   if (!checkArguments(kSetData, args, aOpt))
     return throwSignatureErr(kSetData);
 
-  Generic_data* aData = new Generic_data(Generic_data::eSetData, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eSetData, args, kSetData, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -164,7 +170,9 @@ Handle<Value> Document::AddPosting(const Arguments& args) {
   if (!checkArguments(kAddPosting, args, aOpt))
     return throwSignatureErr(kAddPosting);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddPosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[1];
+  aDefaults[0].uint32 = 1;
+  GenericData* aData = new GenericData(Generic_data::eAddPosting, args, kAddPosting, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -183,7 +191,9 @@ Handle<Value> Document::AddTerm(const Arguments& args) {
   if (!checkArguments(kAddTerm, args, aOpt))
     return throwSignatureErr(kAddTerm);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddTerm, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[1];
+  aDefaults[0].uint32 = 1;
+  GenericData* aData = new GenericData(Generic_data::eAddTerm, args, kAddTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -202,7 +212,8 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
   if (!checkArguments(kAddBooleanTerm, args, aOpt))
     return throwSignatureErr(kAddBooleanTerm);
 
-  Generic_data* aData = new Generic_data(Generic_data::eAddBooleanTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eAddBooleanTerm, args, kAddBooleanTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -220,8 +231,10 @@ Handle<Value> Document::RemovePosting(const Arguments& args) {
   int aOpt[2];
   if (!checkArguments(kRemovePosting, args, aOpt))
     return throwSignatureErr(kRemovePosting);
- 
-  Generic_data* aData = new Generic_data(Generic_data::eRemovePosting, *String::Utf8Value(args[0]), args[1]->Uint32Value(), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
+
+  GenericData::Item aDefaults[1];
+  aDefaults[0].uint32 = 1;
+  GenericData* aData = new GenericData(Generic_data::eRemovePosting, args, kRemovePosting, aOpt, aDefaults);
 
   Handle<Value> aResult;
   try {
@@ -240,7 +253,8 @@ Handle<Value> Document::RemoveTerm(const Arguments& args) {
   if (!checkArguments(kRemoveTerm, args, aOpt))
     return throwSignatureErr(kRemoveTerm);
 
-  Generic_data* aData = new Generic_data(Generic_data::eRemoveTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eRemoveTerm, args, kRemoveTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -259,7 +273,8 @@ Handle<Value> Document::ClearTerms(const Arguments& args) {
   if (!checkArguments(kClearTerms, args, aOpt))
     return throwSignatureErr(kClearTerms);
 
-  Generic_data* aData = new Generic_data(Generic_data::eClearTerms); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eClearTerms, args, kClearTerms, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -278,7 +293,8 @@ Handle<Value> Document::TermlistCount(const Arguments& args) {
   if (!checkArguments(kTermlistCount, args, aOpt))
     return throwSignatureErr(kTermlistCount);
 
-  Generic_data* aData = new Generic_data(Generic_data::eTermlistCount); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eTermlistCount, args, kTermlistCount, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -297,7 +313,8 @@ Handle<Value> Document::ValuesCount(const Arguments& args) {
   if (!checkArguments(kValuesCount, args, aOpt))
     return throwSignatureErr(kValuesCount);
 
-  Generic_data* aData = new Generic_data(Generic_data::eValuesCount); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eValuesCount, args, kValuesCount, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -316,7 +333,8 @@ Handle<Value> Document::GetDocid(const Arguments& args) {
   if (!checkArguments(kGetDocid, args, aOpt))
     return throwSignatureErr(kGetDocid);
 
-  Generic_data* aData = new Generic_data(Generic_data::eGetDocid); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eGetDocid, args, kGetDocid, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -335,7 +353,8 @@ Handle<Value> Document::Serialise(const Arguments& args) {
   if (!checkArguments(kSerialise, args, aOpt))
     return throwSignatureErr(kSerialise);
 
-  Generic_data* aData = new Generic_data(Generic_data::eSerialise); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eSerialise, args, kSerialise, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -354,7 +373,8 @@ Handle<Value> Document::GetDescription(const Arguments& args) {
   if (!checkArguments(kGetDescription, args, aOpt))
     return throwSignatureErr(kGetDescription);
 
-  Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
+  GenericData::Item aDefaults[0];
+  GenericData* aData = new GenericData(Generic_data::eGetDescription, args, kGetDescription, aOpt, aDefaults); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -367,44 +387,44 @@ Handle<Value> Document::GetDescription(const Arguments& args) {
 }
 
 void Document::Generic_process(void* pData, void* pThat) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   Document* that = (Document *) pThat;
 
   switch (data->action) {
-  case Generic_data::eGetValue:        data->str = that->mDoc->get_value(data->val1);                 break;
-  case Generic_data::eAddValue:        that->mDoc->add_value(data->val1, data->str);                  break;
-  case Generic_data::eRemoveValue:     that->mDoc->remove_value(data->val1);                          break;
-  case Generic_data::eClearValues:     that->mDoc->clear_values();                                    break;
-  case Generic_data::eGetData:         data->str = that->mDoc->get_data();                            break;
-  case Generic_data::eSetData:         that->mDoc->set_data(data->str);                               break;
-  case Generic_data::eAddPosting:      that->mDoc->add_posting(data->str, data->val1, data->val2);    break;
-  case Generic_data::eAddTerm:         that->mDoc->add_term(data->str, data->val1);                   break;
-  case Generic_data::eAddBooleanTerm:  that->mDoc->add_boolean_term(data->str);                       break;
-  case Generic_data::eRemovePosting:   that->mDoc->remove_posting(data->str, data->val1, data->val2); break;
-  case Generic_data::eRemoveTerm:      that->mDoc->remove_term(data->str);                            break;
-  case Generic_data::eClearTerms:      that->mDoc->clear_terms();                                     break;
-  case Generic_data::eTermlistCount:   data->val1 = that->mDoc->termlist_count();                     break;
-  case Generic_data::eValuesCount:     data->val1 = that->mDoc->values_count();                       break;
-  case Generic_data::eGetDocid:        data->val1 = that->mDoc->get_docid();                          break;
-  case Generic_data::eSerialise:       data->str = that->mDoc->serialise();                           break;
-  case Generic_data::eGetDescription:  data->str = that->mDoc->get_description();                     break;
+  case Generic_data::eGetValue:        data->retVal.s = that->mDoc->get_value(data->val[0].uint32);                          break;
+  case Generic_data::eAddValue:        that->mDoc->add_value(data->val[0].uint32, data->val[1].s);                           break;
+  case Generic_data::eRemoveValue:     that->mDoc->remove_value(data->val[0].uint32);                                        break;
+  case Generic_data::eClearValues:     that->mDoc->clear_values();                                                           break;
+  case Generic_data::eGetData:         data->retVal.s = that->mDoc->get_data();                                              break;
+  case Generic_data::eSetData:         that->mDoc->set_data(data->val[0].s);                                                 break;
+  case Generic_data::eAddPosting:      that->mDoc->add_posting(data->val[0].s, data->val[1].uint32, data->val[2].uint32);    break;
+  case Generic_data::eAddTerm:         that->mDoc->add_term(data->val[0].s, data->val[1].uint32);                            break;
+  case Generic_data::eAddBooleanTerm:  that->mDoc->add_boolean_term(data->val[0].s);                                         break;
+  case Generic_data::eRemovePosting:   that->mDoc->remove_posting(data->val[0].s, data->val[1].uint32, data->val[2].uint32); break;
+  case Generic_data::eRemoveTerm:      that->mDoc->remove_term(data->val[0].s);                                              break;
+  case Generic_data::eClearTerms:      that->mDoc->clear_terms();                                                            break;
+  case Generic_data::eTermlistCount:   data->retVal.uint32 = that->mDoc->termlist_count();                                   break;
+  case Generic_data::eValuesCount:     data->retVal.uint32 = that->mDoc->values_count();                                     break;
+  case Generic_data::eGetDocid:        data->retVal.uint32 = that->mDoc->get_docid();                                        break;
+  case Generic_data::eSerialise:       data->retVal.s = that->mDoc->serialise();                                             break;
+  case Generic_data::eGetDescription:  data->retVal.s = that->mDoc->get_description();                                       break;
   }
 }
 
 Handle<Value> Document::Generic_convert(void* pData) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   Handle<Value> aResult;
 
   switch (data->action) {
   case Generic_data::eTermlistCount:
   case Generic_data::eValuesCount:
   case Generic_data::eGetDocid:       
-    aResult = Integer::NewFromUnsigned(data->val1); break;
+    aResult = Integer::NewFromUnsigned(data->retVal.uint32); break;
   case Generic_data::eGetValue:
   case Generic_data::eGetData:  
   case Generic_data::eSerialise:
   case Generic_data::eGetDescription: 
-    aResult = String::New(data->str.c_str());       break;
+    aResult = String::New(data->retVal.s.c_str());       break;
   case Generic_data::eAddValue:
   case Generic_data::eRemoveValue:
   case Generic_data::eClearValues:

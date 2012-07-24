@@ -99,6 +99,35 @@ Handle<Value> throwSignatureErr(int *signatures[], int sigN) {
   return ThrowException(Exception::TypeError(String::New(aStr.c_str())));
 }
 
+GenericData::GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]) {
+  action = act;
+  int aOptNr = 0;
+  for (int aSigN = 0; signature[aSigN] != eEnd; ++aSigN) {
+    int aArgInd = aSigN;
+
+    if (signature[aSigN] < 0) {
+      if (optionals[aOptNr] >= 0)
+        aArgInd = optionals[aOptNr];
+      else {
+        if (abs(signature[aSigN]) != eFunction)
+          val[aSigN] = defaults[aOptNr];
+        ++aOptNr;
+        continue;
+      }
+      ++aOptNr;
+    }
+
+    switch (abs(signature[aSigN])) {
+    case eInt32:    val[aSigN].int32 = args[aArgInd]->Int32Value();     break;
+    case eUint32:   val[aSigN].uint32 = args[aArgInd]->Uint32Value();   break;
+    case eBoolean:  val[aSigN].boolean = args[aArgInd]->BooleanValue(); break;
+    case eString:   val[aSigN].s = *String::Utf8Value(args[aArgInd]);   break;
+    case eFunction: break;
+    default: throw "invalid GenericData type";
+    }
+  }
+}
+
 class Mime2Text : public ObjectWrap {
 public:
   static void Init(Handle<Object> target);
