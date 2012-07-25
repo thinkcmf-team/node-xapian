@@ -1,6 +1,8 @@
 #ifndef _NODE_XAPIAN_H_
 #define _NODe_XAPIAN_H_
 
+#include <stdlib.h>
+
 #include <xapian.h>
 #include "mime2text.h"
 
@@ -128,7 +130,7 @@ enum ArgumentType {
   eFunction
 };
 
-#define MAX_ARG_SIGNATURE_LENGTH 10
+#define MAX_SIGNATURE_ARGS 10
 bool checkArguments(int signature[], const Arguments& args, int optionals[]);
 Handle<Value> throwSignatureErr(int signature[]);
 Handle<Value> throwSignatureErr(int *signatures[], int sigN);
@@ -141,13 +143,42 @@ struct GenericData {
       int32_t int32;
       bool boolean;
     };
-    std::string s;
+    std::string string;
   };
-  GenericData();
-  GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]);
   int action;
-  Item val[MAX_ARG_SIGNATURE_LENGTH];
+  Item* val;
   Item retVal;
+  GenericData();
+  GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]) : action(act) {
+    int aOptNr = 0;
+    int aLength;
+    for (aLength = 0; signature[aLength] != eEnd; ++aLength);
+    --aLength;
+    val = new Item[aLength];
+    for (int aSigN = 0; signature[aSigN] != eEnd; ++aSigN) {
+      int aArgInd = aSigN;
+      if (signature[aSigN] < 0) {
+        if (optionals[aOptNr] >= 0)
+          aArgInd = optionals[aOptNr];
+        else {
+          if (abs(signature[aSigN]) != eFunction)
+            val[aSigN] = defaults[aOptNr];
+          ++aOptNr;
+          continue;
+        }
+        ++aOptNr;
+      }
+      switch (abs(signature[aSigN])) {
+      case eInt32:    val[aSigN].int32 = args[aArgInd]->Int32Value();     break;
+      case eUint32:   val[aSigN].uint32 = args[aArgInd]->Uint32Value();   break;
+      case eBoolean:  val[aSigN].boolean = args[aArgInd]->BooleanValue(); break;
+      case eString:   val[aSigN].string = *String::Utf8Value(args[aArgInd]);   break;
+      case eFunction: break;
+      default: assert(0);
+      }
+    }
+  }
+  ~GenericData() { if (val) delete[] val; }
 };
 
 template <class T>

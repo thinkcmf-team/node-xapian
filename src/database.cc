@@ -90,7 +90,7 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eKeepAlive:
   case Open_data::eAddDatabase:  
     return Undefined();
-  default: throw "invalid action";
+  default: assert(0);
   }
 
   delete data;
@@ -265,7 +265,7 @@ Handle<Value> Database::Generic_convert(void* pData) {
     aResult = Uint32::New(data->val2);          break;
   case Generic_data::eGetAvlength:    
     aResult = Number::New(data->vald1);         break;
-  default: throw "invalid action";
+  default: assert(0);
   }
 
   delete data;
@@ -651,7 +651,7 @@ void Database::Termiterator_process(void* pData, void* pThat) {
     aStartIterator = that->mDb->metadata_keys_begin(data->str);
     aEndIterator = that->mDb->metadata_keys_end(data->str);
     break;
-  default: throw "invalid action";
+  default: assert(0);
   }
 
   Xapian::termcount aSize=0;

@@ -136,7 +136,7 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   case ReplaceDocument_data::eAdd:
   case ReplaceDocument_data::eReplaceTerm:  aResult = Integer::NewFromUnsigned(data->docid); break;
   case ReplaceDocument_data::eReplaceDocId: aResult = Undefined();                           break;
-  default: throw "invalid action";
+  default: assert(0);
   }
 
   delete data;
@@ -417,7 +417,7 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   case Generic_data::eBeginTx:
   case Generic_data::eCommit:
     aResult = Undefined(); break;
-  default: throw "invalid action";
+  default: assert(0);
   }
   delete data;
   return Undefined();
