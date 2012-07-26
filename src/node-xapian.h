@@ -176,7 +176,7 @@ struct GenericData {
 };
 
 template<class T>
-Handle<Value> generic_start(int act, const Arguments& args, int signature[], FuncProcess process, FuncConvert convert, GenericData::Item* defaults = NULL) {
+Handle<Value> generic_start(int act, const Arguments& args, int signature[], GenericData::Item* defaults = NULL) {
   int aLength = 0;
   for (int a = 0; signature[a] != eEnd; ++a)
     if (signature[a]<0) aLength++;
@@ -187,7 +187,7 @@ Handle<Value> generic_start(int act, const Arguments& args, int signature[], Fun
   GenericData* aData = new GenericData(act, args, signature, optionals, defaults); //deleted by Generic_convert on non error
   Handle<Value> aResult = Undefined();
   try {
-    aResult = invoke<T>(optionals[aLength-1] >= 0, args, (void*)aData, process, convert);
+    aResult = invoke<T>(optionals[aLength-1] >= 0, args, (void*)aData, T::Generic_process, T::Generic_convert);
   } catch (Handle<Value> ex) {
     delete[] optionals;
     delete aData;
@@ -507,6 +507,9 @@ public:
     return mDoc;
   }
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
   Document(Xapian::Document* iDoc) : mDoc(iDoc) {}
 
@@ -517,10 +520,6 @@ protected:
   Xapian::Document* mDoc;
 
   static Handle<Value> New(const Arguments& args);
-
-
-  static void Generic_process(void* data, void* that);
-  static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> GetValue(const Arguments& args);
   static Handle<Value> AddValue(const Arguments& args);

@@ -51,7 +51,7 @@ Handle<Value> Document::New(const Arguments& args) {
 static int kGetValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::GetValue(const Arguments& args) {
   HandleScope scope;
-  return scope.Close(generic_start<Document>(eGetValue, args, kGetValue, Generic_process, Generic_convert));
+  return scope.Close(generic_start<Document>(eGetValue, args, kGetValue));
 }
 
 static int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
