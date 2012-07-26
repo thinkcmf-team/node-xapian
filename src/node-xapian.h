@@ -130,7 +130,6 @@ enum ArgumentType {
   eFunction
 };
 
-#define MAX_SIGNATURE_ARGS 10
 bool checkArguments(int signature[], const Arguments& args, int optionals[]);
 Handle<Value> throwSignatureErr(int signature[]);
 Handle<Value> throwSignatureErr(int *signatures[], int sigN);
@@ -150,22 +149,18 @@ struct GenericData {
   Item retVal;
   GenericData();
   GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]) : action(act) {
-    int aOptNr = 0;
     int aLength;
     for (aLength = 0; signature[aLength] != eEnd; ++aLength);
     val = new Item[aLength];
-    for (int aSigN = 0; signature[aSigN] != eEnd; ++aSigN) {
-      int aArgInd = aSigN;
+    for (int aOptN = 0, aSigN = 0; signature[aSigN] != eEnd; ++aSigN) {
+      int aArgInd = signature[aSigN] < 0 && optionals[aOptN] >= 0 ? optionals[aOptN] : aSigN;
       if (signature[aSigN] < 0) {
-        if (optionals[aOptNr] >= 0)
-          aArgInd = optionals[aOptNr];
-        else {
+        ++aOptN;
+        if (optionals[aOptN-1] < 0) {
           if (abs(signature[aSigN]) != eFunction)
-            val[aSigN] = defaults[aOptNr];
-          ++aOptNr;
+            val[aSigN] = defaults[aOptN-1];
           continue;
         }
-        ++aOptNr;
       }
       switch (abs(signature[aSigN])) {
       case eInt32:    val[aSigN].int32 = args[aArgInd]->Int32Value();     break;
@@ -181,19 +176,24 @@ struct GenericData {
 };
 
 template<class T>
-Handle<Value> generic_start(int act, const Arguments& args, int signature[], int optionals[], GenericData::Item defaults[], FuncProcess process, FuncConvert convert) {
-  GenericData* aData = new GenericData(act, args, signature, optionals, defaults); //deleted by Generic_convert on non error
-  Handle<Value> aResult = Undefined();
+Handle<Value> generic_start(int act, const Arguments& args, int signature[], FuncProcess process, FuncConvert convert, GenericData::Item* defaults = NULL) {
   int aLength = 0;
   for (int a = 0; signature[a] != eEnd; ++a)
     if (signature[a]<0) aLength++;
   assert(aLength > 0);
+  int* optionals = new int[aLength];
+  if (!checkArguments(signature, args, optionals))
+    return throwSignatureErr(signature);
+  GenericData* aData = new GenericData(act, args, signature, optionals, defaults); //deleted by Generic_convert on non error
+  Handle<Value> aResult = Undefined();
   try {
     aResult = invoke<T>(optionals[aLength-1] >= 0, args, (void*)aData, process, convert);
   } catch (Handle<Value> ex) {
+    delete[] optionals;
     delete aData;
     return ThrowException(ex);
   }
+  delete[] optionals;
   return aResult;
 }
 

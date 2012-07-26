@@ -124,6 +124,7 @@ void WritableDatabase::ReplaceDocument_process(void* pData, void* pThat) {
   case ReplaceDocument_data::eAdd:          data->docid = that->mWdb->add_document(data->document);                    break;
   case ReplaceDocument_data::eReplaceTerm:  data->docid = that->mWdb->replace_document(*data->idterm, data->document); break;
   case ReplaceDocument_data::eReplaceDocId: that->mWdb->replace_document(data->docid, data->document);                 break;
+  default: assert(0);
   }
 }
 
@@ -136,7 +137,6 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   case ReplaceDocument_data::eAdd:
   case ReplaceDocument_data::eReplaceTerm:  aResult = Integer::NewFromUnsigned(data->docid); break;
   case ReplaceDocument_data::eReplaceDocId: aResult = Undefined();                           break;
-  default: assert(0);
   }
 
   delete data;
@@ -395,6 +395,7 @@ void WritableDatabase::Generic_process(void* pData, void* pThat) {
   case Generic_data::eClearSynonyms:      that->mWdb->clear_synonyms(data->str1);              break;
   case Generic_data::eSetMetadata:        that->mWdb->set_metadata(data->str1, data->str2);    break;
   case Generic_data::eGetDescription:     that->mWdb->get_description();                       break;
+  default: assert(0);
   }
 }
 
@@ -417,7 +418,6 @@ Handle<Value> WritableDatabase::Generic_convert(void* pData) {
   case Generic_data::eBeginTx:
   case Generic_data::eCommit:
     aResult = Undefined(); break;
-  default: assert(0);
   }
   delete data;
   return Undefined();

@@ -51,13 +51,7 @@ Handle<Value> Document::New(const Arguments& args) {
 static int kGetValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::GetValue(const Arguments& args) {
   HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetValue, args, aOpt))
-    return throwSignatureErr(kGetValue);
-
-  GenericData::Item* aDefaults = NULL;
-
-  return scope.Close(generic_start<Document>(eGetValue, args, kGetValue, aOpt, aDefaults, Generic_process, Generic_convert));
+  return scope.Close(generic_start<Document>(eGetValue, args, kGetValue, Generic_process, Generic_convert));
 }
 
 static int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
@@ -405,6 +399,7 @@ void Document::Generic_process(void* pData, void* pThat) {
   case eGetDocid:        data->retVal.uint32 = that->mDoc->get_docid();                                             break;
   case eSerialise:       data->retVal.string = that->mDoc->serialise();                                             break;
   case eGetDescription:  data->retVal.string = that->mDoc->get_description();                                       break;
+  default: assert(0);
   }
 }
 
@@ -433,7 +428,6 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case eRemoveTerm:
   case eClearTerms:     
     aResult = Undefined();                          break;
-  default: assert(0);
   }
 
   delete data;

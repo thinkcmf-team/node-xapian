@@ -74,6 +74,7 @@ void Database::Open_process(void* pData, void* pThat) {
   case Open_data::eClose:       that->mDb->close();                      break;
   case Open_data::eKeepAlive:   that->mDb->keep_alive();                 break;
   case Open_data::eAddDatabase: that->mDb->add_database(*data->db->mDb); break;
+  default: assert(0);
   }
 }
 
@@ -90,7 +91,6 @@ Handle<Value> Database::Open_convert(void* pData) {
   case Open_data::eKeepAlive:
   case Open_data::eAddDatabase:  
     return Undefined();
-  default: assert(0);
   }
 
   delete data;
@@ -233,6 +233,7 @@ void Database::Generic_process(void* pData, void* pThat) {
   case Generic_data::eGetSpellingSuggestion:  data->str2 = that->mDb->get_spelling_suggestion(data->str1, data->val1); break;
   case Generic_data::eGetMetadata:            data->str2 = that->mDb->get_metadata(data->str1);                        break;
   case Generic_data::eGetUuid:                data->str1 = that->mDb->get_uuid();                                      break;
+  default: assert(0);
   }
 }
 
@@ -265,7 +266,6 @@ Handle<Value> Database::Generic_convert(void* pData) {
     aResult = Uint32::New(data->val2);          break;
   case Generic_data::eGetAvlength:    
     aResult = Number::New(data->vald1);         break;
-  default: assert(0);
   }
 
   delete data;
