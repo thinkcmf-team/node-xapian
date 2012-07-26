@@ -177,6 +177,7 @@ struct GenericData {
 
 template<class T>
 Handle<Value> generic_start(int act, const Arguments& args, int signature[], GenericData::Item* defaults = NULL) {
+  HandleScope scope;
   int aLength = 0;
   for (int a = 0; signature[a] != eEnd; ++a)
     if (signature[a]<0) aLength++;
@@ -194,7 +195,7 @@ Handle<Value> generic_start(int act, const Arguments& args, int signature[], Gen
     return ThrowException(ex);
   }
   delete[] optionals;
-  return aResult;
+  return scope.Close(aResult);
 }
 
 template <class T>
