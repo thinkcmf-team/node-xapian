@@ -56,16 +56,8 @@ Handle<Value> Document::GetValue(const Arguments& args) {
     return throwSignatureErr(kGetValue);
 
   GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eGetValue, args, kGetValue, aOpt, aDefaults); //deleted by Generic_convert on non error
 
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
+  return scope.Close(generic_start<Document>(eGetValue, args, kGetValue, aOpt, aDefaults, Generic_process, Generic_convert));
 }
 
 static int kAddValue[] = { eUint32, eString, -eFunction, eEnd };

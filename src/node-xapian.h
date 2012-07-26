@@ -153,7 +153,6 @@ struct GenericData {
     int aOptNr = 0;
     int aLength;
     for (aLength = 0; signature[aLength] != eEnd; ++aLength);
-    --aLength;
     val = new Item[aLength];
     for (int aSigN = 0; signature[aSigN] != eEnd; ++aSigN) {
       int aArgInd = aSigN;
@@ -180,6 +179,23 @@ struct GenericData {
   }
   ~GenericData() { if (val) delete[] val; }
 };
+
+template<class T>
+Handle<Value> generic_start(int act, const Arguments& args, int signature[], int optionals[], GenericData::Item defaults[], FuncProcess process, FuncConvert convert) {
+  GenericData* aData = new GenericData(act, args, signature, optionals, defaults); //deleted by Generic_convert on non error
+  Handle<Value> aResult = Undefined();
+  int aLength = 0;
+  for (int a = 0; signature[a] != eEnd; ++a)
+    if (signature[a]<0) aLength++;
+  assert(aLength > 0);
+  try {
+    aResult = invoke<T>(optionals[aLength-1] >= 0, args, (void*)aData, process, convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return aResult;
+}
 
 template <class T>
 class XapWrap : public ObjectWrap {
