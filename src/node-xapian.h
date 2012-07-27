@@ -158,7 +158,7 @@ struct GenericData {
   Item* val;
   Item retVal;
   GenericData();
-  GenericData(int act, const Arguments& args, int signature[], int optionals[], Item defaults[]) : action(act) {
+  GenericData(int act, const Arguments& args, int signature[], int optionals[], Item* defaults = NULL) : action(act) {
     int aLength;
     for (aLength = 0; signature[aLength] != eEnd; ++aLength);
     val = new Item[aLength];
@@ -185,7 +185,7 @@ struct GenericData {
   ~GenericData() { if (val) delete[] val; }
 };
 
-template<class T>
+template<class T, class N>
 Handle<Value> generic_start(int act, const Arguments& args, int signature[], GenericData::Item* defaults = NULL) {
   HandleScope scope;
   int aLength = 0;
@@ -198,7 +198,7 @@ Handle<Value> generic_start(int act, const Arguments& args, int signature[], Gen
   GenericData* aData = new GenericData(act, args, signature, optionals, defaults); //deleted by Generic_convert on non error
   Handle<Value> aResult = Undefined();
   try {
-    aResult = invoke<T>(optionals[aLength-1] >= 0, args, (void*)aData, T::Generic_process, T::Generic_convert);
+    aResult = invoke<N>(optionals[aLength-1] >= 0, args, (void*)aData, T::Generic_process, T::Generic_convert);
   } catch (Handle<Value> ex) {
     delete[] optionals;
     delete aData;
@@ -206,6 +206,11 @@ Handle<Value> generic_start(int act, const Arguments& args, int signature[], Gen
   }
   delete[] optionals;
   return scope.Close(aResult);
+}
+
+template<class T>
+Handle<Value> generic_start(int act, const Arguments& args, int signature[], GenericData::Item* defaults = NULL) {
+  return generic_start<T,T>(act, args, signature, defaults);
 }
 
 template <class T>
@@ -380,6 +385,9 @@ public:
 
   Xapian::WritableDatabase& getWdb() { return *mWdb; }
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
   WritableDatabase() : Database() { }
 
@@ -404,23 +412,6 @@ protected:
   static Handle<Value> ReplaceDocument(const Arguments& args);
   static Handle<Value> AddDocument(const Arguments& args);
 
-
-  struct Generic_data {
-    Generic_data(int a) : action(a) {}
-    Generic_data(int a, uint32_t v) : action(a), val1(v) {}
-    Generic_data(int a, const std::string &s) : action(a), str1(s) {}
-    Generic_data(int a, const std::string &s, uint32_t v) : action(a), str1(s), val1(v) {}
-    Generic_data(int a, const std::string &s1, const std::string &s2) : action(a), str1(s1), str2(s2) {}
-    enum {
-      eCommit, eBeginTx, eCommitTx, eCancelTx, eDeleteDocumentDid, eDeleteDocumentTerm, eAddSpelling, eRemoveSpelling,
-      eAddSynonym, eRemoveSynonym, eClearSynonyms, eSetMetadata, eGetDescription
-    };
-    int action;
-    std::string str1, str2;
-    uint32_t val1;
-  };
-  static void Generic_process(void* data, void* that);
-  static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> Commit(const Arguments& args);
   static Handle<Value> BeginTransaction(const Arguments& args);

@@ -237,7 +237,7 @@ void Database::Generic_process(void* pData, void* pThat) {
   case eGetDoclengthUpperBound: data->retVal.uint32 = that->mDb->get_doclength_upper_bound();                                          break;
   case eGetWdfUpperBound:       data->retVal.uint32 = that->mDb->get_wdf_upper_bound (*data->val[0].string);                           break;
   case eGetDoclength:           data->retVal.uint32 = that->mDb->get_doclength(data->val[0].uint32);                                   break;
-  case eGetSpellingSuggestion:  data->retVal.setString(that->mDb->get_spelling_suggestion(*data->val[0].string, data->val[0].uint32)); break;
+  case eGetSpellingSuggestion:  data->retVal.setString(that->mDb->get_spelling_suggestion(*data->val[0].string, data->val[1].uint32)); break;
   case eGetMetadata:            data->retVal.setString(that->mDb->get_metadata(*data->val[0].string));                                 break;
   case eGetUuid:                data->retVal.setString(that->mDb->get_uuid());                                                         break;
   default: assert(0);
@@ -276,7 +276,7 @@ Handle<Value> Database::Generic_convert(void* pData) {
   delete data;
   return aResult;
 }
-//{ return generic_start<Database>(e, args, k); }
+
 static int kGetDescription[] = { -eFunction, eEnd };
 Handle<Value> Database::GetDescription(const Arguments& args) { return generic_start<Database>(eGetDescription, args, kGetDescription); }
 

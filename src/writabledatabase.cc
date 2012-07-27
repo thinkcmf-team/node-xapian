@@ -143,96 +143,40 @@ Handle<Value> WritableDatabase::ReplaceDocument_convert(void* pData) {
   return aResult;
 }
 
+
+enum {
+  eCommit, eBeginTx, eCommitTx, eCancelTx, eDeleteDocumentDid, eDeleteDocumentTerm, eAddSpelling, eRemoveSpelling,
+  eAddSynonym, eRemoveSynonym, eClearSynonyms, eSetMetadata, eGetDescription
+};
+
 static int kCommit[] = { -eFunction, eEnd };
-Handle<Value> WritableDatabase::Commit(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kCommit, args, aOpt))
-    return throwSignatureErr(kCommit);
-
-  Generic_data* aData = new Generic_data(Generic_data::eCommit); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::Commit(const Arguments& args) { return generic_start<WritableDatabase, Database>(eCommit, args, kCommit); }
 
 static int kBeginTransaction[] = { -eBoolean, -eFunction, eEnd };
-Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kBeginTransaction, args, aOpt))
-    return throwSignatureErr(kBeginTransaction);
-
-  Generic_data* aData = new Generic_data(Generic_data::eBeginTx, aOpt[0] < 0 ? true : args[aOpt[0]]->BooleanValue()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kBeginTransactionDefault[1] = { true };
+Handle<Value> WritableDatabase::BeginTransaction(const Arguments& args) { return generic_start<WritableDatabase, Database>(eBeginTx, args, kBeginTransaction, kBeginTransactionDefault); }
 
 static int kCommitTransaction[] = { -eFunction, eEnd };
-Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kCommitTransaction, args, aOpt))
-    return throwSignatureErr(kCommitTransaction);
-
-  Generic_data* aData = new Generic_data(Generic_data::eCommitTx); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::CommitTransaction(const Arguments& args) { return generic_start<WritableDatabase, Database>(eCommitTx, args, kCommitTransaction); }
 
 static int kCancelTransaction[] = { -eFunction, eEnd };
-Handle<Value> WritableDatabase::CancelTransaction(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kCancelTransaction, args, aOpt))
-    return throwSignatureErr(kCancelTransaction);
-
-  Generic_data* aData = new Generic_data(Generic_data::eCancelTx); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::CancelTransaction(const Arguments& args) { return generic_start<WritableDatabase, Database>(eCancelTx, args, kCancelTransaction); }
 
 static int kDeleteDocumentDid[] = { eUint32, -eFunction, eEnd };
 static int kDeleteDocumentTerm[] = { eString, -eFunction, eEnd };
+static int* kDeleteDocumentSet[] = { kDeleteDocumentDid, kDeleteDocumentTerm };
 Handle<Value> WritableDatabase::DeleteDocument(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
   if (!checkArguments(kDeleteDocumentDid, args, aOpt) && !checkArguments(kDeleteDocumentTerm, args, aOpt))
-    return ThrowException(Exception::TypeError(String::New("arguments are (uint32, [function]) or (string, [function])")));
+    return throwSignatureErr(kDeleteDocumentSet,2);
 
-  Generic_data* aData;
+  GenericData* aData;
 
   if (args[0]->IsUint32())
-    aData = new Generic_data(Generic_data::eDeleteDocumentDid, args[0]->Uint32Value()); //deleted by Generic_convert on non error
+    aData = new GenericData(eDeleteDocumentDid, args, kDeleteDocumentDid, aOpt); //deleted by Generic_convert on non error
   else
-    aData = new Generic_data(Generic_data::eDeleteDocumentTerm, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
+    aData = new GenericData(eDeleteDocumentTerm, args, kDeleteDocumentTerm, aOpt); //deleted by Generic_convert on non error
 
   Handle<Value> aResult;
   try {
@@ -245,178 +189,68 @@ Handle<Value> WritableDatabase::DeleteDocument(const Arguments& args) {
 }
 
 static int kAddSpelling[] = { eString, -eUint32, -eFunction, eEnd };
-Handle<Value> WritableDatabase::AddSpelling(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kAddSpelling, args, aOpt))
-    return throwSignatureErr(kAddSpelling);
-
-  Generic_data* aData = new Generic_data(Generic_data::eAddSpelling, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kAddSpellingDefault[1] = { (uint32_t)1 };
+Handle<Value> WritableDatabase::AddSpelling(const Arguments& args) { return generic_start<WritableDatabase, Database>(eAddSpelling, args, kAddSpelling, kAddSpellingDefault); }
 
 static int kRemoveSpelling[] = { eString, -eUint32, -eFunction, eEnd };
-Handle<Value> WritableDatabase::RemoveSpelling(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kRemoveSpelling, args, aOpt))
-    return throwSignatureErr(kRemoveSpelling);
-
-  Generic_data* aData = new Generic_data(Generic_data::eRemoveSpelling, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 1 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kRemoveSpellingDefault[1] = { (uint32_t)1 };
+Handle<Value> WritableDatabase::RemoveSpelling(const Arguments& args) { return generic_start<WritableDatabase, Database>(eRemoveSpelling, args, kRemoveSpelling, kRemoveSpellingDefault); }
 
 static int kAddSynonym[] = { eString, eString, -eFunction, eEnd };
-Handle<Value> WritableDatabase::AddSynonym(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kAddSynonym, args, aOpt))
-    return throwSignatureErr(kAddSynonym);
-
-  Generic_data* aData = new Generic_data(Generic_data::eAddSynonym, *String::Utf8Value(args[0]), *String::Utf8Value(args[1])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::AddSynonym(const Arguments& args) { return generic_start<WritableDatabase, Database>(eAddSynonym, args, kAddSynonym); }
 
 static int kRemoveSynonym[] = { eString, eString, -eFunction, eEnd };
-Handle<Value> WritableDatabase::RemoveSynonym(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kRemoveSynonym, args, aOpt))
-    return throwSignatureErr(kRemoveSynonym);
-
-  Generic_data* aData = new Generic_data(Generic_data::eRemoveSynonym, *String::Utf8Value(args[0]), *String::Utf8Value(args[1])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::RemoveSynonym(const Arguments& args) { return generic_start<WritableDatabase, Database>(eRemoveSynonym, args, kRemoveSynonym); }
 
 static int kClearSynonyms[] = { eString, -eFunction, eEnd };
-Handle<Value> WritableDatabase::ClearSynonyms(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kClearSynonyms, args, aOpt))
-    return throwSignatureErr(kClearSynonyms);
-
-  Generic_data* aData = new Generic_data(Generic_data::eClearSynonyms, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::ClearSynonyms(const Arguments& args) { return generic_start<WritableDatabase, Database>(eClearSynonyms, args, kClearSynonyms); }
 
 static int kSetMetadata[] = { eString, eString, -eFunction, eEnd };
-Handle<Value> WritableDatabase::SetMetadata(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kSetMetadata, args, aOpt))
-    return throwSignatureErr(kSetMetadata);
-
-  Generic_data* aData = new Generic_data(Generic_data::eSetMetadata, *String::Utf8Value(args[0]), *String::Utf8Value(args[1])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::SetMetadata(const Arguments& args) { return generic_start<WritableDatabase, Database>(eSetMetadata, args, kSetMetadata); }
 
 static int kGetDescription[] = { -eFunction, eEnd };
-Handle<Value> WritableDatabase::GetDescription(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDescription, args, aOpt))
-    return throwSignatureErr(kGetDescription);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Database>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> WritableDatabase::GetDescription(const Arguments& args) { return generic_start<WritableDatabase, Database>(eGetDescription, args, kGetDescription); }
 
 void WritableDatabase::Generic_process(void* pData, void* pThat) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   WritableDatabase* that = (WritableDatabase *) pThat;
 
   switch (data->action) {
-  case Generic_data::eCommit:             that->mWdb->commit();                                break;
-  case Generic_data::eBeginTx:            that->mWdb->begin_transaction(data->val1);           break;
-  case Generic_data::eCommitTx:           that->mWdb->commit_transaction();                    break;
-  case Generic_data::eCancelTx:           that->mWdb->cancel_transaction();                    break;
-  case Generic_data::eDeleteDocumentDid:  that->mWdb->delete_document(data->val1);             break;
-  case Generic_data::eDeleteDocumentTerm: that->mWdb->delete_document(data->str1);             break;
-  case Generic_data::eAddSpelling:        that->mWdb->add_spelling(data->str1, data->val1);    break;
-  case Generic_data::eRemoveSpelling:     that->mWdb->add_spelling(data->str1, data->val1);    break;
-  case Generic_data::eAddSynonym:         that->mWdb->add_synonym(data->str1, data->str2);     break;
-  case Generic_data::eRemoveSynonym:      that->mWdb->remove_synonym(data->str1, data->str2);  break;
-  case Generic_data::eClearSynonyms:      that->mWdb->clear_synonyms(data->str1);              break;
-  case Generic_data::eSetMetadata:        that->mWdb->set_metadata(data->str1, data->str2);    break;
-  case Generic_data::eGetDescription:     that->mWdb->get_description();                       break;
+  case eCommit:             that->mWdb->commit();                                                   break;
+  case eBeginTx:            that->mWdb->begin_transaction(data->val[0].uint32);                     break;
+  case eCommitTx:           that->mWdb->commit_transaction();                                       break;
+  case eCancelTx:           that->mWdb->cancel_transaction();                                       break;
+  case eDeleteDocumentDid:  that->mWdb->delete_document(data->val[0].uint32);                       break;
+  case eDeleteDocumentTerm: that->mWdb->delete_document(*data->val[0].string);                      break;
+  case eAddSpelling:        that->mWdb->add_spelling(*data->val[0].string, data->val[1].uint32);    break;
+  case eRemoveSpelling:     that->mWdb->add_spelling(*data->val[0].string, data->val[2].uint32);    break;
+  case eAddSynonym:         that->mWdb->add_synonym(*data->val[0].string, *data->val[1].string);    break;
+  case eRemoveSynonym:      that->mWdb->remove_synonym(*data->val[0].string, *data->val[1].string); break;
+  case eClearSynonyms:      that->mWdb->clear_synonyms(*data->val[0].string);                       break;
+  case eSetMetadata:        that->mWdb->set_metadata(*data->val[0].string, *data->val[1].string);   break;
+  case eGetDescription:     that->mWdb->get_description();                                          break;
   default: assert(0);
   }
 }
 
 Handle<Value> WritableDatabase::Generic_convert(void* pData) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   Handle<Value> aResult;
 
   switch (data->action) {
-  case Generic_data::eGetDescription:
-  case Generic_data::eSetMetadata:
-  case Generic_data::eClearSynonyms:
-  case Generic_data::eRemoveSynonym:
-  case Generic_data::eAddSynonym:
-  case Generic_data::eRemoveSpelling:
-  case Generic_data::eAddSpelling:
-  case Generic_data::eDeleteDocumentTerm:
-  case Generic_data::eDeleteDocumentDid:
-  case Generic_data::eCancelTx:
-  case Generic_data::eCommitTx:
-  case Generic_data::eBeginTx:
-  case Generic_data::eCommit:
+  case eGetDescription:
+  case eSetMetadata:
+  case eClearSynonyms:
+  case eRemoveSynonym:
+  case eAddSynonym:
+  case eRemoveSpelling:
+  case eAddSpelling:
+  case eDeleteDocumentTerm:
+  case eDeleteDocumentDid:
+  case eCancelTx:
+  case eCommitTx:
+  case eBeginTx:
+  case eCommit:
     aResult = Undefined(); break;
   }
   delete data;
