@@ -36,6 +36,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "synonyms", Synonyms);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "synonym_keys", SynonymKeys);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "metadata_keys", MetadataKeys);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "postlist", Postlist);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -526,6 +527,73 @@ Handle<Value> Database::MetadataKeys(const Arguments& args) {
   Handle<Value> aResult;
   try {
     aResult = invoke<Enquire>(aOpt[3] >= 0, args, (void*)aData, Termiterator_process, Termiterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Database::PostingIterator_process(void* pData, void* pThat) {
+  PostingIterator_data* data = (PostingIterator_data*) pData;
+  Database* that = (Database *) pThat;
+
+  Xapian::PostingIterator aStartIterator = that->mDb->postlist_begin(data->str);
+  Xapian::PostingIterator aEndIterator = that->mDb->postlist_end(data->str);
+
+  Xapian::termcount aSize=0;
+  for (Xapian::PostingIterator aIt = aStartIterator; aIt != aEndIterator; aIt++)
+    aSize++;
+
+  if (aSize < data->first ) {
+    data->size = 0;
+    return;
+  }
+
+  aSize -= data->first;
+  if (data->maxitems != 0 && data->maxitems < aSize)
+    aSize = data->maxitems;
+  data->tlist = new PostingIterator_data::Item[aSize];
+
+  Xapian::PostingIterator aIt = aStartIterator;
+  for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
+
+  for (data->size = 0; aIt != aEndIterator && data->size < aSize; ++data->size, ++aIt) {
+    data->tlist[data->size].docid = *aIt;
+    data->tlist[data->size].doclength = aIt.get_doclength();
+    data->tlist[data->size].wdf = aIt.get_wdf();
+    data->tlist[data->size].description = aIt.get_description();
+  }
+}
+
+Handle<Value> Database::PostingIterator_convert(void* pData) {
+  PostingIterator_data* data = (PostingIterator_data*) pData;
+
+  Local<Array> aList(Array::New(data->size));
+  for (Xapian::termcount a = 0; a < data->size; ++a) {
+    Local<Object> aO(Object::New());
+    aO->Set(String::NewSymbol("docid"      ), Uint32::New(data->tlist[a].docid              ));
+    aO->Set(String::NewSymbol("doclength"  ), Uint32::New(data->tlist[a].doclength          ));
+    aO->Set(String::NewSymbol("wdf"        ), Uint32::New(data->tlist[a].wdf                ));
+    aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
+    aList->Set(a, aO);
+  }
+  delete data;
+  return aList;
+}
+
+static int kPostlist[] = { eString, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Postlist(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kPostlist, args, aOpt))
+    return throwSignatureErr(kPostlist);
+
+  PostingIterator_data* aData = new PostingIterator_data(*String::Utf8Value(args[0]), aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by PostingIterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, PostingIterator_process, PostingIterator_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

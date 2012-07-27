@@ -374,6 +374,24 @@ protected:
   static Handle<Value> Synonyms(const Arguments& args);
   static Handle<Value> SynonymKeys(const Arguments& args);
   static Handle<Value> MetadataKeys(const Arguments& args);
+
+  struct PostingIterator_data {
+    PostingIterator_data(const std::string &s, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), str(s) {}
+    ~PostingIterator_data() { if (tlist) delete [] tlist; }
+    Xapian::termcount first, maxitems;
+    struct Item {
+      Xapian::docid docid;
+      Xapian::termcount doclength, wdf;
+      std::string description;
+    };
+    Item* tlist;
+    Xapian::termcount size;
+    std::string str;
+  };
+  static void PostingIterator_process(void* data, void* that);
+  static Handle<Value> PostingIterator_convert(void* data);
+
+  static Handle<Value> Postlist(const Arguments& args);
 };
 
 
