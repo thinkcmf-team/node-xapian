@@ -136,19 +136,22 @@ Handle<Value> throwSignatureErr(int *signatures[], int sigN);
 
 struct GenericData {
   struct Item {
-    Item(){};
-    Item (const char *a) : string(a) {};
-    Item (double a) : dbl(a) {};
-    Item (uint32_t a) : uint32(a) {};
-    Item (int32_t a) : int32(a) {};
-    Item (bool a) : boolean(a) {};
+    Item() : isStr(false) {};
+    Item(const char *a) : isStr(true) { string = new std::string(a); };
+    Item(double a) : dbl(a), isStr(false) {};
+    Item(uint32_t a) : uint32(a), isStr(false) {};
+    Item(int32_t a) : int32(a), isStr(false) {};
+    Item(bool a) : boolean(a), isStr(false) {};
+    void setString(const std::string &str) { if (isStr) *string = str; else { string = new std::string(str); isStr = true; } };
+    ~Item() { if (isStr) delete string; }
     union {
       double dbl;
       uint32_t uint32;
       int32_t int32;
       bool boolean;
+      std::string* string;
     };
-    std::string string;
+    bool isStr;
   };
   int action;
   Item* val;
@@ -169,10 +172,10 @@ struct GenericData {
         }
       }
       switch (abs(signature[aSigN])) {
-      case eInt32:    val[aSigN].int32 = args[aArgInd]->Int32Value();     break;
-      case eUint32:   val[aSigN].uint32 = args[aArgInd]->Uint32Value();   break;
-      case eBoolean:  val[aSigN].boolean = args[aArgInd]->BooleanValue(); break;
-      case eString:   val[aSigN].string = *String::Utf8Value(args[aArgInd]);   break;
+      case eInt32:    val[aSigN].int32 = args[aArgInd]->Int32Value();          break;
+      case eUint32:   val[aSigN].uint32 = args[aArgInd]->Uint32Value();        break;
+      case eBoolean:  val[aSigN].boolean = args[aArgInd]->BooleanValue();      break;
+      case eString:   val[aSigN].setString(*String::Utf8Value(args[aArgInd])); break;
       case eFunction: break;
       default: assert(0);
       }

@@ -378,23 +378,23 @@ void Document::Generic_process(void* pData, void* pThat) {
   Document* that = (Document *) pThat;
 
   switch (data->action) {
-  case eGetValue:        data->retVal.string = that->mDoc->get_value(data->val[0].uint32);                          break;
-  case eAddValue:        that->mDoc->add_value(data->val[0].uint32, data->val[1].string);                           break;
-  case eRemoveValue:     that->mDoc->remove_value(data->val[0].uint32);                                             break;
-  case eClearValues:     that->mDoc->clear_values();                                                                break;
-  case eGetData:         data->retVal.string = that->mDoc->get_data();                                              break;
-  case eSetData:         that->mDoc->set_data(data->val[0].string);                                                 break;
-  case eAddPosting:      that->mDoc->add_posting(data->val[0].string, data->val[1].uint32, data->val[2].uint32);    break;
-  case eAddTerm:         that->mDoc->add_term(data->val[0].string, data->val[1].uint32);                            break;
-  case eAddBooleanTerm:  that->mDoc->add_boolean_term(data->val[0].string);                                         break;
-  case eRemovePosting:   that->mDoc->remove_posting(data->val[0].string, data->val[1].uint32, data->val[2].uint32); break;
-  case eRemoveTerm:      that->mDoc->remove_term(data->val[0].string);                                              break;
-  case eClearTerms:      that->mDoc->clear_terms();                                                                 break;
-  case eTermlistCount:   data->retVal.uint32 = that->mDoc->termlist_count();                                        break;
-  case eValuesCount:     data->retVal.uint32 = that->mDoc->values_count();                                          break;
-  case eGetDocid:        data->retVal.uint32 = that->mDoc->get_docid();                                             break;
-  case eSerialise:       data->retVal.string = that->mDoc->serialise();                                             break;
-  case eGetDescription:  data->retVal.string = that->mDoc->get_description();                                       break;
+  case eGetValue:        data->retVal.setString(that->mDoc->get_value(data->val[0].uint32));                         break;
+  case eAddValue:        that->mDoc->add_value(data->val[0].uint32, *data->val[1].string);                           break;
+  case eRemoveValue:     that->mDoc->remove_value(data->val[0].uint32);                                              break;
+  case eClearValues:     that->mDoc->clear_values();                                                                 break;
+  case eGetData:         data->retVal.setString(that->mDoc->get_data());                                             break;
+  case eSetData:         that->mDoc->set_data(*data->val[0].string);                                                 break;
+  case eAddPosting:      that->mDoc->add_posting(*data->val[0].string, data->val[1].uint32, data->val[2].uint32);    break;
+  case eAddTerm:         that->mDoc->add_term(*data->val[0].string, data->val[1].uint32);                            break;
+  case eAddBooleanTerm:  that->mDoc->add_boolean_term(*data->val[0].string);                                         break;
+  case eRemovePosting:   that->mDoc->remove_posting(*data->val[0].string, data->val[1].uint32, data->val[2].uint32); break;
+  case eRemoveTerm:      that->mDoc->remove_term(*data->val[0].string);                                              break;
+  case eClearTerms:      that->mDoc->clear_terms();                                                                  break;
+  case eTermlistCount:   data->retVal.uint32 = that->mDoc->termlist_count();                                         break;
+  case eValuesCount:     data->retVal.uint32 = that->mDoc->values_count();                                           break;
+  case eGetDocid:        data->retVal.uint32 = that->mDoc->get_docid();                                              break;
+  case eSerialise:       data->retVal.setString(that->mDoc->serialise());                                            break;
+  case eGetDescription:  data->retVal.setString(that->mDoc->get_description());                                      break;
   default: assert(0);
   }
 }
@@ -412,7 +412,7 @@ Handle<Value> Document::Generic_convert(void* pData) {
   case eGetData:  
   case eSerialise:
   case eGetDescription: 
-    aResult = String::New(data->retVal.string.c_str());       break;
+    aResult = String::New(data->retVal.string->c_str());       break;
   case eAddValue:
   case eRemoveValue:
   case eClearValues:
