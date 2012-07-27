@@ -269,6 +269,9 @@ public:
 
   Xapian::Database& getDb() { return *mDb; }
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
   Database() : mDb(NULL) {}
 
@@ -305,23 +308,6 @@ protected:
   static Handle<Value> KeepAlive(const Arguments& args);
   static Handle<Value> AddDatabase(const Arguments& args);
 
-  struct Generic_data {
-    enum { 
-      eGetDescription, eHasPositions, eGetDoccount, eGetLastdocid, eGetAvlength, eGetTermfreq, eTermExists, eGetCollectionFreq,
-      eGetValueFreq, eGetValueLowerBound, eGetValueUpperBound, eGetDoclengthLowerBound, eGetDoclengthUpperBound, eGetWdfUpperBound,
-      eGetDoclength, eGetSpellingSuggestion, eGetMetadata, eGetUuid
-    };
-    Generic_data(int a) : action(a) {}
-    Generic_data(int a, const std::string &s) : action(a), str1(s) {}
-    Generic_data(int a, uint32_t v) : action(a), val1(v) {}
-    Generic_data(int a, const std::string &s, uint32_t v) : action(a), str1(s), val1(v) {}
-    int action;
-    std::string str1, str2;
-    uint32_t val1, val2;
-    double vald1;
-  };
-  static void Generic_process(void* data, void* that);
-  static Handle<Value> Generic_convert(void* data);
 
   static Handle<Value> GetDescription(const Arguments& args);
   static Handle<Value> HasPositions(const Arguments& args);

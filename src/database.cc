@@ -210,409 +210,127 @@ Handle<Value> Database::GetDocument_convert(void* pData) {
   return aResult;
 }
 
+
+enum { 
+  eGetDescription, eHasPositions, eGetDoccount, eGetLastdocid, eGetAvlength, eGetTermfreq, eTermExists, eGetCollectionFreq,
+  eGetValueFreq, eGetValueLowerBound, eGetValueUpperBound, eGetDoclengthLowerBound, eGetDoclengthUpperBound, eGetWdfUpperBound,
+  eGetDoclength, eGetSpellingSuggestion, eGetMetadata, eGetUuid
+};
+
 void Database::Generic_process(void* pData, void* pThat) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   Database* that = (Database *) pThat;
 
   switch (data->action) {
-  case Generic_data::eGetDescription:         data->str1 = that->mDb->get_description();                               break;
-  case Generic_data::eHasPositions:           data->val1 = that->mDb->has_positions();                                 break;
-  case Generic_data::eGetDoccount:            data->val1 = that->mDb->get_doccount();                                  break;
-  case Generic_data::eGetLastdocid:           data->val1 = that->mDb->get_lastdocid();                                 break;
-  case Generic_data::eGetAvlength:            data->vald1 = that->mDb->get_avlength();                                 break;
-  case Generic_data::eGetTermfreq:            data->val1 = that->mDb->get_termfreq(data->str1);                        break;
-  case Generic_data::eTermExists:             data->val1 = that->mDb->term_exists(data->str1);                         break;
-  case Generic_data::eGetCollectionFreq:      data->val1 = that->mDb->get_collection_freq(data->str1);                 break;
-  case Generic_data::eGetValueFreq:           data->val2 = that->mDb->get_value_freq(data->val1);                      break;
-  case Generic_data::eGetValueLowerBound:     data->str1 = that->mDb->get_value_lower_bound(data->val1);               break;
-  case Generic_data::eGetValueUpperBound:     data->str1 = that->mDb->get_value_upper_bound(data->val1);               break;
-  case Generic_data::eGetDoclengthLowerBound: data->val1 = that->mDb->get_doclength_lower_bound();                     break;
-  case Generic_data::eGetDoclengthUpperBound: data->val1 = that->mDb->get_doclength_upper_bound();                     break;
-  case Generic_data::eGetWdfUpperBound:       data->val1 = that->mDb->get_wdf_upper_bound (data->str1);                break;
-  case Generic_data::eGetDoclength:           data->val2 = that->mDb->get_doclength(data->val1);                       break;
-  case Generic_data::eGetSpellingSuggestion:  data->str2 = that->mDb->get_spelling_suggestion(data->str1, data->val1); break;
-  case Generic_data::eGetMetadata:            data->str2 = that->mDb->get_metadata(data->str1);                        break;
-  case Generic_data::eGetUuid:                data->str1 = that->mDb->get_uuid();                                      break;
+  case eGetDescription:         data->retVal.setString(that->mDb->get_description());                                                  break;
+  case eHasPositions:           data->retVal.boolean = that->mDb->has_positions();                                                      break;
+  case eGetDoccount:            data->retVal.uint32 = that->mDb->get_doccount();                                                       break;
+  case eGetLastdocid:           data->retVal.uint32 = that->mDb->get_lastdocid();                                                      break;
+  case eGetAvlength:            data->retVal.dbl = that->mDb->get_avlength();                                                          break;
+  case eGetTermfreq:            data->retVal.uint32 = that->mDb->get_termfreq(*data->val[0].string);                                   break;
+  case eTermExists:             data->retVal.uint32 = that->mDb->term_exists(*data->val[0].string);                                    break;
+  case eGetCollectionFreq:      data->retVal.uint32 = that->mDb->get_collection_freq(*data->val[0].string);                            break;
+  case eGetValueFreq:           data->retVal.uint32 = that->mDb->get_value_freq(data->val[0].uint32);                                  break;
+  case eGetValueLowerBound:     data->retVal.setString(that->mDb->get_value_lower_bound(data->val[0].uint32));                         break;
+  case eGetValueUpperBound:     data->retVal.setString(that->mDb->get_value_upper_bound(data->val[0].uint32));                         break;
+  case eGetDoclengthLowerBound: data->retVal.uint32 = that->mDb->get_doclength_lower_bound();                                          break;
+  case eGetDoclengthUpperBound: data->retVal.uint32 = that->mDb->get_doclength_upper_bound();                                          break;
+  case eGetWdfUpperBound:       data->retVal.uint32 = that->mDb->get_wdf_upper_bound (*data->val[0].string);                           break;
+  case eGetDoclength:           data->retVal.uint32 = that->mDb->get_doclength(data->val[0].uint32);                                   break;
+  case eGetSpellingSuggestion:  data->retVal.setString(that->mDb->get_spelling_suggestion(*data->val[0].string, data->val[0].uint32)); break;
+  case eGetMetadata:            data->retVal.setString(that->mDb->get_metadata(*data->val[0].string));                                 break;
+  case eGetUuid:                data->retVal.setString(that->mDb->get_uuid());                                                         break;
   default: assert(0);
   }
 }
 
 Handle<Value> Database::Generic_convert(void* pData) {
-  Generic_data* data = (Generic_data*) pData;
+  GenericData* data = (GenericData*) pData;
   Handle<Value> aResult;
 
   switch (data->action) {
-  case Generic_data::eGetUuid:
-  case Generic_data::eGetValueUpperBound:
-  case Generic_data::eGetValueLowerBound:
-  case Generic_data::eGetDescription: 
-    aResult = String::New(data->str1.c_str());  break;
-  case Generic_data::eGetMetadata:
-  case Generic_data::eGetSpellingSuggestion: 
-    aResult = String::New(data->str2.c_str());  break;
-  case Generic_data::eTermExists:
-  case Generic_data::eHasPositions:   
-    aResult = Boolean::New(data->val1);         break;
-  case Generic_data::eGetWdfUpperBound:
-  case Generic_data::eGetDoclengthUpperBound:
-  case Generic_data::eGetDoclengthLowerBound:
-  case Generic_data::eGetCollectionFreq:
-  case Generic_data::eGetTermfreq:
-  case Generic_data::eGetLastdocid:
-  case Generic_data::eGetDoccount:    
-    aResult = Uint32::New(data->val1);          break;
-  case Generic_data::eGetDoclength:
-  case Generic_data::eGetValueFreq:   
-    aResult = Uint32::New(data->val2);          break;
-  case Generic_data::eGetAvlength:    
-    aResult = Number::New(data->vald1);         break;
+  case eGetUuid:
+  case eGetValueUpperBound:
+  case eGetValueLowerBound:
+  case eGetDescription: 
+  case eGetMetadata:
+  case eGetSpellingSuggestion: 
+    aResult = String::New(data->retVal.string->c_str()); break;
+  case eTermExists:
+  case eHasPositions:   
+    aResult = Boolean::New(data->retVal.boolean);        break;
+  case eGetWdfUpperBound:
+  case eGetDoclengthUpperBound:
+  case eGetDoclengthLowerBound:
+  case eGetCollectionFreq:
+  case eGetTermfreq:
+  case eGetLastdocid:
+  case eGetDoccount:   
+  case eGetDoclength:
+  case eGetValueFreq:  
+    aResult = Uint32::New(data->retVal.uint32);          break;
+  case eGetAvlength:    
+    aResult = Number::New(data->retVal.dbl);             break;
   }
 
   delete data;
   return aResult;
 }
-
+//{ return generic_start<Database>(e, args, k); }
 static int kGetDescription[] = { -eFunction, eEnd };
-Handle<Value> Database::GetDescription(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDescription, args, aOpt))
-    return throwSignatureErr(kGetDescription);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDescription); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetDescription(const Arguments& args) { return generic_start<Database>(eGetDescription, args, kGetDescription); }
 
 static int kHasPositions[] = { -eFunction, eEnd };
-Handle<Value> Database::HasPositions(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kHasPositions, args, aOpt))
-    return throwSignatureErr(kHasPositions);
-
-  Generic_data* aData = new Generic_data(Generic_data::eHasPositions); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::HasPositions(const Arguments& args) { return generic_start<Database>(eHasPositions, args, kHasPositions); }
 
 static int kGetDoccount[] = { -eFunction, eEnd };
-Handle<Value> Database::GetDoccount(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDoccount, args, aOpt))
-    return throwSignatureErr(kGetDoccount);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDoccount); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetDoccount(const Arguments& args) { return generic_start<Database>(eGetDoccount, args, kGetDoccount); }
 
 static int kGetLastdocid[] = { -eFunction, eEnd };
-Handle<Value> Database::GetLastdocid(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetLastdocid, args, aOpt))
-    return throwSignatureErr(kGetLastdocid);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetLastdocid); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetLastdocid(const Arguments& args) { return generic_start<Database>(eGetLastdocid, args, kGetLastdocid); }
 
 static int kGetAvlength[] = { -eFunction, eEnd };
-Handle<Value> Database::GetAvlength(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetAvlength, args, aOpt))
-    return throwSignatureErr(kGetAvlength);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetAvlength); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetAvlength(const Arguments& args) { return generic_start<Database>(eGetAvlength, args, kGetAvlength); }
 
 static int kGetTermfreq[] = { eString, -eFunction, eEnd };
-Handle<Value> Database::GetTermfreq(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetTermfreq, args, aOpt))
-    return throwSignatureErr(kGetTermfreq);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetTermfreq, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetTermfreq(const Arguments& args) { return generic_start<Database>(eGetTermfreq, args, kGetTermfreq); }
 
 static int kTermExists[] = { eString, -eFunction, eEnd };
-Handle<Value> Database::TermExists(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kTermExists, args, aOpt))
-    return throwSignatureErr(kTermExists);
-
-  Generic_data* aData = new Generic_data(Generic_data::eTermExists, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::TermExists(const Arguments& args) { return generic_start<Database>(eTermExists, args, kTermExists); }
 
 static int kGetCollectionFreq[] = { eString, -eFunction, eEnd };
-Handle<Value> Database::GetCollectionFreq(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetCollectionFreq, args, aOpt))
-    return throwSignatureErr(kGetCollectionFreq);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetCollectionFreq, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetCollectionFreq(const Arguments& args) { return generic_start<Database>(eGetCollectionFreq, args, kGetCollectionFreq); }
 
 static int kGetValueFreq[] = { eUint32, -eFunction, eEnd };
-Handle<Value> Database::GetValueFreq(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetValueFreq, args, aOpt))
-    return throwSignatureErr(kGetValueFreq);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetValueFreq, args[0]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetValueFreq(const Arguments& args) { return generic_start<Database>(eGetValueFreq, args, kGetValueFreq); }
 
 static int kGetValueLowerBound[] = { eUint32, -eFunction, eEnd };
-Handle<Value> Database::GetValueLowerBound(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetValueLowerBound, args, aOpt))
-    return throwSignatureErr(kGetValueLowerBound);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetValueLowerBound, args[0]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetValueLowerBound(const Arguments& args) { return generic_start<Database>(eGetValueLowerBound, args, kGetValueLowerBound); }
 
 static int kGetValueUpperBound[] = { eUint32, -eFunction, eEnd };
-Handle<Value> Database::GetValueUpperBound(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetValueUpperBound, args, aOpt))
-    return throwSignatureErr(kGetValueUpperBound);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetValueUpperBound, args[0]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetValueUpperBound(const Arguments& args) { return generic_start<Database>(eGetValueUpperBound, args, kGetValueUpperBound); }
 
 static int kGetDoclengthLowerBound[] = { -eFunction, eEnd };
-Handle<Value> Database::GetDoclengthLowerBound(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDoclengthLowerBound, args, aOpt))
-    return throwSignatureErr(kGetDoclengthLowerBound);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDoclengthLowerBound); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetDoclengthLowerBound(const Arguments& args) { return generic_start<Database>(eGetDoclengthLowerBound, args, kGetDoclengthLowerBound); }
 
 static int kGetDoclengthUpperBound[] = { -eFunction, eEnd };
-Handle<Value> Database::GetDoclengthUpperBound(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDoclengthUpperBound, args, aOpt))
-    return throwSignatureErr(kGetDoclengthUpperBound);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDoclengthUpperBound); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetDoclengthUpperBound(const Arguments& args) { return generic_start<Database>(eGetDoclengthUpperBound, args, kGetDoclengthUpperBound); }
 
 static int kGetWdfUpperBound[] = { eString, -eFunction, eEnd };
-Handle<Value> Database::GetWdfUpperBound(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetWdfUpperBound, args, aOpt))
-    return throwSignatureErr(kGetWdfUpperBound);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetWdfUpperBound, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetWdfUpperBound(const Arguments& args) { return generic_start<Database>(eGetWdfUpperBound, args, kGetWdfUpperBound); }
 
 static int kGetDoclength[] = { eUint32, -eFunction, eEnd };
-Handle<Value> Database::GetDoclength(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDoclength, args, aOpt))
-    return throwSignatureErr(kGetDoclength);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetDoclength, args[0]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetDoclength(const Arguments& args) { return generic_start<Database>(eGetDoclength, args, kGetDoclength); }
 
 static int kGetSpellingSuggestion[] = { eString, -eUint32, -eFunction, eEnd };
-Handle<Value> Database::GetSpellingSuggestion(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kGetSpellingSuggestion, args, aOpt))
-    return throwSignatureErr(kGetSpellingSuggestion);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetSpellingSuggestion, *String::Utf8Value(args[0]), aOpt[0] < 0 ? 2 : args[aOpt[0]]->Uint32Value()); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kGetSpellingSuggestionDefault[1] = { (uint32_t)2 };
+Handle<Value> Database::GetSpellingSuggestion(const Arguments& args) { return generic_start<Database>(eGetSpellingSuggestion, args, kGetSpellingSuggestion, kGetSpellingSuggestionDefault); }
 
 static int kGetMetadata[] = { eString, -eFunction, eEnd };
-Handle<Value> Database::GetMetadata(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetMetadata, args, aOpt))
-    return throwSignatureErr(kGetMetadata);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetMetadata, *String::Utf8Value(args[0])); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetMetadata(const Arguments& args) { return generic_start<Database>(eGetMetadata, args, kGetMetadata); }
 
 static int kGetUuid[] = { -eFunction, eEnd };
-Handle<Value> Database::GetUuid(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetUuid, args, aOpt))
-    return throwSignatureErr(kGetUuid);
-
-  Generic_data* aData = new Generic_data(Generic_data::eGetUuid); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Database::GetUuid(const Arguments& args) { return generic_start<Database>(eGetUuid, args, kGetUuid); }
 
 
 void Database::Termiterator_process(void* pData, void* pThat) {
