@@ -38,6 +38,7 @@ void Database::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "metadata_keys", MetadataKeys);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "postlist", Postlist);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "positionlist", Positionlist);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "valuestream", Valuestream);
 
   target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
@@ -658,6 +659,73 @@ Handle<Value> Database::Positionlist(const Arguments& args) {
   Handle<Value> aResult;
   try {
     aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, PositionIterator_process, PositionIterator_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+void Database::ValueIterator_process(void* pData, void* pThat) {
+  ValueIterator_data* data = (ValueIterator_data*) pData;
+  Database* that = (Database *) pThat;
+
+  Xapian::ValueIterator aStartIterator = that->mDb->valuestream_begin(data->val);
+  Xapian::ValueIterator aEndIterator = that->mDb->valuestream_end(data->val);
+
+  Xapian::termcount aSize=0;
+  for (Xapian::ValueIterator aIt = aStartIterator; aIt != aEndIterator; aIt++)
+    aSize++;
+
+  if (aSize < data->first ) {
+    data->size = 0;
+    return;
+  }
+
+  aSize -= data->first;
+  if (data->maxitems != 0 && data->maxitems < aSize)
+    aSize = data->maxitems;
+  data->tlist = new ValueIterator_data::Item[aSize];
+
+  Xapian::ValueIterator aIt = aStartIterator;
+  for (Xapian::termcount i = 0; i < data->first; ++i)  ++aIt;
+
+  for (data->size = 0; aIt != aEndIterator && data->size < aSize; ++data->size, ++aIt) {
+    data->tlist[data->size].value = *aIt;
+    data->tlist[data->size].docid = aIt.get_docid();
+    data->tlist[data->size].valueno = aIt.get_valueno();
+    data->tlist[data->size].description = aIt.get_description();
+  }
+}
+
+Handle<Value> Database::ValueIterator_convert(void* pData) {
+  ValueIterator_data* data = (ValueIterator_data*) pData;
+
+  Local<Array> aList(Array::New(data->size));
+  for (Xapian::termcount a = 0; a < data->size; ++a) {
+    Local<Object> aO(Object::New());
+    aO->Set(String::NewSymbol("value"      ), String::New(data->tlist[a].value.c_str()      ));
+    aO->Set(String::NewSymbol("docid"      ), Uint32::New(data->tlist[a].docid              ));
+    aO->Set(String::NewSymbol("valueno"    ), Uint32::New(data->tlist[a].valueno            ));
+    aO->Set(String::NewSymbol("description"), String::New(data->tlist[a].description.c_str()));
+    aList->Set(a, aO);
+  }
+  delete data;
+  return aList;
+}
+
+static int kValuestream[] = { eUint32, eString, -eUint32, -eUint32, -eFunction, eEnd };
+Handle<Value> Database::Valuestream(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[3];
+  if (!checkArguments(kValuestream, args, aOpt))
+    return throwSignatureErr(kValuestream);
+
+  ValueIterator_data* aData = new ValueIterator_data(args[0]->Uint32Value(), aOpt[0] < 0 ? 0 : args[aOpt[0]]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value()); //deleted by ValueIterator_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, ValueIterator_process, ValueIterator_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

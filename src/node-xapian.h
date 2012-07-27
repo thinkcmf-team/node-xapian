@@ -410,6 +410,24 @@ protected:
   static Handle<Value> PositionIterator_convert(void* data);
 
   static Handle<Value> Positionlist(const Arguments& args);
+
+  struct ValueIterator_data {
+    ValueIterator_data(uint32_t v, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), val(v) {}
+    ~ValueIterator_data() { if (tlist) delete [] tlist; }
+    Xapian::termcount first, maxitems;
+    struct Item {
+      std::string value, description;
+      Xapian::docid docid;
+      Xapian::valueno valueno;
+    };
+    Item* tlist;
+    Xapian::termcount size;
+    uint32_t val;
+  };
+  static void ValueIterator_process(void* data, void* that);
+  static Handle<Value> ValueIterator_convert(void* data);
+
+  static Handle<Value> Valuestream(const Arguments& args);
 };
 
 
