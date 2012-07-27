@@ -31,11 +31,6 @@ void Document::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("Document"), constructor_template->GetFunction());
 }
 
-enum { 
-  eGetValue, eAddValue, eRemoveValue, eClearValues, eGetData, eSetData, eAddPosting, eAddTerm, eAddBooleanTerm,
-  eRemovePosting, eRemoveTerm, eClearTerms, eTermlistCount, eValuesCount, eGetDocid, eSerialise, eGetDescription
-};
-
 Handle<Value> Document::New(const Arguments& args) {
   HandleScope scope;
 
@@ -48,330 +43,64 @@ Handle<Value> Document::New(const Arguments& args) {
   return args.This();
 }
 
+enum { 
+  eGetValue, eAddValue, eRemoveValue, eClearValues, eGetData, eSetData, eAddPosting, eAddTerm, eAddBooleanTerm,
+  eRemovePosting, eRemoveTerm, eClearTerms, eTermlistCount, eValuesCount, eGetDocid, eSerialise, eGetDescription
+};
+
 static int kGetValue[] = { eUint32, -eFunction, eEnd };
 Handle<Value> Document::GetValue(const Arguments& args) { return generic_start<Document>(eGetValue, args, kGetValue); }
 
 static int kAddValue[] = { eUint32, eString, -eFunction, eEnd };
-Handle<Value> Document::AddValue(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kAddValue, args, aOpt))
-    return throwSignatureErr(kAddValue);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eAddValue, args, kAddValue, aOpt, aDefaults);
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::AddValue(const Arguments& args) { return generic_start<Document>(eAddValue, args, kAddValue); }
 
 static int kRemoveValue[] = { eUint32, -eFunction, eEnd };
-Handle<Value> Document::RemoveValue(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kRemoveValue, args, aOpt))
-    return throwSignatureErr(kRemoveValue);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eRemoveValue, args, kRemoveValue, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::RemoveValue(const Arguments& args) { return generic_start<Document>(eRemoveValue, args, kRemoveValue); }
 
 static int kClearValues[] = { -eFunction, eEnd };
-Handle<Value> Document::ClearValues(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kClearValues, args, aOpt))
-    return throwSignatureErr(kClearValues);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eClearValues, args, kClearValues, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::ClearValues(const Arguments& args) { return generic_start<Document>(eClearValues, args, kClearValues); }
 
 static int kGetData[] = { -eFunction, eEnd };
-Handle<Value> Document::GetData(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetData, args, aOpt))
-    return throwSignatureErr(kGetData);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eGetData, args, kGetData, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::GetData(const Arguments& args) { return generic_start<Document>(eGetData, args, kGetData); }
 
 static int kSetData[] = { eString, -eFunction, eEnd };
-Handle<Value> Document::SetData(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kSetData, args, aOpt))
-    return throwSignatureErr(kSetData);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eSetData, args, kSetData, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::SetData(const Arguments& args) { return generic_start<Document>(eSetData, args, kSetData); }
 
 static int kAddPosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
-Handle<Value> Document::AddPosting(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kAddPosting, args, aOpt))
-    return throwSignatureErr(kAddPosting);
-
-  GenericData::Item aDefaults[1];
-  aDefaults[0].uint32 = 1;
-  GenericData* aData = new GenericData(eAddPosting, args, kAddPosting, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kAddPostingDefault[1] = { (uint32_t)1 };
+Handle<Value> Document::AddPosting(const Arguments& args) { return generic_start<Document>(eAddPosting, args, kAddPosting, kAddPostingDefault); }
 
 static int kAddTerm[] = { eString, -eUint32, -eFunction, eEnd };
-Handle<Value> Document::AddTerm(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kAddTerm, args, aOpt))
-    return throwSignatureErr(kAddTerm);
-
-  GenericData::Item aDefaults[1];
-  aDefaults[0].uint32 = 1;
-  GenericData* aData = new GenericData(eAddTerm, args, kAddTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kAddTermDefault[1] = { (uint32_t)1 };
+Handle<Value> Document::AddTerm(const Arguments& args) { return generic_start<Document>(eAddTerm, args, kAddTerm, kAddTermDefault); }
 
 static int kAddBooleanTerm[] = { eString, -eFunction, eEnd };
-Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kAddBooleanTerm, args, aOpt))
-    return throwSignatureErr(kAddBooleanTerm);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eAddBooleanTerm, args, kAddBooleanTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::AddBooleanTerm(const Arguments& args) { return generic_start<Document>(eAddBooleanTerm, args, kAddBooleanTerm); }
 
 static int kRemovePosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
-static GenericData::Item kRemovePostingDefault[1] = { 1 };
-Handle<Value> Document::RemovePosting(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[2];
-  if (!checkArguments(kRemovePosting, args, aOpt))
-    return throwSignatureErr(kRemovePosting);
-
-  GenericData* aData = new GenericData(eRemovePosting, args, kRemovePosting, aOpt, kRemovePostingDefault);
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[1] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+static GenericData::Item kRemovePostingDefault[1] = { (uint32_t)1 };
+Handle<Value> Document::RemovePosting(const Arguments& args) { return generic_start<Document>(eRemovePosting, args, kRemovePosting, kRemovePostingDefault); }
 
 static int kRemoveTerm[] = { eString, -eFunction, eEnd };
-Handle<Value> Document::RemoveTerm(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kRemoveTerm, args, aOpt))
-    return throwSignatureErr(kRemoveTerm);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eRemoveTerm, args, kRemoveTerm, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::RemoveTerm(const Arguments& args) { return generic_start<Document>(eRemoveTerm, args, kRemoveTerm); }
 
 static int kClearTerms[] = { -eFunction, eEnd };
-Handle<Value> Document::ClearTerms(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kClearTerms, args, aOpt))
-    return throwSignatureErr(kClearTerms);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eClearTerms, args, kClearTerms, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::ClearTerms(const Arguments& args) { return generic_start<Document>(eClearTerms, args, kClearTerms); }
 
 static int kTermlistCount[] = { -eFunction, eEnd };
-Handle<Value> Document::TermlistCount(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kTermlistCount, args, aOpt))
-    return throwSignatureErr(kTermlistCount);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eTermlistCount, args, kTermlistCount, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::TermlistCount(const Arguments& args) { return generic_start<Document>(eTermlistCount, args, kTermlistCount); }
 
 static int kValuesCount[] = { -eFunction, eEnd };
-Handle<Value> Document::ValuesCount(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kValuesCount, args, aOpt))
-    return throwSignatureErr(kValuesCount);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eValuesCount, args, kValuesCount, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::ValuesCount(const Arguments& args) { return generic_start<Document>(eValuesCount, args, kValuesCount); }
 
 static int kGetDocid[] = { -eFunction, eEnd };
-Handle<Value> Document::GetDocid(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDocid, args, aOpt))
-    return throwSignatureErr(kGetDocid);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eGetDocid, args, kGetDocid, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::GetDocid(const Arguments& args) { return generic_start<Document>(eGetDocid, args, kGetDocid); }
 
 static int kSerialise[] = { -eFunction, eEnd };
-Handle<Value> Document::Serialise(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kSerialise, args, aOpt))
-    return throwSignatureErr(kSerialise);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eSerialise, args, kSerialise, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::Serialise(const Arguments& args) { return generic_start<Document>(eSerialise, args, kSerialise); }
 
 static int kGetDescription[] = { -eFunction, eEnd };
-Handle<Value> Document::GetDescription(const Arguments& args) {
-  HandleScope scope;
-  int aOpt[1];
-  if (!checkArguments(kGetDescription, args, aOpt))
-    return throwSignatureErr(kGetDescription);
-
-  GenericData::Item* aDefaults = NULL;
-  GenericData* aData = new GenericData(eGetDescription, args, kGetDescription, aOpt, aDefaults); //deleted by Generic_convert on non error
-
-  Handle<Value> aResult;
-  try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Generic_process, Generic_convert);
-  } catch (Handle<Value> ex) {
-    delete aData;
-    return ThrowException(ex);
-  }
-  return scope.Close(aResult);
-}
+Handle<Value> Document::GetDescription(const Arguments& args) { return generic_start<Document>(eGetDescription, args, kGetDescription); }
 
 void Document::Generic_process(void* pData, void* pThat) {
   GenericData* data = (GenericData*) pData;

@@ -143,6 +143,7 @@ struct GenericData {
     Item(int32_t a) : int32(a), isStr(false) {};
     Item(bool a) : boolean(a), isStr(false) {};
     void setString(const std::string &str) { if (isStr) *string = str; else { string = new std::string(str); isStr = true; } };
+    void unsetString() { if (isStr) { delete string; isStr = false; } };
     ~Item() { if (isStr) delete string; }
     union {
       double dbl;
