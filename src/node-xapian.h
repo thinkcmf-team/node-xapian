@@ -136,6 +136,12 @@ Handle<Value> throwSignatureErr(int *signatures[], int sigN);
 
 struct GenericData {
   struct Item {
+    Item(){};
+    Item (const char *a) : string(a) {};
+    Item (double a) : dbl(a) {};
+    Item (uint32_t a) : uint32(a) {};
+    Item (int32_t a) : int32(a) {};
+    Item (bool a) : boolean(a) {};
     union {
       double dbl;
       uint32_t uint32;

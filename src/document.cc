@@ -214,15 +214,14 @@ Handle<Value> Document::AddBooleanTerm(const Arguments& args) {
 }
 
 static int kRemovePosting[] = { eString, eUint32, -eUint32, -eFunction, eEnd };
+static GenericData::Item kRemovePostingDefault[1] = { 1 };
 Handle<Value> Document::RemovePosting(const Arguments& args) {
   HandleScope scope;
   int aOpt[2];
   if (!checkArguments(kRemovePosting, args, aOpt))
     return throwSignatureErr(kRemovePosting);
 
-  GenericData::Item aDefaults[1];
-  aDefaults[0].uint32 = 1;
-  GenericData* aData = new GenericData(eRemovePosting, args, kRemovePosting, aOpt, aDefaults);
+  GenericData* aData = new GenericData(eRemovePosting, args, kRemovePosting, aOpt, kRemovePostingDefault);
 
   Handle<Value> aResult;
   try {
