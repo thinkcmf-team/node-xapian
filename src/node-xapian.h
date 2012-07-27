@@ -392,6 +392,24 @@ protected:
   static Handle<Value> PostingIterator_convert(void* data);
 
   static Handle<Value> Postlist(const Arguments& args);
+
+  struct PositionIterator_data {
+    PositionIterator_data(uint32_t v, const std::string &s, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), str(s), val(v) {}
+    ~PositionIterator_data() { if (tlist) delete [] tlist; }
+    Xapian::termcount first, maxitems;
+    struct Item {
+      Xapian::termpos position;
+      std::string description;
+    };
+    Item* tlist;
+    Xapian::termcount size;
+    std::string str;
+    uint32_t val;
+  };
+  static void PositionIterator_process(void* data, void* that);
+  static Handle<Value> PositionIterator_convert(void* data);
+
+  static Handle<Value> Positionlist(const Arguments& args);
 };
 
 

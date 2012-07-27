@@ -56,7 +56,7 @@ Database
         An array of the postlists for a given term.
 *    termlist(uint32_did, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of the  terms for a given document. 
-?    positionlist_sync(uint32_did, string_tname) - return an array of { description: string } (PositionIterator)
+*    positionlist(uint32_did, string_tname, [uint32_first], [uint32_maxitems], [function]) - return an array of { position: uint32, description: string } (PositionIterator)
         An array of the positions for a given term in a given document.
 *    allterms([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the terms in the database. 
