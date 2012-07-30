@@ -170,12 +170,16 @@ static Xapian::Query Parse(Handle<Value> obj) {
 
 Handle<Value> Query::New(const Arguments& args) {
   HandleScope scope;
-  if (args.Length() !=1)
-    return ThrowException(Exception::TypeError(String::New("arguments are (QueryObject | string)")));
+  if (args.Length() > 1)
+    return ThrowException(Exception::TypeError(String::New("arguments are (() | QueryObject | string)")));
   Query* that;
   const char* aDesc;
+
   try {
-    that = new Query(Parse(args[0]));
+    if (args.Length() == 1)
+      that = new Query(Parse(args[0]));
+    else
+      that = new Query(Xapian::Query());
     aDesc = that->mQry.get_description().c_str();
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));

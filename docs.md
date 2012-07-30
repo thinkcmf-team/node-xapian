@@ -208,7 +208,7 @@ Enquire
 Query
 ```
   methods similar to the C++ API
-    Query ()
+*    Query ()
         Default constructor: makes an empty query which matches no documents. 
 *    Query( object_query_structure )
         A query defined by a query structure.
