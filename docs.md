@@ -220,15 +220,15 @@ Query
             {op: string, query: QueryObject, parameter: number} - http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#4004922547fec06087dc8a63ac484f9b
             {op: string, slot: uint32, begin: string, end: string} - http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#27acaeb8ab8a0c111805a0139e3dc35b
             {op: string, slot: uint32, value: string} - http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#15e26a7bf7de2699377cad9e9448a482
-    get_length_sync() - return uint32
+*    get_length([function]) - return uint32
         Get the length of the query, used by some ranking formulae. 
     get_terms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the terms in the query, in order of termpos. 
-    empty_sync() - return bool
+*    empty([function]) - return bool
         Test if the query is empty (i.e. 
-    serialise_sync() - return string
+*    serialise([function]) - return string
         Serialise query into a string. 
-    get_description_sync() - return string
+*    get_description([function]) - return string
         Return a string describing this object. 
     unserialise_sync(string) - return object_query
         Unserialise a query from a string produced by serialise(). 

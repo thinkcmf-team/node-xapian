@@ -521,7 +521,7 @@ protected:
 };
 
 
-class Query : public ObjectWrap {
+class Query : public XapWrap<Query> {
 public:
   static void Init(Handle<Object> target);
 
@@ -529,14 +529,20 @@ public:
 
   Xapian::Query mQry;
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
-  Query(const Xapian::Query& q) : ObjectWrap(), mQry(q) {}
+  Query(const Xapian::Query& q) : mQry(q) {}
 
   ~Query() {}
 
   static Handle<Value> New(const Arguments& args);
 
-  //static Handle<Value> Fn(const Arguments& args);
+  static Handle<Value> GetLength(const Arguments& args);
+  static Handle<Value> Empty(const Arguments& args);
+  static Handle<Value> Serialise(const Arguments& args);
+  static Handle<Value> GetDescription(const Arguments& args);
 };
 
 class Document : public XapWrap<Document> {

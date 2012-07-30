@@ -7,7 +7,10 @@ void Query::Init(Handle<Object> target) {
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("Query"));
 
-  //NODE_SET_PROTOTYPE_METHOD(constructor_template, "fn", Fn);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_length", GetLength);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "empty", Empty);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "serialise", Serialise);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
 
   target->Set(String::NewSymbol("Query"), constructor_template->GetFunction());
 
@@ -183,6 +186,55 @@ Handle<Value> Query::New(const Arguments& args) {
   that->Wrap(args.This());
   return args.This();
 
+}
+
+enum { 
+  eGetLength, eEmpty, eSerialise, eGetDescription
+};
+
+
+static int kGetLength[] = { -eFunction, eEnd };
+Handle<Value> Query::GetLength(const Arguments& args) { return generic_start<Query>(eGetLength, args, kGetLength); }
+
+static int kEmpty[] = { -eFunction, eEnd };
+Handle<Value> Query::Empty(const Arguments& args) { return generic_start<Query>(eEmpty, args, kEmpty); }
+
+static int kSerialise[] = { -eFunction, eEnd };
+Handle<Value> Query::Serialise(const Arguments& args) { return generic_start<Query>(eSerialise, args, kSerialise); }
+
+static int kGetDescription[] = { -eFunction, eEnd };
+Handle<Value> Query::GetDescription(const Arguments& args) { return generic_start<Query>(eGetDescription, args, kGetDescription); }
+
+
+void Query::Generic_process(void* pData, void* pThat) {
+  GenericData* data = (GenericData*) pData;
+  Query* that = (Query *) pThat;
+
+  switch (data->action) {
+  case eGetLength:      data->retVal.uint32 = that->mQry.get_length();        break;
+  case eEmpty:          data->retVal.boolean = that->mQry.empty();            break;
+  case eSerialise:      data->retVal.setString(that->mQry.serialise());       break;
+  case eGetDescription: data->retVal.setString(that->mQry.get_description()); break;
+  default: assert(0);
+  }
+}
+
+Handle<Value> Query::Generic_convert(void* pData) {
+  GenericData* data = (GenericData*) pData;
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case eGetLength:
+    aResult = Integer::NewFromUnsigned(data->retVal.uint32); break;
+  case eEmpty:
+    aResult = Boolean::New(data->retVal.boolean);            break;
+  case eSerialise:
+  case eGetDescription: 
+    aResult = String::New(data->retVal.string->c_str());     break;
+  }
+
+  delete data;
+  return aResult;
 }
 
 
