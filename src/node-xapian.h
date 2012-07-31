@@ -543,6 +543,27 @@ protected:
   static Handle<Value> Empty(const Arguments& args);
   static Handle<Value> Serialise(const Arguments& args);
   static Handle<Value> GetDescription(const Arguments& args);
+
+  struct Termiterator_data {
+    Termiterator_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL) {}
+    ~Termiterator_data() { if (tlist) delete [] tlist; }
+    enum { 
+      eTermlist, eAllterms, eAlltermsPrefix, eSpellings, eSynonyms, eSynonymKeys, eMetadataKeys
+    };
+    Xapian::termcount first, maxitems;
+    struct Item {
+      std::string tname, description;
+      Xapian::termcount wdf;
+      Xapian::doccount termfreq;
+    };
+    Item* tlist;
+    Xapian::termcount size;
+  };
+  static void Termiterator_process(void* data, void* that);
+  static Handle<Value> Termiterator_convert(void* data);
+
+  static Handle<Value> GetTerms(const Arguments& args);
+
 };
 
 class Document : public XapWrap<Document> {

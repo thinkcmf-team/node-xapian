@@ -222,7 +222,7 @@ Query
             {op: string, slot: uint32, value: string} - http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html#15e26a7bf7de2699377cad9e9448a482
 *    get_length([function]) - return uint32
         Get the length of the query, used by some ranking formulae. 
-    get_terms_sync() - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    get_terms([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         An array of all the terms in the query, in order of termpos. 
 *    empty([function]) - return bool
         Test if the query is empty (i.e. 
