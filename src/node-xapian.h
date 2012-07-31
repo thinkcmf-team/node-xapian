@@ -564,6 +564,9 @@ protected:
 
   static Handle<Value> GetTerms(const Arguments& args);
 
+
+  static Handle<Value> Unserialise(const Arguments& args);
+
 };
 
 class Document : public XapWrap<Document> {

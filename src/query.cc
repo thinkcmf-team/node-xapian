@@ -12,6 +12,7 @@ void Query::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "serialise", Serialise);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_terms", GetTerms);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "unserialise", Unserialise);
 
   target->Set(String::NewSymbol("Query"), constructor_template->GetFunction());
 
@@ -177,8 +178,10 @@ Handle<Value> Query::New(const Arguments& args) {
   const char* aDesc;
 
   try {
-    if (args.Length() == 1)
+    if (args.Length() == 1 && !args[0]->IsExternal())
       that = new Query(Parse(args[0]));
+    else if (args.Length() == 1 && args[0]->IsExternal())
+      that = new Query(*((Xapian::Query*) External::Unwrap(args[0])));
     else
       that = new Query(Xapian::Query());
     aDesc = that->mQry.get_description().c_str();
@@ -310,5 +313,25 @@ Handle<Value> Query::GetTerms(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kUnserialise[] = { eString, eEnd };
+Handle<Value> Query::Unserialise(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[0];
+  if (!checkArguments(kUnserialise, args, aOpt))
+    return throwSignatureErr(kUnserialise);
+
+  Xapian::Query aQuery;
+
+  try {
+    aQuery = Xapian::Query::unserialise(*String::Utf8Value(args[0]));
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  Local<Value> aQueryParam[] = { External::New(&aQuery) };
+  Handle<Object> aResult = Query::constructor_template->GetFunction()->NewInstance(1, aQueryParam);
+ 
+  return scope.Close(aResult);
+}
 
 

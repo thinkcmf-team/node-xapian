@@ -230,7 +230,7 @@ Query
         Serialise query into a string. 
 *    get_description([function]) - return string
         Return a string describing this object. 
-    unserialise_sync(string) - return object_query
+*    unserialise(string) - return object_query
         Unserialise a query from a string produced by serialise(). 
     MatchAll() - return object_query
         A query which matches all documents in the database. 
