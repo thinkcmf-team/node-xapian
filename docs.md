@@ -232,9 +232,9 @@ Query
         Return a string describing this object. 
 *    unserialise(string) - return object_query
         Unserialise a query from a string produced by serialise(). 
-    MatchAll() - return object_query
+*    match_all() - return object_query
         A query which matches all documents in the database. 
-    MatchNothing() - return object_query
+*    match_nothing() - return object_query
         A query which matches no documents.
 ```
 RSet

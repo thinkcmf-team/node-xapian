@@ -13,6 +13,8 @@ void Query::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_terms", GetTerms);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "unserialise", Unserialise);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "match_all", MatchAll);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "match_nothing", MatchNothing);
 
   target->Set(String::NewSymbol("Query"), constructor_template->GetFunction());
 
@@ -334,4 +336,45 @@ Handle<Value> Query::Unserialise(const Arguments& args) {
   return scope.Close(aResult);
 }
 
+static int kMatchAll[] = { eEnd };
+Handle<Value> Query::MatchAll(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[0];
+  if (!checkArguments(kMatchAll, args, aOpt))
+    return throwSignatureErr(kMatchAll);
+
+  Xapian::Query aQuery;
+
+  try {
+    aQuery = Xapian::Query::MatchAll;
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  Local<Value> aQueryParam[] = { External::New(&aQuery) };
+  Handle<Object> aResult = Query::constructor_template->GetFunction()->NewInstance(1, aQueryParam);
+ 
+  return scope.Close(aResult);
+}
+
+static int kMatchNothing[] = { eEnd };
+Handle<Value> Query::MatchNothing(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[0];
+  if (!checkArguments(kMatchNothing, args, aOpt))
+    return throwSignatureErr(kMatchNothing);
+
+  Xapian::Query aQuery;
+
+  try {
+    aQuery = Xapian::Query::MatchNothing;
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  Local<Value> aQueryParam[] = { External::New(&aQuery) };
+  Handle<Object> aResult = Query::constructor_template->GetFunction()->NewInstance(1, aQueryParam);
+ 
+  return scope.Close(aResult);
+}
 

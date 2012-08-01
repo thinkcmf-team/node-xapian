@@ -566,6 +566,8 @@ protected:
 
 
   static Handle<Value> Unserialise(const Arguments& args);
+  static Handle<Value> MatchAll(const Arguments& args);
+  static Handle<Value> MatchNothing(const Arguments& args);
 
 };
 
