@@ -525,18 +525,17 @@ protected:
   static Handle<Value> SetStemmer(const Arguments& args);
 };
 
-class Stem : public ObjectWrap {
+class Stem : public XapWrap<Stem> {
 public:
   static void Init(Handle<Object> target);
-
 
   static Persistent<FunctionTemplate> constructor_template;
 
   Xapian::Stem mStem;
 
 protected:
-  Stem(const char* iLang) : ObjectWrap(), mStem(iLang) { }
-
+  Stem(const char* iLang) : mStem(iLang) { }
+  Stem() : mStem() { }
   ~Stem() { }
 
   static Handle<Value> New(const Arguments& args);

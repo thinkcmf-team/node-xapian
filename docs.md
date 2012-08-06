@@ -258,9 +258,9 @@ RSet
 Stem
 ```
   methods similar to the C++ API
-    Stem()
+*    Stem()
         Construct a Xapian::Stem object which doesn't change terms. 
-    Stem(string_language)
+*    Stem(string_language)
         Construct a Xapian::Stem object for a particular language. 
     stem_word_sync(string_word) - return string
         Stem a word. 

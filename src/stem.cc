@@ -12,13 +12,16 @@ void Stem::Init(Handle<Object> target) {
   target->Set(String::NewSymbol("Stem"), constructor_template->GetFunction());
 }
 
+static int kNewStem[] = { -eString, eEnd };
 Handle<Value> Stem::New(const Arguments& args) {
   HandleScope scope;
-  if (args.Length() < 1 || !args[0]->IsString())
-    return ThrowException(Exception::TypeError(String::New("arguments are (string)")));
+  int aOpt[1];
+  if (!checkArguments(kNewStem, args, aOpt))
+    return throwSignatureErr(kNewStem);
+
   Stem* that;
   try {
-    that = new Stem(*String::Utf8Value(args[0]));
+    that = aOpt[0] < 0 ? new Stem() : new Stem(*String::Utf8Value(args[aOpt[0]]));
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }
