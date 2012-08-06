@@ -197,12 +197,12 @@ Enquire
 *    get_description() - return string
         Return a string describing this object.     
   methods different from the C++ API:
-    get_eset_sync (uint32_maxitems, object_omrset, int32_flags=0, number_k=1.0) - return an array of { term: string, weight: number, description: string } (ESet)
+?    get_eset_sync (uint32_maxitems, object_omrset, int32_flags=0, number_k=1.0) - return an array of { term: string, weight: number, description: string } (ESet)
         Get the expand set for the given rset. 
         flags: TODO
-    get_matching_terms_sync (uint32_did) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
+*    get_matching_terms (uint32_did, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         Get terms which match a given document, by document id. 
-    get_mset(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
+?    get_mset(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
         Get (a portion of) the match set for the current query.
 ```
 Query

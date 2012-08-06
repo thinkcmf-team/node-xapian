@@ -268,6 +268,24 @@ protected:
   static Handle<Value> GetMset_convert(void* data);
 
   static Handle<Value> SetParameters(const Arguments& args);
+
+  struct Termiterator_data {
+    Termiterator_data(uint32_t did, uint32_t fi, uint32_t mx): first(fi), maxitems(mx), tlist(NULL), val(did) {}
+    ~Termiterator_data() { if (tlist) delete [] tlist; }
+    Xapian::termcount first, maxitems;
+    struct Item {
+      std::string tname, description;
+      Xapian::termcount wdf;
+      Xapian::doccount termfreq;
+    };
+    Item* tlist;
+    Xapian::termcount size;
+    uint32_t val;
+  };
+  static void Termiterator_process(void* data, void* that);
+  static Handle<Value> Termiterator_convert(void* data);
+
+  static Handle<Value> GetMatchingTerms(const Arguments& args);
 };
 
 class Database : public XapWrap<Database> {
