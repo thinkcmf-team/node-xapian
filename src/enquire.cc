@@ -38,13 +38,21 @@ Handle<Value> Enquire::New(const Arguments& args) {
 Handle<Value> Enquire::SetQuery(const Arguments& args) {
   HandleScope scope;
   Query* aQ;
-  if (args.Length() < 1 || !(aQ = GetInstance<Query>(args[0])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (Query)")));
+  uint32_t aQlen = 0;
+  if (args.Length() > 0 && !(aQ = GetInstance<Query>(args[0]))) {
+    if (args.Length() == 2 && args[1]->IsUint32())
+      aQlen = args[1]->Uint32Value();
+    else if (args.Length() != 1)
+      return ThrowException(Exception::TypeError(String::New("arguments are (Query, [uint32])")));
+  }
+  else
+    return ThrowException(Exception::TypeError(String::New("arguments are (Query, [uint32])")));
+
   Enquire* that = ObjectWrap::Unwrap<Enquire>(args.This());
   if (that->mBusy)
     return ThrowException(Exception::Error(kBusyMsg));
   try {
-    that->mEnq.set_query(aQ->mQry);
+    that->mEnq.set_query(aQ->mQry, aQlen);
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }

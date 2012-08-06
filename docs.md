@@ -169,7 +169,7 @@ Enquire
   methods similar to the C++ API
 *    Enquire(object_database)
         Create a Xapian::Enquire object. 
-    set_query_sync(object_query, uint32_qlen=0)
+*    set_query(object_query, uint32_qlen=0)
         Set the query to run. 
     get_query_sync() - return object_query
         Get the query which has been set. 
