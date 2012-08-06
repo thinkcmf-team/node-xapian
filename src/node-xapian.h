@@ -264,6 +264,8 @@ protected:
   static Handle<Value> GetMset(const Arguments& args);
   static void GetMset_process(void* data, void* that);
   static Handle<Value> GetMset_convert(void* data);
+
+  static Handle<Value> SetParameters(const Arguments& args);
 };
 
 class Database : public XapWrap<Database> {

@@ -173,7 +173,7 @@ Enquire
         Set the query to run. 
     get_query_sync() - return object_query
         Get the query which has been set. 
-    set_parameters_sync( object_parameters)
+*    set_parameters_sync( object_parameters)
         Set the parameters to be used for queries.
         The object parameter can have one or more of the following:
           {
@@ -184,16 +184,16 @@ Enquire
           }
         The sort_by_info object can be:
         	RELEVANCE - sorting by relevance
-        	{ key: string, reverse: bool } - sorting by value (with reverse)
-        	string_value_key - sorting by value
+        	{ sort_key: uint32, reverse: bool } - sorting by value (with reverse)
+        	uint32_sort_key - sorting by value
         The valid sort arrays currently are:
         	[ RELEVANCE ] - sort_by_relevance
-        	[ { key: string_value_key, reverse: bool } ] - sort_by_value
-        	[ string_value_key ] - sort_by_value
-        	[ { key: string_value_key, reverse: bool }, RELEVANCE ] - sort_by_value_then_relevance
-        	[ string_value_key, RELEVANCE ] - sort_by_value_then_relevance
-        	[ RELEVANCE, { key: string_value_key, reverse: bool } ] - sort_by_relevance_then_value
-        	[ RELEVANCE, string_value_key ] - sort_by_relevance_then_value  
+        	[ { sort_key: uint32, reverse: bool } ] - sort_by_value
+        	[ uint32_sort_key ] - sort_by_value
+        	[ { sort_key: uint32, reverse: bool }, RELEVANCE ] - sort_by_value_then_relevance
+        	[ uint32_sort_key, RELEVANCE ] - sort_by_value_then_relevance
+        	[ RELEVANCE, { sort_key: uint32, reverse: bool } ] - sort_by_relevance_then_value
+        	[ RELEVANCE, uint32_sort_key ] - sort_by_relevance_then_value  
     get_description_sync() - return string
         Return a string describing this object.     
   methods different from the C++ API:
