@@ -12,6 +12,7 @@ void Enquire::Init(Handle<Object> target) {
 
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_query", SetQuery);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_query", GetQuery);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset", GetMset);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset_sync", GetMset);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_parameters", SetParameters);
@@ -80,6 +81,27 @@ Handle<Value> Enquire::GetQuery(const Arguments& args) {
   Local<Value> aQueryParam[] = { External::New(&aQuery) };
   Handle<Object> aResult = Query::constructor_template->GetFunction()->NewInstance(1, aQueryParam);
  
+  return scope.Close(aResult);
+}
+
+Handle<Value> Enquire::GetDescription(const Arguments& args) {
+  HandleScope scope;
+
+  if (args.Length() != 0)
+    return ThrowException(Exception::TypeError(String::New("arguments are ()")));
+
+  Enquire* that = ObjectWrap::Unwrap<Enquire>(args.This());
+  if (that->mBusy)
+    return ThrowException(Exception::Error(kBusyMsg));
+
+  Handle<Value> aResult;
+
+  try {
+    aResult = String::New(that->mEnq.get_description().c_str());
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
   return scope.Close(aResult);
 }
 

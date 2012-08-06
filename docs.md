@@ -194,7 +194,7 @@ Enquire
         	[ uint32_sort_key, RELEVANCE ] - sort_by_value_then_relevance
         	[ RELEVANCE, { sort_key: uint32, reverse: bool } ] - sort_by_relevance_then_value
         	[ RELEVANCE, uint32_sort_key ] - sort_by_relevance_then_value  
-    get_description_sync() - return string
+*    get_description() - return string
         Return a string describing this object.     
   methods different from the C++ API:
     get_eset_sync (uint32_maxitems, object_omrset, int32_flags=0, number_k=1.0) - return an array of { term: string, weight: number, description: string } (ESet)
