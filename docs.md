@@ -264,7 +264,7 @@ Stem
         Construct a Xapian::Stem object for a particular language. 
     stem_word_sync(string_word) - return string
         Stem a word. 
-    get_description_sync() - return string
+*    get_description() - return string
         Return a string describing this object. 
     get_available_languages() - return string
         Return a list of available languages.

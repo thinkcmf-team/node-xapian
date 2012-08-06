@@ -28,3 +28,25 @@ Handle<Value> Stem::New(const Arguments& args) {
   that->Wrap(args.This());
   return args.This();
 }
+
+static int kGetDescription[] = { eEnd };
+Handle<Value> Stem::GetDescription(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDescription, args, aOpt))
+    return throwSignatureErr(kGetDescription);
+
+  Stem* that = ObjectWrap::Unwrap<Stem>(args.This());
+  if (that->mBusy)
+    return ThrowException(Exception::Error(kBusyMsg));
+
+  Handle<Value> aResult;
+
+  try {
+    aResult = String::New(that->mStem.get_description().c_str());
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  return scope.Close(aResult);
+}

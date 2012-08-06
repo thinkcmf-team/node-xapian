@@ -539,6 +539,7 @@ protected:
   ~Stem() { }
 
   static Handle<Value> New(const Arguments& args);
+  static Handle<Value> GetDescription(const Arguments& args);
 };
 
 
