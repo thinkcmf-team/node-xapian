@@ -245,6 +245,7 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   static Handle<Value> SetQuery(const Arguments& args);
+  static Handle<Value> GetQuery(const Arguments& args);
 
   struct GetMset_data {
     GetMset_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), set(NULL) {}

@@ -171,7 +171,7 @@ Enquire
         Create a Xapian::Enquire object. 
 *    set_query(object_query, uint32_qlen=0)
         Set the query to run. 
-    get_query_sync() - return object_query
+*    get_query() - return object_query
         Get the query which has been set. 
 *    set_parameters_sync( object_parameters)
         Set the parameters to be used for queries.

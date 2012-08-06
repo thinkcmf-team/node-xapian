@@ -11,6 +11,7 @@ void Enquire::Init(Handle<Object> target) {
   constructor_template->SetClassName(String::NewSymbol("Enquire"));
 
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_query", SetQuery);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_query", GetQuery);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset", GetMset);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset_sync", GetMset);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_parameters", SetParameters);
@@ -57,6 +58,29 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }
   return Undefined();
+}
+
+Handle<Value> Enquire::GetQuery(const Arguments& args) {
+  HandleScope scope;
+
+  if (args.Length() != 0)
+    return ThrowException(Exception::TypeError(String::New("arguments are ()")));
+
+  Enquire* that = ObjectWrap::Unwrap<Enquire>(args.This());
+  if (that->mBusy)
+    return ThrowException(Exception::Error(kBusyMsg));
+
+  Xapian::Query aQuery;
+  try {
+    aQuery = that->mEnq.get_query();
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  Local<Value> aQueryParam[] = { External::New(&aQuery) };
+  Handle<Object> aResult = Query::constructor_template->GetFunction()->NewInstance(1, aQueryParam);
+ 
+  return scope.Close(aResult);
 }
 
 
