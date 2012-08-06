@@ -540,6 +540,7 @@ protected:
 
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> GetAvailableLanguages(const Arguments& args);
 };
 
 

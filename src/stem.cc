@@ -7,7 +7,8 @@ void Stem::Init(Handle<Object> target) {
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("Stem"));
 
-  //NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_database", SetDatabase);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_available_languages", GetAvailableLanguages);
 
   target->Set(String::NewSymbol("Stem"), constructor_template->GetFunction());
 }
@@ -44,6 +45,28 @@ Handle<Value> Stem::GetDescription(const Arguments& args) {
 
   try {
     aResult = String::New(that->mStem.get_description().c_str());
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+
+  return scope.Close(aResult);
+}
+
+static int kGetAvailableLanguages[] = { eEnd };
+Handle<Value> Stem::GetAvailableLanguages(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetAvailableLanguages, args, aOpt))
+    return throwSignatureErr(kGetAvailableLanguages);
+
+  Stem* that = ObjectWrap::Unwrap<Stem>(args.This());
+  if (that->mBusy)
+    return ThrowException(Exception::Error(kBusyMsg));
+
+  Handle<Value> aResult;
+
+  try {
+    aResult = String::New(that->mStem.get_available_languages().c_str());
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }

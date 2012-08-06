@@ -266,7 +266,7 @@ Stem
         Stem a word. 
 *    get_description() - return string
         Return a string describing this object. 
-    get_available_languages() - return string
+*    get_available_languages() - return string
         Return a list of available languages.
 ```
 TermGenerator
