@@ -215,6 +215,9 @@ Handle<Value> generic_start(int act, const Arguments& args, int signature[], Gen
 
 template <class T>
 class XapWrap : public ObjectWrap {
+public:
+  void AddReference() { Ref(); }
+  void RemoveReference() { Unref(); }
 protected:
   XapWrap() : ObjectWrap(), mBusy(false) {}
 
@@ -503,7 +506,7 @@ protected:
   static Handle<Value> GetDescription(const Arguments& args);
 };
 
-class TermGenerator : public ObjectWrap {
+class TermGenerator : public XapWrap<TermGenerator> {
 public:
   static void Init(Handle<Object> target);
 
@@ -512,13 +515,36 @@ public:
   Xapian::TermGenerator mTg;
 
 protected:
-  TermGenerator() : ObjectWrap(), mTg() { }
+  TermGenerator() : mTg() { }
 
   ~TermGenerator() { }
 
   friend struct Main_data;
 
   static Handle<Value> New(const Arguments& args);
+
+  struct SetGet_data {
+    enum { eSetDatabase };
+    SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) {
+      switch (action) {
+      case eSetDatabase: ((WritableDatabase*)db)->AddReference(); break;
+      default: assert(0);
+      }
+    }
+    ~SetGet_data() {
+      switch (action) {
+      case eSetDatabase: ((WritableDatabase*)db)->RemoveReference(); break;
+      }
+    }
+    int action;
+    TermGenerator* that;
+    union {
+      void* db;
+    };
+  };
+  static void SetGet_process(void* data, void* that);
+  static Handle<Value> SetGet_convert(void* data);
+
 
   static Handle<Value> SetDatabase(const Arguments& args);
   static Handle<Value> SetFlags(const Arguments& args);

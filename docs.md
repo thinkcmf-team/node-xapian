@@ -272,7 +272,7 @@ Stem
 TermGenerator
 ```
   methods similar to the C++ API
-    TermGenerator()
+*    TermGenerator()
         Default constructor. 
     set_stemmer_sync(object_stemmer)
         Set the Xapian::Stem object to be used for generating stemmed terms. 
@@ -280,7 +280,7 @@ TermGenerator
         Set the current document. 
     get_document_sync() - return object_document
         Get the current document. 
-    set_database_sync(object_writableDatabase)
+*    set_database(object_writableDatabase, [function])
         Set the database to index spelling data to. 
     set_flags_sync(int32_flags)
         Set flags. 

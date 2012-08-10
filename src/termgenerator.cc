@@ -26,20 +26,47 @@ Handle<Value> TermGenerator::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> TermGenerator::SetDatabase(const Arguments& args) {
-  HandleScope scope;
-  WritableDatabase* aDb;
-  if (args.Length() < 1 || !(aDb = GetInstance<WritableDatabase>(args[0])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (Database)")));
+void TermGenerator::SetGet_process(void* pData, void* pThat) {
+  SetGet_data* data = (SetGet_data*) pData;
+  TermGenerator* that = (TermGenerator *) pThat;
 
-  TermGenerator* that = ObjectWrap::Unwrap<TermGenerator>(args.This());
-  try {
-    that->mTg.set_database(aDb->getWdb());
-  } catch (const Xapian::Error& err) {
-    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  switch (data->action) {
+  case SetGet_data::eSetDatabase: that->mTg.set_database(((WritableDatabase*)data->db)->getWdb()); break;
+  default: assert(0);
+  }
+}
+
+Handle<Value> TermGenerator::SetGet_convert(void* pData) {
+  SetGet_data* data = (SetGet_data*) pData;
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case SetGet_data::eSetDatabase:    
+    aResult = Undefined();
   }
 
-  return Undefined();
+  delete data;
+  return aResult;
+}
+
+static int kSetDatabase[] = { eObjectDatabase, -eFunction, eEnd };
+Handle<Value> TermGenerator::SetDatabase(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  WritableDatabase* aDb;
+  if (!checkArguments(kSetDatabase, args, aOpt) || !(aDb = GetInstance<WritableDatabase>(args[0])))
+    return throwSignatureErr(kSetDatabase);
+
+  SetGet_data* aData = new SetGet_data(ObjectWrap::Unwrap<TermGenerator>(args.This()), aDb); //deleted by SetGet_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<TermGenerator>(aOpt[0] >= 0, args, (void*)aData, SetGet_process, SetGet_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
 }
 
 Handle<Value> TermGenerator::SetFlags(const Arguments& args) {
