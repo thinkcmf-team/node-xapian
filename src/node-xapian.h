@@ -552,11 +552,16 @@ public:
 
   Xapian::RSet mRSet;
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
   RSet() : mRSet() { }
   ~RSet() { }
 
   static Handle<Value> New(const Arguments& args);
+
+  static Handle<Value> GetDescription(const Arguments& args);
 
 };
 

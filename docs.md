@@ -252,7 +252,7 @@ RSet
         Remove a document from the relevance set. 
     contains_sync(uint32_did) - return bool
         Test if a given document in the relevance set. 
-    get_description_sync() - return string
+*    get_description([function]) - return string
         Return a string describing this object.
 ```
 Stem
