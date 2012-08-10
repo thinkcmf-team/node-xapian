@@ -562,6 +562,8 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> Size(const Arguments& args);
+  static Handle<Value> Empty(const Arguments& args);
 
 };
 

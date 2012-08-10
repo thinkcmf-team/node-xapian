@@ -240,11 +240,11 @@ Query
 RSet
 ```
   methods similar to the C++ API
-    RSet()
+*    RSet()
         Default constructor. 
-    size_sync() - return uint32
+*    size([function]) - return uint32
         The number of documents in this R-Set. 
-    empty_sync() - return bool
+*    empty([function]) - return bool
         Test if this R-Set is empty. 
     add_document_sync(uint32_did)
         Add a document to the relevance set. 
