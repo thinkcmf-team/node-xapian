@@ -544,6 +544,23 @@ protected:
 };
 
 
+class RSet : public XapWrap<RSet> {
+public:
+  static void Init(Handle<Object> target);
+
+  static Persistent<FunctionTemplate> constructor_template;
+
+  Xapian::RSet mRSet;
+
+protected:
+  RSet() : mRSet() { }
+  ~RSet() { }
+
+  static Handle<Value> New(const Arguments& args);
+
+};
+
+
 class Query : public XapWrap<Query> {
 public:
   static void Init(Handle<Object> target);

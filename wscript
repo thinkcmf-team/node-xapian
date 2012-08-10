@@ -25,7 +25,7 @@ def build(bld):
   obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
   obj.target = "xapian-binding"
   obj.source = [ "src/binding.cc", "src/database.cc", "src/document.cc", "src/enquire.cc", 
-    "src/query.cc", "src/stem.cc", "src/termgenerator.cc", "src/writabledatabase.cc" ]
+    "src/query.cc", "src/stem.cc", "src/rset.cc", "src/termgenerator.cc", "src/writabledatabase.cc" ]
   #obj.lib = "xapian"
   obj.uselib = "XAPIAN PROFILER"
 
