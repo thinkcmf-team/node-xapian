@@ -42,7 +42,7 @@ Handle<Value> Enquire::SetQuery(const Arguments& args) {
   HandleScope scope;
   Query* aQ;
   uint32_t aQlen = 0;
-  if (args.Length() > 0 && !(aQ = GetInstance<Query>(args[0]))) {
+  if (args.Length() > 0 && (aQ = GetInstance<Query>(args[0]))) {
     if (args.Length() == 2 && args[1]->IsUint32())
       aQlen = args[1]->Uint32Value();
     else if (args.Length() != 1)
