@@ -246,11 +246,11 @@ RSet
         The number of documents in this R-Set. 
 *    empty([function]) - return bool
         Test if this R-Set is empty. 
-    add_document_sync(uint32_did)
+*    add_document(uint32_did, [function])
         Add a document to the relevance set. 
-    remove_document_sync(uint32_did)
+*    remove_document(uint32_did, [function])
         Remove a document from the relevance set. 
-    contains_sync(uint32_did) - return bool
+*    contains(uint32_did, [function]) - return bool
         Test if a given document in the relevance set. 
 *    get_description([function]) - return string
         Return a string describing this object.

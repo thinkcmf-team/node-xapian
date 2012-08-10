@@ -564,6 +564,9 @@ protected:
   static Handle<Value> GetDescription(const Arguments& args);
   static Handle<Value> Size(const Arguments& args);
   static Handle<Value> Empty(const Arguments& args);
+  static Handle<Value> AddDocument(const Arguments& args);
+  static Handle<Value> RemoveDocument(const Arguments& args);
+  static Handle<Value> Contains(const Arguments& args);
 
 };
 
