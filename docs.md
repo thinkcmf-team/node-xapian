@@ -284,7 +284,7 @@ TermGenerator
         Set the database to index spelling data to. 
 *    set_flags(int32_flags)
         Set flags. (FLAG_SPELLING).
-    index_text_sync(string_text, uint32_wdf_inc=1, string_prefix="")
+*    index_text(string_text, [uint32_wdf_inc=1], [string_prefix=""], [function])
         Index some text in a std::string. 
     index_text_without_positions_sync(string_text, uint32_wdf_inc=1, string_prefix="")
         Index some text in a std::string without positional information. 
@@ -294,7 +294,7 @@ TermGenerator
         Get the current term position. 
     set_termpos_sync(uint32_termpos)
         Set the current term position. 
-    get_description_sync() - return string
+*    get_description() - return string
         Return a string describing this object.
 ```
 

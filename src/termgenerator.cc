@@ -12,6 +12,7 @@ void TermGenerator::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_stemmer", SetStemmer);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_document", SetDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
 
   target->Set(String::NewSymbol("TermGenerator"), constructor_template->GetFunction());
 
@@ -153,3 +154,40 @@ Handle<Value> TermGenerator::GetDocument(const Arguments& args) {
   }
   return scope.Close(aResult);
 }
+
+enum { 
+  eGetDescription, eIndexText
+};
+
+void TermGenerator::Generic_process(void* pData, void* pThat) {
+  GenericData* data = (GenericData*) pData;
+  TermGenerator* that = (TermGenerator *) pThat;
+
+  switch (data->action) {
+  case eGetDescription: data->retVal.setString(that->mTg.get_description()); break;
+  case eIndexText: that->mTg.index_text(*data->val[0].string, data->val[1].uint32, *data->val[2].string); break;
+  default: assert(0);
+  }
+}
+
+Handle<Value> TermGenerator::Generic_convert(void* pData) {
+  GenericData* data = (GenericData*) pData;
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case eGetDescription: 
+    aResult = String::New(data->retVal.string->c_str()); break;
+  case eIndexText:
+    aResult = Undefined();
+  }
+
+  delete data;
+  return aResult;
+}
+
+static int kGetDescription[] = { -eFunction, eEnd };
+Handle<Value> TermGenerator::GetDescription(const Arguments& args) { return generic_start<TermGenerator>(eGetDescription, args, kGetDescription); }
+
+static int kIndexText[] = { eString, -eUint32, -eString, -eFunction, eEnd };
+static GenericData::Item kIndexTextDefault[2] = { (uint32_t)1, "" };
+Handle<Value> TermGenerator::IndexText(const Arguments& args) { return generic_start<TermGenerator>(eIndexText, args, kIndexText, kIndexTextDefault); }

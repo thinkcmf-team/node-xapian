@@ -702,6 +702,9 @@ public:
 
   Xapian::TermGenerator mTg;
 
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
 protected:
   TermGenerator() : mTg() { }
 
@@ -741,6 +744,10 @@ protected:
   static Handle<Value> SetStemmer(const Arguments& args);
   static Handle<Value> SetDocument(const Arguments& args);
   static Handle<Value> GetDocument(const Arguments& args);
+
+
+  static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> IndexText(const Arguments& args);
 };
 
 
