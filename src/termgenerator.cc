@@ -15,6 +15,9 @@ void TermGenerator::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "index_text", IndexText);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "index_text_without_positions", IndexTextWithoutPositions);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "increase_termpos", IncreaseTermpos);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_termpos", GetTermpos);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_termpos", SetTermpos);
 
 
   target->Set(String::NewSymbol("TermGenerator"), constructor_template->GetFunction());
@@ -159,7 +162,7 @@ Handle<Value> TermGenerator::GetDocument(const Arguments& args) {
 }
 
 enum { 
-  eGetDescription, eIndexText, eIndexTextWithoutPositions
+  eGetDescription, eIndexText, eIndexTextWithoutPositions, eIncreaseTermpos, eGetTermpos, eSetTermpos
 };
 
 void TermGenerator::Generic_process(void* pData, void* pThat) {
@@ -170,6 +173,9 @@ void TermGenerator::Generic_process(void* pData, void* pThat) {
   case eGetDescription:            data->retVal.setString(that->mTg.get_description());                                                     break;
   case eIndexText:                 that->mTg.index_text(*data->val[0].string, data->val[1].uint32, *data->val[2].string);                   break;
   case eIndexTextWithoutPositions: that->mTg.index_text_without_positions(*data->val[0].string, data->val[1].uint32, *data->val[2].string); break;
+  case eIncreaseTermpos:           that->mTg.increase_termpos(data->val[0].uint32);                                                         break;
+  case eGetTermpos:                data->retVal.uint32 = that->mTg.get_termpos();                                                           break;
+  case eSetTermpos:                that->mTg.set_termpos(data->val[0].uint32);                                                              break;
   default: assert(0);
   }
 }
@@ -183,7 +189,11 @@ Handle<Value> TermGenerator::Generic_convert(void* pData) {
     aResult = String::New(data->retVal.string->c_str()); break;
   case eIndexText:
   case eIndexTextWithoutPositions:
-    aResult = Undefined();
+  case eIncreaseTermpos:
+  case eSetTermpos:
+    aResult = Undefined();                               break;
+  case eGetTermpos:
+    aResult = Uint32::New(data->retVal.uint32);          break;
   }
 
   delete data;
@@ -200,3 +210,13 @@ Handle<Value> TermGenerator::IndexText(const Arguments& args) { return generic_s
 static int kIndexTextWithoutPositions[] = { eString, -eUint32, -eString, -eFunction, eEnd };
 static GenericData::Item kIndexTextWithoutPositionsDefault[2] = { (uint32_t)1, "" };
 Handle<Value> TermGenerator::IndexTextWithoutPositions(const Arguments& args) { return generic_start<TermGenerator>(eIndexTextWithoutPositions, args, kIndexTextWithoutPositions, kIndexTextWithoutPositionsDefault); }
+
+static int kIncreaseTermpos[] = { -eUint32, -eFunction, eEnd };
+static GenericData::Item kIncreaseTermposDefault[1] = { (uint32_t)100 };
+Handle<Value> TermGenerator::IncreaseTermpos(const Arguments& args) { return generic_start<TermGenerator>(eIncreaseTermpos, args, kIncreaseTermpos, kIncreaseTermposDefault); }
+
+static int kGetTermpos[] = { -eFunction, eEnd };
+Handle<Value> TermGenerator::GetTermpos(const Arguments& args) { return generic_start<TermGenerator>(eGetTermpos, args, kGetTermpos); }
+
+static int kSetTermpos[] = { eUint32, -eFunction, eEnd };
+Handle<Value> TermGenerator::SetTermpos(const Arguments& args) { return generic_start<TermGenerator>(eSetTermpos, args, kSetTermpos); }

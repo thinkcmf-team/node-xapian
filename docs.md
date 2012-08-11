@@ -288,11 +288,11 @@ TermGenerator
         Index some text in a std::string. 
 *    index_text_without_positions(string_text, [uint32_wdf_inc=1], [string_prefix=""], [function])
         Index some text in a std::string without positional information. 
-    increase_termpos_sync(uint32_delta=100)
+*    increase_termpos([uint32_delta=100], [function])
         Increase the term position used by index_text. 
-    get_termpos_sync() - return uint32
+*    get_termpos([function]) - return uint32
         Get the current term position. 
-    set_termpos_sync(uint32_termpos)
+*    set_termpos(uint32_termpos, [function])
         Set the current term position. 
 *    get_description() - return string
         Return a string describing this object.
