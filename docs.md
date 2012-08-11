@@ -282,8 +282,8 @@ TermGenerator
         Get the current document. 
 *    set_database(object_writableDatabase, [function])
         Set the database to index spelling data to. 
-    set_flags_sync(int32_flags)
-        Set flags. 
+*    set_flags(int32_flags)
+        Set flags. (FLAG_SPELLING).
     index_text_sync(string_text, uint32_wdf_inc=1, string_prefix="")
         Index some text in a std::string. 
     index_text_without_positions_sync(string_text, uint32_wdf_inc=1, string_prefix="")
