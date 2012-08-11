@@ -10,6 +10,7 @@ void TermGenerator::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_database", SetDatabase);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_flags", SetFlags);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_stemmer", SetStemmer);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_document", SetDocument);
 
   target->Set(String::NewSymbol("TermGenerator"), constructor_template->GetFunction());
 
@@ -31,8 +32,9 @@ void TermGenerator::SetGet_process(void* pData, void* pThat) {
   TermGenerator* that = (TermGenerator *) pThat;
 
   switch (data->action) {
-  case SetGet_data::eSetDatabase: that->mTg.set_database(data->db->getWdb()); break;
-  case SetGet_data::eSetStemmer:  that->mTg.set_stemmer(data->st->mStem);     break;
+  case SetGet_data::eSetDatabase: that->mTg.set_database(data->db->getWdb());   break;
+  case SetGet_data::eSetStemmer:  that->mTg.set_stemmer(data->st->mStem);       break;
+  case SetGet_data::eSetDocument: that->mTg.set_document(*data->doc->getDoc()); break;
   default: assert(0);
   }
 }
@@ -44,6 +46,7 @@ Handle<Value> TermGenerator::SetGet_convert(void* pData) {
   switch (data->action) {
   case SetGet_data::eSetDatabase:    
   case SetGet_data::eSetStemmer:
+  case SetGet_data::eSetDocument:
     aResult = Undefined(); break;
   }
 
@@ -95,6 +98,26 @@ Handle<Value> TermGenerator::SetStemmer(const Arguments& args) {
     return throwSignatureErr(kSetStemmer);
 
   SetGet_data* aData = new SetGet_data(ObjectWrap::Unwrap<TermGenerator>(args.This()), aSt); //deleted by SetGet_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<TermGenerator>(aOpt[0] >= 0, args, (void*)aData, SetGet_process, SetGet_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kSetDocument[] = { eObjectDocument, -eFunction, eEnd };
+Handle<Value> TermGenerator::SetDocument(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  Document* aDoc;
+  if (!checkArguments(kSetDocument, args, aOpt) || !(aDoc = GetInstance<Document>(args[0])))
+    return throwSignatureErr(kSetDocument);
+
+  SetGet_data* aData = new SetGet_data(ObjectWrap::Unwrap<TermGenerator>(args.This()), aDoc); //deleted by SetGet_convert on non error
 
   Handle<Value> aResult;
   try {

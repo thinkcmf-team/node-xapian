@@ -527,50 +527,6 @@ protected:
 };
 
 
-class TermGenerator : public XapWrap<TermGenerator> {
-public:
-  static void Init(Handle<Object> target);
-
-  static Persistent<FunctionTemplate> constructor_template;
-
-  Xapian::TermGenerator mTg;
-
-protected:
-  TermGenerator() : mTg() { }
-
-  ~TermGenerator() { }
-
-  friend struct Main_data;
-
-  static Handle<Value> New(const Arguments& args);
-
-  struct SetGet_data {
-    enum { eSetDatabase, eSetStemmer };
-    SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) { db->AddReference(); }
-    SetGet_data(TermGenerator* th, Stem* pst) : action(eSetStemmer), that(th), st(pst) { st->AddReference(); }
-    ~SetGet_data() {
-      switch (action) {
-      case eSetDatabase: db->RemoveReference(); break;
-      case eSetStemmer:  st->RemoveReference(); break;
-      }
-    }
-    int action;
-    TermGenerator* that;
-    union {
-      WritableDatabase* db;
-      Stem* st;
-    };
-  };
-  static void SetGet_process(void* data, void* that);
-  static Handle<Value> SetGet_convert(void* data);
-
-
-  static Handle<Value> SetDatabase(const Arguments& args);
-  static Handle<Value> SetFlags(const Arguments& args);
-  static Handle<Value> SetStemmer(const Arguments& args);
-};
-
-
 class RSet : public XapWrap<RSet> {
 public:
   static void Init(Handle<Object> target);
@@ -735,6 +691,54 @@ protected:
 
   static Handle<Value> Values(const Arguments& args);
 
+};
+
+
+class TermGenerator : public XapWrap<TermGenerator> {
+public:
+  static void Init(Handle<Object> target);
+
+  static Persistent<FunctionTemplate> constructor_template;
+
+  Xapian::TermGenerator mTg;
+
+protected:
+  TermGenerator() : mTg() { }
+
+  ~TermGenerator() { }
+
+  friend struct Main_data;
+
+  static Handle<Value> New(const Arguments& args);
+
+  struct SetGet_data {
+    enum { eSetDatabase, eSetStemmer, eSetDocument };
+    SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) { db->AddReference(); }
+    SetGet_data(TermGenerator* th, Stem* pst) : action(eSetStemmer), that(th), st(pst) { st->AddReference(); }
+    SetGet_data(TermGenerator* th, Document* pdoc) : action(eSetDocument), that(th), doc(pdoc) { doc->AddReference(); }
+    ~SetGet_data() {
+      switch (action) {
+      case eSetDatabase: db->RemoveReference();  break;
+      case eSetStemmer:  st->RemoveReference();  break;
+      case eSetDocument: doc->RemoveReference(); break;
+      }
+    }
+    int action;
+    TermGenerator* that;
+    union {
+      WritableDatabase* db;
+      Stem* st;
+      Document* doc;
+    };
+  };
+  static void SetGet_process(void* data, void* that);
+  static Handle<Value> SetGet_convert(void* data);
+
+
+  static Handle<Value> SetDatabase(const Arguments& args);
+  static Handle<Value> SetFlags(const Arguments& args);
+  static Handle<Value> SetStemmer(const Arguments& args);
+  static Handle<Value> SetDocument(const Arguments& args);
 };
 
 

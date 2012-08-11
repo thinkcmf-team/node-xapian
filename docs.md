@@ -276,7 +276,7 @@ TermGenerator
         Default constructor. 
 *    set_stemmer(object_stemmer, [function])
         Set the Xapian::Stem object to be used for generating stemmed terms. 
-    set_document_sync(object_document)
+*    set_document(object_document, [function])
         Set the current document. 
     get_document_sync() - return object_document
         Get the current document. 
