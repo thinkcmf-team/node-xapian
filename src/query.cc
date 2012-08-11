@@ -199,7 +199,7 @@ Handle<Value> Query::New(const Arguments& args) {
 }
 
 enum { 
-  eGetLength, eEmpty, eSerialise, eGetDescription
+  eGetLength, eEmpty, eGetDescription
 };
 
 
@@ -208,9 +208,6 @@ Handle<Value> Query::GetLength(const Arguments& args) { return generic_start<Que
 
 static int kEmpty[] = { -eFunction, eEnd };
 Handle<Value> Query::Empty(const Arguments& args) { return generic_start<Query>(eEmpty, args, kEmpty); }
-
-static int kSerialise[] = { -eFunction, eEnd };
-Handle<Value> Query::Serialise(const Arguments& args) { return generic_start<Query>(eSerialise, args, kSerialise); }
 
 static int kGetDescription[] = { -eFunction, eEnd };
 Handle<Value> Query::GetDescription(const Arguments& args) { return generic_start<Query>(eGetDescription, args, kGetDescription); }
@@ -223,7 +220,6 @@ void Query::Generic_process(void* pData, void* pThat) {
   switch (data->action) {
   case eGetLength:      data->retVal.uint32 = that->mQry.get_length();        break;
   case eEmpty:          data->retVal.boolean = that->mQry.empty();            break;
-  case eSerialise:      data->retVal.setString(that->mQry.serialise());       break;
   case eGetDescription: data->retVal.setString(that->mQry.get_description()); break;
   default: assert(0);
   }
@@ -238,7 +234,6 @@ Handle<Value> Query::Generic_convert(void* pData) {
     aResult = Integer::NewFromUnsigned(data->retVal.uint32); break;
   case eEmpty:
     aResult = Boolean::New(data->retVal.boolean);            break;
-  case eSerialise:
   case eGetDescription: 
     aResult = String::New(data->retVal.string->c_str());     break;
   }
@@ -315,17 +310,42 @@ Handle<Value> Query::GetTerms(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-static int kUnserialise[] = { eString, eEnd };
+static int kSerialise[] = { eEnd };
+Handle<Value> Query::Serialise(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[0];
+  if (!checkArguments(kSerialise, args, aOpt))
+    return throwSignatureErr(kSerialise);
+
+  Query* that = ObjectWrap::Unwrap<Query>(args.This());
+  if (that->mBusy)
+    return ThrowException(Exception::Error(kBusyMsg));
+
+  std::string aSQuery;
+
+  try {
+    aSQuery = that->mQry.serialise();
+  } catch (const Xapian::Error& err) {
+    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+  }
+ 
+  return scope.Close(Buffer::New((char *)aSQuery.c_str(), aSQuery.length())->handle_);
+}
+
+static int kUnserialise[] = { eBuffer, eEnd };
 Handle<Value> Query::Unserialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[0];
-  if (!checkArguments(kUnserialise, args, aOpt))
+  if (!checkArguments(kUnserialise, args, aOpt) || !(Buffer::HasInstance(args[0])))
     return throwSignatureErr(kUnserialise);
+
+  Handle<Object> aBuf = args[0]->ToObject();
+  std::string aSQuery(Buffer::Data(aBuf), Buffer::Length(aBuf));
 
   Xapian::Query aQuery;
 
   try {
-    aQuery = Xapian::Query::unserialise(*String::Utf8Value(args[0]));
+    aQuery = Xapian::Query::unserialise(aSQuery);
   } catch (const Xapian::Error& err) {
     return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
   }
