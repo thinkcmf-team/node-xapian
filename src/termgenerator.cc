@@ -11,6 +11,7 @@ void TermGenerator::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_flags", SetFlags);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_stemmer", SetStemmer);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_document", SetDocument);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
 
   target->Set(String::NewSymbol("TermGenerator"), constructor_template->GetFunction());
 
@@ -32,9 +33,10 @@ void TermGenerator::SetGet_process(void* pData, void* pThat) {
   TermGenerator* that = (TermGenerator *) pThat;
 
   switch (data->action) {
-  case SetGet_data::eSetDatabase: that->mTg.set_database(data->db->getWdb());   break;
-  case SetGet_data::eSetStemmer:  that->mTg.set_stemmer(data->st->mStem);       break;
-  case SetGet_data::eSetDocument: that->mTg.set_document(*data->doc->getDoc()); break;
+  case SetGet_data::eSetDatabase: that->mTg.set_database(data->db->getWdb());                  break;
+  case SetGet_data::eSetStemmer:  that->mTg.set_stemmer(data->st->mStem);                      break;
+  case SetGet_data::eSetDocument: that->mTg.set_document(*data->doc->getDoc());                break;
+  case SetGet_data::eGetDocument: data->xdoc = new Xapian::Document(that->mTg.get_document()); break;
   default: assert(0);
   }
 }
@@ -48,6 +50,10 @@ Handle<Value> TermGenerator::SetGet_convert(void* pData) {
   case SetGet_data::eSetStemmer:
   case SetGet_data::eSetDocument:
     aResult = Undefined(); break;
+  case SetGet_data::eGetDocument:
+    Local<Value> aDoc[] = { External::New(data->xdoc) };
+    aResult = Document::constructor_template->GetFunction()->NewInstance(1, aDoc);
+    break;
   }
 
   delete data;
@@ -122,6 +128,25 @@ Handle<Value> TermGenerator::SetDocument(const Arguments& args) {
   Handle<Value> aResult;
   try {
     aResult = invoke<TermGenerator>(aOpt[0] >= 0, args, (void*)aData, SetGet_process, SetGet_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
+}
+
+static int kGetDocument[] = { -eFunction, eEnd };
+Handle<Value> TermGenerator::GetDocument(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kGetDocument, args, aOpt))
+    return throwSignatureErr(kGetDocument);
+
+  SetGet_data* aData = new SetGet_data(ObjectWrap::Unwrap<TermGenerator>(args.This())); //deleted by SetGet_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, SetGet_process, SetGet_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);

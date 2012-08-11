@@ -712,10 +712,11 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   struct SetGet_data {
-    enum { eSetDatabase, eSetStemmer, eSetDocument };
+    enum { eSetDatabase, eSetStemmer, eSetDocument, eGetDocument };
     SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) { db->AddReference(); }
     SetGet_data(TermGenerator* th, Stem* pst) : action(eSetStemmer), that(th), st(pst) { st->AddReference(); }
     SetGet_data(TermGenerator* th, Document* pdoc) : action(eSetDocument), that(th), doc(pdoc) { doc->AddReference(); }
+    SetGet_data(TermGenerator* th) : action(eGetDocument), that(th), doc(NULL) { }
     ~SetGet_data() {
       switch (action) {
       case eSetDatabase: db->RemoveReference();  break;
@@ -729,16 +730,17 @@ protected:
       WritableDatabase* db;
       Stem* st;
       Document* doc;
+      Xapian::Document* xdoc;
     };
   };
   static void SetGet_process(void* data, void* that);
   static Handle<Value> SetGet_convert(void* data);
 
-
   static Handle<Value> SetDatabase(const Arguments& args);
   static Handle<Value> SetFlags(const Arguments& args);
   static Handle<Value> SetStemmer(const Arguments& args);
   static Handle<Value> SetDocument(const Arguments& args);
+  static Handle<Value> GetDocument(const Arguments& args);
 };
 
 

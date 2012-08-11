@@ -278,7 +278,7 @@ TermGenerator
         Set the Xapian::Stem object to be used for generating stemmed terms. 
 *    set_document(object_document, [function])
         Set the current document. 
-    get_document_sync() - return object_document
+*    get_document([function]) - return object_document
         Get the current document. 
 *    set_database(object_writableDatabase, [function])
         Set the database to index spelling data to. 
