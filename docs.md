@@ -152,12 +152,12 @@ Document
         Count the values in this document. 
 *    get_docid([function]) - return uint32
         Get the document id which is associated with this document (if any). 
-*    serialise([function]) - return string
-        Serialise document into a string. 
+*    serialise([function]) - return Buffer
+        Serialise document into a Buffer. 
 *    get_description([function]) - return string
         Return a string describing this object. 
-*    unserialise(string_s, [function]) - return object_document
-        Unserialise a document from a string produced by serialise().
+*    unserialise(Buffer, [function]) - return object_document
+        Unserialise a document from a Buffer produced by serialise().
   methods different from the C++ API:
 *    termlist([uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, description: string } (TermIterator)
         An array of the terms in this document. 
@@ -226,12 +226,12 @@ Query
         An array of all the terms in the query, in order of termpos. 
 *    empty([function]) - return bool
         Test if the query is empty (i.e. 
-*    serialise([function]) - return string
-        Serialise query into a string. 
+*    serialise([function]) - return Buffer
+        Serialise query into a Buffer. 
 *    get_description([function]) - return string
         Return a string describing this object. 
-*    unserialise(string) - return object_query
-        Unserialise a query from a string produced by serialise(). 
+*    unserialise(Buffer) - return object_query
+        Unserialise a query from a Buffer produced by serialise(). 
 *    match_all() - return object_query
         A query which matches all documents in the database. 
 *    match_nothing() - return object_query
