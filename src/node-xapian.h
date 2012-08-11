@@ -125,6 +125,7 @@ enum ArgumentType {
   eObject,
   eArray,
   eObjectDatabase,
+  eObjectStem,
   eObjectDocument,
   eNull,
   eFunction
@@ -506,6 +507,26 @@ protected:
   static Handle<Value> GetDescription(const Arguments& args);
 };
 
+
+class Stem : public XapWrap<Stem> {
+public:
+  static void Init(Handle<Object> target);
+
+  static Persistent<FunctionTemplate> constructor_template;
+
+  Xapian::Stem mStem;
+
+protected:
+  Stem(const char* iLang) : mStem(iLang) { }
+  Stem() : mStem() { }
+  ~Stem() { }
+
+  static Handle<Value> New(const Arguments& args);
+  static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> GetAvailableLanguages(const Arguments& args);
+};
+
+
 class TermGenerator : public XapWrap<TermGenerator> {
 public:
   static void Init(Handle<Object> target);
@@ -524,22 +545,20 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   struct SetGet_data {
-    enum { eSetDatabase };
-    SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) {
-      switch (action) {
-      case eSetDatabase: ((WritableDatabase*)db)->AddReference(); break;
-      default: assert(0);
-      }
-    }
+    enum { eSetDatabase, eSetStemmer };
+    SetGet_data(TermGenerator* th, WritableDatabase* pdb) : action(eSetDatabase), that(th), db(pdb) { db->AddReference(); }
+    SetGet_data(TermGenerator* th, Stem* pst) : action(eSetStemmer), that(th), st(pst) { st->AddReference(); }
     ~SetGet_data() {
       switch (action) {
-      case eSetDatabase: ((WritableDatabase*)db)->RemoveReference(); break;
+      case eSetDatabase: db->RemoveReference(); break;
+      case eSetStemmer:  st->RemoveReference(); break;
       }
     }
     int action;
     TermGenerator* that;
     union {
-      void* db;
+      WritableDatabase* db;
+      Stem* st;
     };
   };
   static void SetGet_process(void* data, void* that);
@@ -549,24 +568,6 @@ protected:
   static Handle<Value> SetDatabase(const Arguments& args);
   static Handle<Value> SetFlags(const Arguments& args);
   static Handle<Value> SetStemmer(const Arguments& args);
-};
-
-class Stem : public XapWrap<Stem> {
-public:
-  static void Init(Handle<Object> target);
-
-  static Persistent<FunctionTemplate> constructor_template;
-
-  Xapian::Stem mStem;
-
-protected:
-  Stem(const char* iLang) : mStem(iLang) { }
-  Stem() : mStem() { }
-  ~Stem() { }
-
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> GetDescription(const Arguments& args);
-  static Handle<Value> GetAvailableLanguages(const Arguments& args);
 };
 
 

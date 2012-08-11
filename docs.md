@@ -274,7 +274,7 @@ TermGenerator
   methods similar to the C++ API
 *    TermGenerator()
         Default constructor. 
-    set_stemmer_sync(object_stemmer)
+*    set_stemmer(object_stemmer, [function])
         Set the Xapian::Stem object to be used for generating stemmed terms. 
     set_document_sync(object_document)
         Set the current document. 

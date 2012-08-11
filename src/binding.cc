@@ -40,6 +40,7 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
     case eString:         aIsType = args[aArgN]->IsString();   break;
     case eArray:          aIsType = args[aArgN]->IsArray();    break;
     case eObjectDatabase:
+    case eObjectStem:
     case eObjectDocument:
     case eObject:         aIsType = args[aArgN]->IsObject();   break;
     case eNull:           aIsType = args[aArgN]->IsNull();     break;
@@ -72,6 +73,7 @@ static std::string generateSignatureString(int signature[]) {
     case eObject:         aStr += "object";   break;
     case eArray:          aStr += "array";    break;
     case eObjectDatabase: aStr += "Database"; break;
+    case eObjectStem:     aStr += "Stem";     break;
     case eObjectDocument: aStr += "Document"; break;
     case eNull:           aStr += "null";     break;
     case eFunction:       aStr += "function"; break;

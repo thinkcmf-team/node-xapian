@@ -31,7 +31,8 @@ void TermGenerator::SetGet_process(void* pData, void* pThat) {
   TermGenerator* that = (TermGenerator *) pThat;
 
   switch (data->action) {
-  case SetGet_data::eSetDatabase: that->mTg.set_database(((WritableDatabase*)data->db)->getWdb()); break;
+  case SetGet_data::eSetDatabase: that->mTg.set_database(data->db->getWdb()); break;
+  case SetGet_data::eSetStemmer:  that->mTg.set_stemmer(data->st->mStem);     break;
   default: assert(0);
   }
 }
@@ -42,7 +43,8 @@ Handle<Value> TermGenerator::SetGet_convert(void* pData) {
 
   switch (data->action) {
   case SetGet_data::eSetDatabase:    
-    aResult = Undefined();
+  case SetGet_data::eSetStemmer:
+    aResult = Undefined(); break;
   }
 
   delete data;
@@ -84,18 +86,22 @@ Handle<Value> TermGenerator::SetFlags(const Arguments& args) {
   return Undefined();
 }
 
+static int kSetStemmer[] = { eObjectStem, -eFunction, eEnd };
 Handle<Value> TermGenerator::SetStemmer(const Arguments& args) {
   HandleScope scope;
+  int aOpt[1];
   Stem* aSt;
-  if (args.Length() < 1 || !(aSt = GetInstance<Stem>(args[0])))
-    return ThrowException(Exception::TypeError(String::New("arguments are (Stem)")));
+  if (!checkArguments(kSetStemmer, args, aOpt) || !(aSt = GetInstance<Stem>(args[0])))
+    return throwSignatureErr(kSetStemmer);
 
-  TermGenerator* that = ObjectWrap::Unwrap<TermGenerator>(args.This());
+  SetGet_data* aData = new SetGet_data(ObjectWrap::Unwrap<TermGenerator>(args.This()), aSt); //deleted by SetGet_convert on non error
+
+  Handle<Value> aResult;
   try {
-    that->mTg.set_stemmer(aSt->mStem);
-  } catch (const Xapian::Error& err) {
-    return ThrowException(Exception::Error(String::New(err.get_msg().c_str())));
+    aResult = invoke<TermGenerator>(aOpt[0] >= 0, args, (void*)aData, SetGet_process, SetGet_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
   }
-
-  return Undefined();
+  return scope.Close(aResult);
 }
