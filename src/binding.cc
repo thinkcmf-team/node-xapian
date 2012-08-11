@@ -39,6 +39,7 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
     case eBoolean:        aIsType = args[aArgN]->IsBoolean();  break;
     case eString:         aIsType = args[aArgN]->IsString();   break;
     case eArray:          aIsType = args[aArgN]->IsArray();    break;
+    case eBuffer:
     case eObjectDatabase:
     case eObjectStem:
     case eObjectDocument:
@@ -72,6 +73,7 @@ static std::string generateSignatureString(int signature[]) {
     case eString:         aStr += "string";   break;
     case eObject:         aStr += "object";   break;
     case eArray:          aStr += "array";    break;
+    case eBuffer:         aStr += "Buffer";   break;
     case eObjectDatabase: aStr += "Database"; break;
     case eObjectStem:     aStr += "Stem";     break;
     case eObjectDocument: aStr += "Document"; break;

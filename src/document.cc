@@ -45,7 +45,7 @@ Handle<Value> Document::New(const Arguments& args) {
 
 enum { 
   eGetValue, eAddValue, eRemoveValue, eClearValues, eGetData, eSetData, eAddPosting, eAddTerm, eAddBooleanTerm,
-  eRemovePosting, eRemoveTerm, eClearTerms, eTermlistCount, eValuesCount, eGetDocid, eSerialise, eGetDescription
+  eRemovePosting, eRemoveTerm, eClearTerms, eTermlistCount, eValuesCount, eGetDocid, eGetDescription
 };
 
 static int kGetValue[] = { eUint32, -eFunction, eEnd };
@@ -96,9 +96,6 @@ Handle<Value> Document::ValuesCount(const Arguments& args) { return generic_star
 static int kGetDocid[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDocid(const Arguments& args) { return generic_start<Document>(eGetDocid, args, kGetDocid); }
 
-static int kSerialise[] = { -eFunction, eEnd };
-Handle<Value> Document::Serialise(const Arguments& args) { return generic_start<Document>(eSerialise, args, kSerialise); }
-
 static int kGetDescription[] = { -eFunction, eEnd };
 Handle<Value> Document::GetDescription(const Arguments& args) { return generic_start<Document>(eGetDescription, args, kGetDescription); }
 
@@ -122,7 +119,6 @@ void Document::Generic_process(void* pData, void* pThat) {
   case eTermlistCount:   data->retVal.uint32 = that->mDoc->termlist_count();                                         break;
   case eValuesCount:     data->retVal.uint32 = that->mDoc->values_count();                                           break;
   case eGetDocid:        data->retVal.uint32 = that->mDoc->get_docid();                                              break;
-  case eSerialise:       data->retVal.setString(that->mDoc->serialise());                                            break;
   case eGetDescription:  data->retVal.setString(that->mDoc->get_description());                                      break;
   default: assert(0);
   }
@@ -139,7 +135,6 @@ Handle<Value> Document::Generic_convert(void* pData) {
     aResult = Integer::NewFromUnsigned(data->retVal.uint32); break;
   case eGetValue:
   case eGetData:  
-  case eSerialise:
   case eGetDescription: 
     aResult = String::New(data->retVal.string->c_str());       break;
   case eAddValue:
@@ -159,19 +154,18 @@ Handle<Value> Document::Generic_convert(void* pData) {
   return aResult;
 }
 
-
-static int kUnserialise[] = { eString, -eFunction, eEnd };
-Handle<Value> Document::Unserialise(const Arguments& args) {
+static int kSerialise[] = { -eFunction, eEnd };
+Handle<Value> Document::Serialise(const Arguments& args) {
   HandleScope scope;
   int aOpt[1];
-  if (!checkArguments(kUnserialise, args, aOpt))
-    return throwSignatureErr(kUnserialise);
+  if (!checkArguments(kSerialise, args, aOpt))
+    return throwSignatureErr(kSerialise);
 
-  Unserialise_data* aData = new Unserialise_data(*String::Utf8Value(args[0])); //deleted by Unserialise_convert on non error
+  UnSerialise_data* aData = new UnSerialise_data(); //deleted by UnSerialise_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, Unserialise_process, Unserialise_convert);
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, UnSerialise_process, UnSerialise_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -179,16 +173,56 @@ Handle<Value> Document::Unserialise(const Arguments& args) {
   return scope.Close(aResult);
 }
 
-void Document::Unserialise_process(void* pData, void* pThat) {
-  Unserialise_data* data = (Unserialise_data*) pData;
-  data->doc = new Xapian::Document(Xapian::Document::unserialise(data->str));
+static int kUnserialise[] = { eBuffer, -eFunction, eEnd };
+Handle<Value> Document::Unserialise(const Arguments& args) {
+  HandleScope scope;
+  int aOpt[1];
+  if (!checkArguments(kUnserialise, args, aOpt) || !(Buffer::HasInstance(args[0])))
+    return throwSignatureErr(kUnserialise);
+
+  Handle<Object> aBuf = args[0]->ToObject();
+
+  UnSerialise_data* aData = new UnSerialise_data(Buffer::Data(aBuf), Buffer::Length(aBuf)); //deleted by UnSerialise_convert on non error
+
+  Handle<Value> aResult;
+  try {
+    aResult = invoke<Enquire>(aOpt[0] >= 0, args, (void*)aData, UnSerialise_process, UnSerialise_convert);
+  } catch (Handle<Value> ex) {
+    delete aData;
+    return ThrowException(ex);
+  }
+  return scope.Close(aResult);
 }
 
-Handle<Value> Document::Unserialise_convert(void* pData) {
-  Unserialise_data* data = (Unserialise_data*) pData;
+void Document::UnSerialise_process(void* pData, void* pThat) {
+  UnSerialise_data* data = (UnSerialise_data*) pData;
+  Document* that = (Document *) pThat;
+
+  switch (data->action) {
+  case UnSerialise_data::eSerialise:
+    data->str = that->mDoc->serialise();
+    break;
+  case UnSerialise_data::eUnserialise:
+    data->doc = new Xapian::Document(Xapian::Document::unserialise(data->str));
+    break;
+  default: assert(0);
+  }
+}
+
+Handle<Value> Document::UnSerialise_convert(void* pData) {
+  UnSerialise_data* data = (UnSerialise_data*) pData;
   
-  Local<Value> aDoc[] = { External::New(data->doc) };
-  Handle<Value> aResult = Document::constructor_template->GetFunction()->NewInstance(1, aDoc);
+  Handle<Value> aResult;
+
+  switch (data->action) {
+  case UnSerialise_data::eSerialise: 
+    aResult =  Buffer::New((char *)data->str.c_str(), data->str.length())->handle_;
+    break;
+  case UnSerialise_data::eUnserialise:
+    Local<Value> aDoc[] = { External::New(data->doc) };
+    aResult = Document::constructor_template->GetFunction()->NewInstance(1, aDoc);
+    break;
+  }
 
   delete data;
   return aResult;

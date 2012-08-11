@@ -124,6 +124,7 @@ enum ArgumentType {
   eString,
   eObject,
   eArray,
+  eBuffer,
   eObjectDatabase,
   eObjectStem,
   eObjectDocument,
@@ -643,18 +644,21 @@ protected:
   static Handle<Value> TermlistCount(const Arguments& args);
   static Handle<Value> ValuesCount(const Arguments& args);
   static Handle<Value> GetDocid(const Arguments& args);
-  static Handle<Value> Serialise(const Arguments& args);
   static Handle<Value> GetDescription(const Arguments& args);
 
 
-  struct Unserialise_data {
-    Unserialise_data(const std::string &s) : str(s) {}
+  struct UnSerialise_data {
+    enum { eSerialise, eUnserialise};
+    UnSerialise_data(char *pstr, size_t len) : action(eUnserialise), str(pstr, len) {}
+    UnSerialise_data() : action(eSerialise) {}
+    int action;
     std::string str;
     Xapian::Document* doc;
   };
-  static void Unserialise_process(void* data, void* that);
-  static Handle<Value> Unserialise_convert(void* data);
+  static void UnSerialise_process(void* data, void* that);
+  static Handle<Value> UnSerialise_convert(void* data);
 
+  static Handle<Value> Serialise(const Arguments& args);
   static Handle<Value> Unserialise(const Arguments& args);
 
 
