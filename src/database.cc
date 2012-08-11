@@ -84,20 +84,21 @@ void Database::Open_process(void* pData, void* pThat) {
 Handle<Value> Database::Open_convert(void* pData) {
   Open_data* data = (Open_data*) pData;
   Database* that = data->that;
+  Handle<Value> aResult;
 
   switch (data->action) {
   case Open_data::eNewDatabase:
   case Open_data::eNewWDatabase: 
-    return that->handle_;
+    aResult = that->handle_; break;
   case Open_data::eClose: 
   case Open_data::eReopen: 
   case Open_data::eKeepAlive:
   case Open_data::eAddDatabase:  
-    return Undefined();
+    aResult = Undefined(); break;
   }
 
   delete data;
-  return Undefined();
+  return aResult;
 }
 
 static int kClose[] = { -eFunction, eEnd };
