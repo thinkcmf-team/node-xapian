@@ -13,6 +13,9 @@ void TermGenerator::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_document", SetDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_document", GetDocument);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "index_text", IndexText);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "index_text_without_positions", IndexTextWithoutPositions);
+
 
   target->Set(String::NewSymbol("TermGenerator"), constructor_template->GetFunction());
 
@@ -156,7 +159,7 @@ Handle<Value> TermGenerator::GetDocument(const Arguments& args) {
 }
 
 enum { 
-  eGetDescription, eIndexText
+  eGetDescription, eIndexText, eIndexTextWithoutPositions
 };
 
 void TermGenerator::Generic_process(void* pData, void* pThat) {
@@ -164,8 +167,9 @@ void TermGenerator::Generic_process(void* pData, void* pThat) {
   TermGenerator* that = (TermGenerator *) pThat;
 
   switch (data->action) {
-  case eGetDescription: data->retVal.setString(that->mTg.get_description()); break;
-  case eIndexText: that->mTg.index_text(*data->val[0].string, data->val[1].uint32, *data->val[2].string); break;
+  case eGetDescription:            data->retVal.setString(that->mTg.get_description());                                                     break;
+  case eIndexText:                 that->mTg.index_text(*data->val[0].string, data->val[1].uint32, *data->val[2].string);                   break;
+  case eIndexTextWithoutPositions: that->mTg.index_text_without_positions(*data->val[0].string, data->val[1].uint32, *data->val[2].string); break;
   default: assert(0);
   }
 }
@@ -178,6 +182,7 @@ Handle<Value> TermGenerator::Generic_convert(void* pData) {
   case eGetDescription: 
     aResult = String::New(data->retVal.string->c_str()); break;
   case eIndexText:
+  case eIndexTextWithoutPositions:
     aResult = Undefined();
   }
 
@@ -191,3 +196,7 @@ Handle<Value> TermGenerator::GetDescription(const Arguments& args) { return gene
 static int kIndexText[] = { eString, -eUint32, -eString, -eFunction, eEnd };
 static GenericData::Item kIndexTextDefault[2] = { (uint32_t)1, "" };
 Handle<Value> TermGenerator::IndexText(const Arguments& args) { return generic_start<TermGenerator>(eIndexText, args, kIndexText, kIndexTextDefault); }
+
+static int kIndexTextWithoutPositions[] = { eString, -eUint32, -eString, -eFunction, eEnd };
+static GenericData::Item kIndexTextWithoutPositionsDefault[2] = { (uint32_t)1, "" };
+Handle<Value> TermGenerator::IndexTextWithoutPositions(const Arguments& args) { return generic_start<TermGenerator>(eIndexTextWithoutPositions, args, kIndexTextWithoutPositions, kIndexTextWithoutPositionsDefault); }

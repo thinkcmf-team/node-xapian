@@ -748,6 +748,7 @@ protected:
 
   static Handle<Value> GetDescription(const Arguments& args);
   static Handle<Value> IndexText(const Arguments& args);
+  static Handle<Value> IndexTextWithoutPositions(const Arguments& args);
 };
 
 
