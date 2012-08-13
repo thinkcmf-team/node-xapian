@@ -2,6 +2,7 @@
 #define _NODe_XAPIAN_H_
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <xapian.h>
 #include "mime2text.h"
@@ -144,6 +145,16 @@ struct GenericData {
     Item(uint32_t a) : uint32(a), isStr(false) {};
     Item(int32_t a) : int32(a), isStr(false) {};
     Item(bool a) : boolean(a), isStr(false) {};
+    Item& operator=(const Item& p) {
+      if (this != &p) {
+        unsetString();
+        if (p.isStr)
+          setString(*p.string);
+        else
+          memcpy (&dbl, &p.dbl, sizeof(double));
+      }
+      return *this;    // Return ref for multiple assignment
+    }
     void setString(const std::string &str) { if (isStr) *string = str; else { string = new std::string(str); isStr = true; } };
     void unsetString() { if (isStr) { delete string; isStr = false; } };
     ~Item() { if (isStr) delete string; }
