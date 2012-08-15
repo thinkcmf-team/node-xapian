@@ -146,7 +146,7 @@ static Xapian::Query Parse(Handle<Value> obj) {
       aVal = aObj->Get(aKey);
       if (!aVal->IsUint32())
         throw Exception::TypeError(String::New("QueryObject.slot is uint32"));
-      Xapian::valueno aSlot = aVal2->Uint32Value();
+      Xapian::valueno aSlot = aVal->Uint32Value();
 
       if (aObj->Has(aKey = String::New("begin"))) {
         aVal = aObj->Get(aKey);
