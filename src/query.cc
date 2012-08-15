@@ -130,7 +130,7 @@ static Xapian::Query Parse(Handle<Value> obj) {
 
     if (aObj->Has(aKey = String::New("query"))) {
       aVal = aObj->Get(aKey);
-      if (!aVal->IsObject())
+      if (!aVal->IsObject() && !aVal->IsString())
         throw Exception::TypeError(String::New("QueryObject.query is QueryObject"));
       double aParameter = 0;
       if (aObj->Has(aKey2 = String::New("parameter"))) {
