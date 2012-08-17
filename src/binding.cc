@@ -34,18 +34,19 @@ bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
   for (int aSigN=0; signature[aSigN] != eEnd; ++aSigN) {
     int aIsType;
     switch (abs(signature[aSigN])) {
-    case eInt32:          aIsType = args[aArgN]->IsInt32();    break;
-    case eUint32:         aIsType = args[aArgN]->IsUint32();   break;
-    case eBoolean:        aIsType = args[aArgN]->IsBoolean();  break;
-    case eString:         aIsType = args[aArgN]->IsString();   break;
-    case eArray:          aIsType = args[aArgN]->IsArray();    break;
+    case eInt32:          aIsType = args[aArgN]->IsInt32();                                  break;
+    case eUint32:         aIsType = args[aArgN]->IsUint32();                                 break;
+    case eBoolean:        aIsType = args[aArgN]->IsBoolean();                                break;
+    case eString:         aIsType = args[aArgN]->IsString();                                 break;
+    case eArray:          aIsType = args[aArgN]->IsArray();                                  break;
     case eBuffer:
     case eObjectDatabase:
     case eObjectStem:
+    case eObjectRSet:
     case eObjectDocument:
-    case eObject:         aIsType = args[aArgN]->IsObject();   break;
-    case eNull:           aIsType = args[aArgN]->IsNull();     break;
-    case eFunction:       aIsType = args[aArgN]->IsFunction(); break;
+    case eObject:         aIsType = args[aArgN]->IsObject() && !args[aArgN]->IsFunction();   break;
+    case eNull:           aIsType = args[aArgN]->IsNull();                                   break;
+    case eFunction:       aIsType = args[aArgN]->IsFunction();                               break;
     default: { std::string aEx("incorrect signature member: "); aEx += (char)(signature[aSigN] + '0'); throw aEx; }
     }
 
@@ -76,6 +77,7 @@ static std::string generateSignatureString(int signature[]) {
     case eBuffer:         aStr += "Buffer";   break;
     case eObjectDatabase: aStr += "Database"; break;
     case eObjectStem:     aStr += "Stem";     break;
+    case eObjectRSet:     aStr += "RSet";     break;
     case eObjectDocument: aStr += "Document"; break;
     case eNull:           aStr += "null";     break;
     case eFunction:       aStr += "function"; break;

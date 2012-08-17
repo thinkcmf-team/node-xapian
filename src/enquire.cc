@@ -14,7 +14,6 @@ void Enquire::Init(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_query", GetQuery);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_description", GetDescription);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset", GetMset);
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_mset_sync", GetMset);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "set_parameters", SetParameters);
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "get_matching_terms", GetMatchingTerms);
 
@@ -107,17 +106,19 @@ Handle<Value> Enquire::GetDescription(const Arguments& args) {
 }
 
 
+static int kGetMset[] = { eUint32, eUint32, -eUint32, -eObjectRSet, -eFunction, eEnd };
 Handle<Value> Enquire::GetMset(const Arguments& args) {
   HandleScope scope;
-  bool aAsync = args.Length() == 3 && args[2]->IsFunction();
-  if (args.Length() != +aAsync+2 || !args[0]->IsUint32() || !args[1]->IsUint32())
-    return ThrowException(Exception::TypeError(String::New("arguments are (number, number, [function])")));
+  int aOpt[3];
+  RSet* aRs = NULL;
+  if (!checkArguments(kGetMset, args, aOpt) || (aOpt[1] > 0 && !(aRs = GetInstance<RSet>(args[aOpt[1]]))))
+    return throwSignatureErr(kGetMset);
 
-  GetMset_data* aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value()); //deleted by GetMset_convert on non error
+  GetMset_data* aData = new GetMset_data(args[0]->Uint32Value(), args[1]->Uint32Value(), aOpt[1] < 0 ? 0 : args[aOpt[1]]->Uint32Value(), aRs); //deleted by GetMset_convert on non error
 
   Handle<Value> aResult;
   try {
-    aResult = invoke<Enquire>(aAsync, args, (void*)aData, GetMset_process, GetMset_convert);
+    aResult = invoke<Enquire>(aOpt[2] >= 0, args, (void*)aData, GetMset_process, GetMset_convert);
   } catch (Handle<Value> ex) {
     delete aData;
     return ThrowException(ex);
@@ -129,7 +130,7 @@ Handle<Value> Enquire::GetMset(const Arguments& args) {
 void Enquire::GetMset_process(void* pData, void* pThat) {
   GetMset_data* data = (GetMset_data*) pData;
   Enquire* that = (Enquire *) pThat;
-  Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems);
+  Xapian::MSet aSet = that->mEnq.get_mset(data->first, data->maxitems, data->checkatleast, data->omrset ? &data->omrset->mRSet : NULL);
   data->set = new GetMset_data::Item[aSet.size()];
   data->size = 0;
   for (Xapian::MSetIterator a = aSet.begin(); a != aSet.end(); ++a, ++data->size) {

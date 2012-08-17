@@ -128,6 +128,7 @@ enum ArgumentType {
   eBuffer,
   eObjectDatabase,
   eObjectStem,
+  eObjectRSet,
   eObjectDocument,
   eNull,
   eFunction
@@ -244,6 +245,33 @@ protected:
 };
 
 
+class RSet : public XapWrap<RSet> {
+public:
+  static void Init(Handle<Object> target);
+
+  static Persistent<FunctionTemplate> constructor_template;
+
+  Xapian::RSet mRSet;
+
+  static void Generic_process(void* data, void* that);
+  static Handle<Value> Generic_convert(void* data);
+
+protected:
+  RSet() : mRSet() { }
+  ~RSet() { }
+
+  static Handle<Value> New(const Arguments& args);
+
+  static Handle<Value> GetDescription(const Arguments& args);
+  static Handle<Value> Size(const Arguments& args);
+  static Handle<Value> Empty(const Arguments& args);
+  static Handle<Value> AddDocument(const Arguments& args);
+  static Handle<Value> RemoveDocument(const Arguments& args);
+  static Handle<Value> Contains(const Arguments& args);
+
+};
+
+
 class Enquire : public XapWrap<Enquire> {
 public:
   static void Init(Handle<Object> target);
@@ -265,9 +293,10 @@ protected:
   static Handle<Value> GetDescription(const Arguments& args);
 
   struct GetMset_data {
-    GetMset_data(uint32_t fi, uint32_t mx): first(fi), maxitems(mx), set(NULL) {}
-    ~GetMset_data() { if (set) delete [] set; }
-    Xapian::doccount first, maxitems;
+    GetMset_data(uint32_t fi, uint32_t mx, uint32_t ca, RSet* rs): first(fi), maxitems(mx), checkatleast(ca), omrset(rs), set(NULL) { if (omrset) omrset->AddReference(); }
+    ~GetMset_data() { if (set) delete [] set; if (omrset) omrset->RemoveReference();}
+    Xapian::doccount first, maxitems, checkatleast;
+    RSet* omrset;
     struct Item {
       Xapian::docid id;
       Xapian::Document* document;
@@ -536,33 +565,6 @@ protected:
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> GetDescription(const Arguments& args);
   static Handle<Value> GetAvailableLanguages(const Arguments& args);
-};
-
-
-class RSet : public XapWrap<RSet> {
-public:
-  static void Init(Handle<Object> target);
-
-  static Persistent<FunctionTemplate> constructor_template;
-
-  Xapian::RSet mRSet;
-
-  static void Generic_process(void* data, void* that);
-  static Handle<Value> Generic_convert(void* data);
-
-protected:
-  RSet() : mRSet() { }
-  ~RSet() { }
-
-  static Handle<Value> New(const Arguments& args);
-
-  static Handle<Value> GetDescription(const Arguments& args);
-  static Handle<Value> Size(const Arguments& args);
-  static Handle<Value> Empty(const Arguments& args);
-  static Handle<Value> AddDocument(const Arguments& args);
-  static Handle<Value> RemoveDocument(const Arguments& args);
-  static Handle<Value> Contains(const Arguments& args);
-
 };
 
 

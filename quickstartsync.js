@@ -56,7 +56,7 @@ function fRead() {
   console.log("Performing query [" + query.description + "]");
   enquire.set_query(query); // assumes no i/o
 
-  var mset=enquire.get_mset_sync(0, 10);
+  var mset=enquire.get_mset(0, 10);
   console.log(mset.length + " results found");
   console.log(require('util').inspect(mset));
   iter(0);

@@ -202,7 +202,7 @@ Enquire
         flags: TODO
 *    get_matching_terms (uint32_did, [uint32_first], [uint32_maxitems], [function]) - return an array of { tname: string, wdf: uint32, termfreq: uint32, description: string } (TermIterator)
         Get terms which match a given document, by document id. 
-?    get_mset(uint32_first, uint32_maxitems, uint32_checkatleast=0, object_omrset=null) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
+*    get_mset(uint32_first, uint32_maxitems, [uint32_checkatleast=0], [object_omrset=null], [function]) - return an array of { document: object_document, id: uint32, rank: uint32,  collapse_count: uint32, weight: number, collapse_key: string, description: string, percent: int32 } (MSet)
         Get (a portion of) the match set for the current query.
 ```
 Query
