@@ -9,7 +9,6 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
 #include <node_buffer.h>
 
 using namespace v8;
@@ -24,7 +23,10 @@ T* GetInstance(Handle<Value> val) {
   return NULL;
 }
 
-void sendToThreadPool(void* execute, void* done, void* data);
+typedef void (*FuncPool) (uv_work_t* req);
+typedef void (*FuncDone) (uv_work_t* req, int );
+
+void sendToThreadPool(FuncPool execute, FuncDone done, void* data);
 
 extern Persistent<String> kBusyMsg;
 
@@ -32,11 +34,11 @@ struct AsyncOpBase {
   AsyncOpBase(Handle<Function> cb)
     : callback(), error(NULL) {
     callback = Persistent<Function>::New(cb);
-    ev_ref(EV_DEFAULT_UC);
+//    ev_ref(EV_DEFAULT_UC); //FIX check to see if still necessary
   }
   virtual ~AsyncOpBase() {
     if (error) delete error;
-    ev_unref(EV_DEFAULT_UC);
+//    ev_unref(EV_DEFAULT_UC); //FIX check to see if still necessary
     callback.Dispose();
   }
   Persistent<Function> callback;
@@ -68,7 +70,7 @@ struct AsyncOp : public AsyncOpBase {
 };
 
 template<class T>
-int async_pool(eio_req* req) {
+void async_pool(uv_work_t* req) {
   AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   try {
     (*aAsOp->process)(aAsOp->data, aAsOp->object);
@@ -76,11 +78,11 @@ int async_pool(eio_req* req) {
     aAsOp->error = new Xapian::Error(err);
   }
   aAsOp->object->mBusy = false;
-  return 0;
+  return;
 }
 
 template<class T>
-int async_done(eio_req* req) {
+void async_done(uv_work_t* req, int) {
   HandleScope scope;
   AsyncOp<T>* aAsOp = (AsyncOp<T>*)req->data;
   Handle<Value> aArgv[2];
@@ -92,7 +94,8 @@ int async_done(eio_req* req) {
   }
   tryCallCatch(aAsOp->callback, aAsOp->object->handle_, aAsOp->error ? 1 : 2, aArgv);
   delete aAsOp;
-  return 0;
+  delete req;
+  return;
 }
 
 template<class T>
@@ -103,9 +106,7 @@ Handle<Value> invoke(bool async, const Arguments& args, void* data, FuncProcess 
   if (async) {
     that->mBusy = true;
     AsyncOp<T>* aAsOp = new AsyncOp<T>(that, Local<Function>::Cast(args[args.Length()-1]), data, process, convert);
-    int (*aPool)(eio_req*) = async_pool<T>;
-    int (*aDone)(eio_req*) = async_done<T>;
-    sendToThreadPool((void*)aPool, (void*)aDone, aAsOp);
+    sendToThreadPool(async_pool<T>, async_done<T>, aAsOp);
     return Undefined();
   } else {
     try {
@@ -241,7 +242,7 @@ protected:
 
   friend struct AsyncOp<T>;
   friend Handle<Value> invoke<T>(bool async, const Arguments& args, void* data, FuncProcess process, FuncConvert convert);
-  friend int async_pool<T>(eio_req* req);
+  friend void async_pool<T>(uv_work_t* req);
 };
 
 

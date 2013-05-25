@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
 #include <node_buffer.h>
 
 #include "node-xapian.h"
@@ -24,8 +23,10 @@ void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<
     FatalException(try_catch);
 }
 
-void sendToThreadPool(void* execute, void* done, void* data){
-  eio_custom((eio_cb) execute, EIO_PRI_DEFAULT, (eio_cb) done, data);
+void sendToThreadPool(FuncPool execute, FuncDone done, void* data){
+  uv_work_t* aReq = new uv_work_t;
+  aReq->data = data;
+  uv_queue_work(uv_default_loop(), aReq, execute, done);
 }
 
 bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
@@ -126,8 +127,8 @@ protected:
   static Handle<Value> New(const Arguments& args);
 
   static Handle<Value> Convert(const Arguments& args);
-  static int Convert_pool(eio_req* req);
-  static int Convert_done(eio_req* req);
+  static void Convert_pool(uv_work_t* req);
+  static void Convert_done(uv_work_t* req, int);
   struct Convert_data : AsyncOp<Mime2Text> {
     Convert_data(Handle<Object> ob, Handle<Function> cb, Handle<String> fi, Handle<Value> ty)
       : AsyncOp<Mime2Text>(ob, cb), filename(fi), type(ty->IsString() ? ty : Handle<Value>()) {}
@@ -138,8 +139,8 @@ protected:
 };
 
 static Handle<Value> AssembleDocument(const Arguments& args);
-static int Main_pool(eio_req* req);
-static int Main_done(eio_req* req);
+static void Main_pool(uv_work_t* req);
+static void Main_done(uv_work_t* req, int);
 struct Main_data : public AsyncOpBase {
   Main_data(Handle<Function> cb, Xapian::Document* doc, TermGenerator* tg, String::Utf8Value** tl, Mime2Text* m2t, Handle<Value> p, Handle<Value> m)
     : AsyncOpBase(cb), document(doc), termgen(tg), textlist(tl), mime2text(m2t), path(p), mimetype(m) {
@@ -216,12 +217,14 @@ Handle<Value> Mime2Text::Convert(const Arguments& args) {
     return ThrowException(ex);
   }
 
-  eio_custom(Convert_pool, EIO_PRI_DEFAULT, Convert_done, aData);
+  uv_work_t* aReq = new uv_work_t;
+  aReq->data = aData;
+  uv_queue_work(uv_default_loop(), aReq, Convert_pool, Convert_done);
 
   return Undefined();
 }
 
-int Mime2Text::Convert_pool(eio_req* req) {
+void Mime2Text::Convert_pool(uv_work_t* req) {
   Convert_data* aData = (Convert_data*) req->data;
 
   try {
@@ -235,10 +238,10 @@ int Mime2Text::Convert_pool(eio_req* req) {
     aData->error = new Xapian::Error(err);
   }
 
-  return 0;
+  return;
 }
 
-int Mime2Text::Convert_done(eio_req* req) {
+void Mime2Text::Convert_done(uv_work_t* req, int) {
   HandleScope scope;
 
   Convert_data* aData = (Convert_data*) req->data;
@@ -263,8 +266,9 @@ int Mime2Text::Convert_done(eio_req* req) {
   tryCallCatch(aData->callback, aData->object->handle_, aData->error ? 1 : 2, argv);
 
   delete aData;
+  delete req;
 
-  return 0;
+  return;
 }
 
 
@@ -367,12 +371,14 @@ static Handle<Value> AssembleDocument(const Arguments& args) {
 
   Main_data* aData = new Main_data(Local<Function>::Cast(args[3]), new Xapian::Document(aDoc), aTg, aTextList, aM2t, aPath, aMime);
 
-  eio_custom(Main_pool, EIO_PRI_DEFAULT, Main_done, aData);
+  uv_work_t* aReq = new uv_work_t;
+  aReq->data = aData;
+  uv_queue_work(uv_default_loop(), aReq, Main_pool, Main_done);
 
   return Undefined();
 }
 
-static int Main_pool(eio_req* req) {
+static void Main_pool(uv_work_t* req) {
   Main_data* aData = (Main_data*) req->data;
 
   try {
@@ -409,10 +415,10 @@ static int Main_pool(eio_req* req) {
     aData->error = new Xapian::Error(err);
   }
 
-  return 0;
+  return;
 }
 
-static int Main_done(eio_req* req) {
+static void Main_done(uv_work_t* req, int) {
   HandleScope scope;
 
   Main_data* aData = (Main_data*) req->data;
@@ -430,8 +436,9 @@ static int Main_done(eio_req* req) {
   tryCallCatch(aData->callback, Context::GetCurrent()->Global(), aData->error ? 1 : 2, argv);
 
   delete aData;
+  delete req;
 
-  return 0;
+  return;
 }
 
 
