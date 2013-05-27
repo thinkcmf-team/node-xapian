@@ -180,6 +180,8 @@ void init (Handle<Object> target) {
   target->Set(String::NewSymbol("assemble_document"), FunctionTemplate::New(AssembleDocument)->GetFunction());
 }
 
+NODE_MODULE(xapian_binding, init);
+
 Persistent<FunctionTemplate> Mime2Text::constructor_template;
 
 void Mime2Text::Init(Handle<Object> target) {
