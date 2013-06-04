@@ -26,24 +26,29 @@ T* GetInstance(Handle<Value> val) {
 typedef void (*FuncPool) (uv_work_t* req);
 typedef void (*FuncDone) (uv_work_t* req, int );
 
-void sendToThreadPool(FuncPool execute, FuncDone done, void* data);
-
 extern Persistent<String> kBusyMsg;
 
 struct AsyncOpBase {
   AsyncOpBase(Handle<Function> cb)
-    : callback(), error(NULL) {
+    : watcherHandle(NULL), callback(), error(NULL) {
     callback = Persistent<Function>::New(cb);
-//    ev_ref(EV_DEFAULT_UC); //FIX check to see if still necessary
   }
   virtual ~AsyncOpBase() {
     if (error) delete error;
-//    ev_unref(EV_DEFAULT_UC); //FIX check to see if still necessary
+    if (watcherHandle != NULL)
+      uv_unref((uv_handle_t*) watcherHandle);
     callback.Dispose();
   }
+  void RefUv(uv_work_t*& p) {
+    uv_ref((uv_handle_t*) &p);
+    watcherHandle = p;
+  }
+  uv_work_t* watcherHandle;
   Persistent<Function> callback;
   Xapian::Error* error;
 };
+
+void sendToThreadPool(FuncPool execute, FuncDone done, AsyncOpBase* data);
 
 typedef void (*FuncProcess) (void* data, void* that);
 typedef Handle<Value> (*FuncConvert) (void* data);

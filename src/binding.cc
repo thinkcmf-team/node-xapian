@@ -23,10 +23,13 @@ void tryCallCatch(Handle<Function> fn, Handle<Object> context, int argc, Handle<
     FatalException(try_catch);
 }
 
-void sendToThreadPool(FuncPool execute, FuncDone done, void* data){
+void sendToThreadPool(FuncPool execute, FuncDone done, AsyncOpBase* data){
   uv_work_t* aReq = new uv_work_t;
   aReq->data = data;
+
   uv_queue_work(uv_default_loop(), aReq, execute, done);
+
+  data->RefUv(aReq);
 }
 
 bool checkArguments(int signature[], const Arguments& args, int optionals[]) {
