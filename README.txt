@@ -1,4 +1,4 @@
-For Node v0.4.x
+For Node v0.10.x
 
 Mirrors Xapian API closely, except:
   Enquire::get_mset() returns an Array, not an iterator
@@ -14,13 +14,9 @@ Classes
   Query
   Document
   Mime2Text
+  
+Documentation in docs.md
 
 Mime2Text surfaces a proposed Xapian patch from
   https://github.com/networkimprov/xapian/commits/liam_mime2text-lib
   that patch is included here as an x86 Linux binary, libmime2text.a
-
-Todo:
-
-Update for Node v0.6
-
-Support more Query constructor variants
