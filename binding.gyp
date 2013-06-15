@@ -7,7 +7,9 @@
       'link_settings': {
         'libraries': [ '<!(xapian-config --libs)', '../libmime2text.a' ]
       },
-      'cflags_cc': [ '<!(xapian-config --cxxflags)', '-fexceptions', "-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"] #FIX: check to see which flags to keep
+      'cflags_cc': [ '<!(xapian-config --cxxflags)', "-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"],
+      'cflags!': [ '-fno-exceptions' ],
+      'cflags_cc!': [ '-fno-exceptions' ]
     }
   ]
 }
